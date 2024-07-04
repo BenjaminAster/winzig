@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../src/index.ts"],"names":[],"mappings":"AACA,MAAM,CAAC,MAAM,IAAI,GAAG,GAAG,EAAE,CAAC,OAAO,CAAC,GAAG,CAAC,gCAAgC,CAAC,CAAC","sourcesContent":["\nexport const asdf = () => console.log(\"hello from winzig/src/index.ts\");\n"]}

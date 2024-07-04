@@ -1,0 +1,12 @@
+{
+	"name": "winzig",
+	"version": "0.0.1",
+	"type": "module",
+	"bin": "./dist/cli.js",
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "tsc --build",
+		"build:watch": "tsc --build --watch",
+		"cli": "node ./dist/cli.js"
+	}
+}

@@ -1,0 +1,2 @@
+console.info(123);const o=o=>console.log(o),e=o=>{let e=1;for(let t=1;t<=o;t++)e*=t;return e},t=(o,e)=>o+e,l=(o,e)=>o-e,r=(o,e)=>o*e,n=(o,e)=>o/e,s=(o,e)=>o%e,f=(o,e)=>o**e,c=o=>Math.sqrt(o),a=o=>{let e=0,t=1;for(let l=0;l<o;l++)[e,t]=[t,e+t];return e};console.log("asdfasdf");export{o as a,n as divide,e as factorial,a as fibonacci,s as modulo,r as multiply,f as pow,c as sqrt,l as subtract,t as sum};
+//# sourceMappingURL=index.js.map

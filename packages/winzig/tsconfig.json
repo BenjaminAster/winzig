@@ -15,10 +15,11 @@
 		"isolatedModules": true,
 		"allowArbitraryExtensions": true,
 		"resolveJsonModule": true,
-		"allowSyntheticDefaultImports": false,
+		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": false,
 		"verbatimModuleSyntax": true,
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"types": ["@types/babel__core", "@types/node"],
+		"noEmitOnError": false,
 	},
 }

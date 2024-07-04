@@ -20,7 +20,15 @@
 
 	<!-- <link rel="stylesheet" href="./main.css" /> -->
 
-	<script type="module" src="./built/index.js"></script>
+	<script type="importmap">
+		{
+			"imports": {
+				"$appfiles/winzig/jsx-runtime.js": "./appfiles/winzig/jsx-runtime.123abc.js"
+			}
+		}
+	</script>
+
+	<script type="module" src="./appfiles/index.123abc.js"></script>
 
 	<style>
 		:root {

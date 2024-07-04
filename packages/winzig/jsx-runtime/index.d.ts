@@ -4,7 +4,9 @@ export namespace JSX {
 
 	interface IntrinsicElements {
 		div: {
-			id: string;
+			id?: string;
 		}
 	}
 }
+
+export const jsx: any;

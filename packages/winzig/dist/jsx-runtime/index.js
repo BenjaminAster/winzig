@@ -3,5 +3,5 @@ export const jsx = (...args) => {
     return [...args];
 };
 export const jsxs = jsx;
-console.log("hello from jsx-runtime/index.ts!");
+console.log("hello from winzig/src/jsx-runtime/index.ts");
 //# sourceMappingURL=index.js.map

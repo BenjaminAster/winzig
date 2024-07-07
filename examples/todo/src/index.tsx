@@ -1,5 +1,9 @@
 
-import { c } from "./imported.tsx";
+/* 
+winzig -o=.
+*/
+
+import { c } from "./imported/test.tsx";
 
 c();
 
@@ -11,7 +15,7 @@ console.log(b);
 
 console.log(<div id="hello">hello world!</div>);
 
-export const a = (/** @type {string} */ message) => console.log(message);
+export const a = (message: string) => console.log(message);
 
 export const factorial = (n) => {
 	let result = 1;

@@ -1,0 +1,6 @@
+{
+	"type": "module",
+	"dependencies": {
+		"winzig": "^0.0.1"
+	}
+}

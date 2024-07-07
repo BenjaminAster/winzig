@@ -10,25 +10,14 @@ import babelPluginJsxDomExpressions from "babel-plugin-jsx-dom-expressions";
 import babelPluginTransformReactJsx from "@babel/plugin-transform-react-jsx";
 // import babelPluginTransformReactJsx from "@babel/plugin-transform-react-jsx-self";
 import babelPresetTypeScript from "@babel/preset-typescript";
-// console.log(babelPresetTypeScript.default);
-// const typescript = typescriptModule.default;
-// console.log(typescript);
+import { JSDOM } from "jsdom";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-// import * as url from "node:url";
-// console.log("Hello, world!");
-// console.log(rollup);
-// console.log(new URL("../../../examples/todo/src/index.tsx", import.meta.url))
-// const resolve = (url: string, base: string) => decodeURI(new URL(url, base).pathname);
-// console.log(resolve("./", import.meta.url), resolve("../../../examples/todo/src/index.tsx", import.meta.url));
-// console.log(path.resolve("../../../examples/todo/src/index.tsx", import.meta.dirname));
-// console.log(path.resolve(import.meta.dirname, "../../../examples/todo/src/index.tsx"));
-// console.log(import.meta.dirname);
 const build = await rollup({
     input: {
         // "winzig/jsx-runtime": "./testtest.js",
-        "index.123abc": path.resolve(import.meta.dirname, "../../../examples/todo/src/index.tsx"),
-        "winzig/jsx-runtime.123abc": path.resolve(import.meta.dirname, "./jsx-runtime/index.js"),
+        "index": path.resolve(process.cwd(), "./src/index.tsx"),
+        "winzig/jsx-runtime": path.resolve(import.meta.dirname, "./jsx-runtime/index.js"),
     },
     external: ["winzig/jsx-runtime"],
     plugins: [
@@ -66,21 +55,14 @@ const build = await rollup({
                 wrap_func_args: false,
                 wrap_iife: false,
             },
-            mangle: {
-            // reserved: ["x", "y"],
-            },
             ecma: 2020,
-            // sourceMap: {
-            // 	// content: output.map as any,
-            // },
+            sourceMap: true,
         }),
     ],
     logLevel: "debug",
 });
 const { output } = await build.generate({
     compact: true,
-    // dir: "../../examples/todo/built/",
-    // esModule: true,
     sourcemap: true,
     generatedCode: {
         preset: "es2015",
@@ -93,27 +75,60 @@ const { output } = await build.generate({
     paths: {
         "winzig/jsx-runtime": "$appfiles/winzig/jsx-runtime.js",
     },
+    chunkFileNames: "[name].[hash:8].js",
+    entryFileNames: "[name].[hash:8].js",
+    hashCharacters: "base36",
 });
 await build.close();
-// console.log(output);
-// console.log(output);
-// const { code } = output;
-// console.log(code);
-// const minified = await terser.minify([code], {
-// });
-// const minified = output;
-// console.log(minified, minified.map);
-// const minifiedCode = minified.code + "\n//# sourceMappingURL=index.js.map";
-// console.log(process.argv.slice(2), new URL("./asdf.js", import.meta.url).href, process.cwd());
-await fs.mkdir("../../examples/todo/appfiles/", { recursive: true });
-await Promise.all((await fs.readdir("../../examples/todo/appfiles/", { withFileTypes: true })).map(async (entry) => {
-    await fs.rm(path.join("../../examples/todo/appfiles/", entry.name), { force: true, recursive: true });
+await fs.mkdir(path.resolve(process.cwd(), "./appfiles/"), { recursive: true });
+await Promise.all((await fs.readdir(path.resolve(process.cwd(), "./appfiles/"), { withFileTypes: true })).map(async (entry) => {
+    await fs.rm(path.join(path.resolve(process.cwd(), "./appfiles/"), entry.name), { force: true, recursive: true });
 }));
-await fs.mkdir("../../examples/todo/appfiles/winzig/", { recursive: true });
-for (const entry of output) {
-    // @ts-ignore
-    await fs.writeFile(path.join("../../examples/todo/appfiles/", entry.fileName), entry.code ?? entry.source, { encoding: "utf-8" });
+await fs.mkdir(path.resolve(process.cwd(), "./appfiles/winzig/"), { recursive: true });
+let importMap = new Map();
+let entryFilePath;
+let modulePreloadPaths = [];
+for (const file of output) {
+    await fs.writeFile(path.resolve(process.cwd(), path.join("./appfiles/", file.fileName)), file.type === "chunk" ? file.code : file.source, { encoding: "utf-8" });
+    if (file.type === "chunk") {
+        importMap.set(`$appfiles/${file.name}.js`, `./appfiles/${file.fileName}`);
+        if (file.name === "index") {
+            entryFilePath = `./appfiles/${file.fileName}`;
+        }
+        else {
+            modulePreloadPaths.push(`./appfiles/${file.fileName}`);
+        }
+    }
 }
-// await fs.writeFile("../../examples/todo/appfiles/index.123abc.js", output.code, { encoding: "utf-8" });
-// await fs.writeFile("../../examples/todo/appfiles/index.123abc.js.map", output.map.toString(), { encoding: "utf-8" });
+{
+    const html = await fs.readFile(path.resolve(process.cwd(), "./src/index.html"), { encoding: "utf-8" });
+    const dom = new JSDOM(html);
+    const doc = dom.window.document;
+    doc.head.append("\n\t");
+    {
+        const importMapElement = doc.createElement("script");
+        importMapElement.setAttribute("type", "importmap");
+        const stringifiedImportMap = JSON.stringify({ imports: Object.fromEntries(importMap) }, null, "\t");
+        importMapElement.textContent = `\n\t\t${stringifiedImportMap.replaceAll("\n", "\n\t\t")}\n\t`;
+        doc.head.append(importMapElement);
+    }
+    doc.head.append("\n\t");
+    {
+        const scriptElement = doc.createElement("script");
+        scriptElement.setAttribute("type", "module");
+        scriptElement.setAttribute("src", entryFilePath);
+        doc.head.append(scriptElement);
+    }
+    for (const path of modulePreloadPaths) {
+        doc.head.append("\n\t");
+        const linkElement = doc.createElement("link");
+        linkElement.setAttribute("rel", "modulepreload");
+        linkElement.setAttribute("href", path);
+        doc.head.append(linkElement);
+    }
+    doc.head.append("\n");
+    doc.documentElement.prepend("\n");
+    doc.documentElement.append("\n");
+    await fs.writeFile(path.resolve(process.cwd(), "./index.html"), `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`, { encoding: "utf-8" });
+}
 //# sourceMappingURL=cli.js.map

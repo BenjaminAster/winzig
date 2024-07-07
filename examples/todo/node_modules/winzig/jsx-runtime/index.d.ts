@@ -9,4 +9,4 @@ export namespace JSX {
 	}
 }
 
-export const jsx: any;
+// export const jsx: any;

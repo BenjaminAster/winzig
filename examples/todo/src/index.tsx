@@ -1,11 +1,15 @@
 
+import { c } from "./imported.tsx";
+
+c();
+
 console.info(123);
 
-let b: number = "hesadfllo";
+let b: string = "hesadfllo";
 
 console.log(b);
 
-console.log(<div id="hi">hello world!</div>);
+console.log(<div id="hello">hello world!</div>);
 
 export const a = (/** @type {string} */ message) => console.log(message);
 

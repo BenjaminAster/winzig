@@ -4,4 +4,6 @@ export const jsx = (...args) => {
 	return [...args];
 };
 
-console.log("hello from jsx-runtime/index.ts");
+export const jsxs = jsx;
+
+console.log("hello from jsx-runtime/index.ts!");

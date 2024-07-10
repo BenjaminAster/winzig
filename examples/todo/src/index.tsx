@@ -1,51 +1,67 @@
 
-/* 
-winzig -o=.
+/*
+To compile this project, run this command:
+winzig
 */
 
 import { c } from "./imported/test.tsx";
 
+import { css } from "winzig";
+
 c();
 
-console.info(123);
+const ToDo = () => {
+	let todos = ["hi", "ho", "ha"];
+	let fg = "khaki";
+	let bg = "navy";
+	const UL = <ul></ul>;
+	const rerender = () => {
+		UL.innerHTML = "";
+		UL.append(...todos.map((todo, i) =>
+			<li>
+				{todo} <button on:click={() => { todos.splice(i, 1); rerender(); }}>&cross;</button>
+				{css`
+					& {
+						color: ${fg};
+						background-color: ${bg};
+					}
+				`}
+			</li>
+		));
+	};
+	rerender();
 
-let b: string = "hesadfllo";
+	return <>
+		<UL />
 
-console.log(b);
+		<form on:submit_preventDefault={function () {
+			todos.push(this.elements.todo.value);
+			rerender();
+			this.elements.todo.value = "";
+		}}>
+			New ToDo item: {" "}
+			<input type="text" name="todo" /> {" "}
+			<button>&check; {8}</button>
 
-console.log(<div id="hello">hello world!</div>);
+			{css`
+				& {
+					font-style: italic;
+				}
 
-export const a = (message: string) => console.log(message);
+				button {
+					border: 4px solid green;
+					background: #8886;
+				}
+			`}
+		</form>
 
-export const factorial = (n) => {
-	let result = 1;
-	for (let i = 1; i <= n; i++) {
-		result *= i;
-	}
-	return result;
+		{css`
+			& {
+				color: red;
+			}
+		`}
+	</>;
 };
 
-export const sum = (a, b) => a + b;
+document.body.append(<ToDo />);
 
-export const subtract = (a, b) => a - b;
-
-export const multiply = (a, b) => a * b;
-
-export const divide = (a, b) => a / b;
-
-export const modulo = (a, b) => a % b;
-
-export const pow = (a, b) => a ** b;
-
-export const sqrt = (a) => Math.sqrt(a);
-
-export const fibonacci = (n) => {
-	let a = 0;
-	let b = 1;
-	for (let i = 0; i < n; i++) {
-		[a, b] = [b, a + b];
-	}
-	return a;
-};
-
-console.log("asdfasdf");

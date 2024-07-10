@@ -43,16 +43,17 @@ for (let i = 2; i < process.argv.length; i++) {
 }
 
 const appfilesFolderPath = cmdArgs.get("appfiles") as string || "./appfiles/";
-const outputFolderPath = cmdArgs.get("output") as string || "./build/";
+const outputFolderPath = cmdArgs.get("output") as string || "./";
 
 const buildProject = async () => {
 	const build = await rollup({
 		input: {
 			// "winzig/jsx-runtime": "./testtest.js",
 			"index": path.resolve(process.cwd(), "./src/index.tsx"),
-			"winzig/jsx-runtime": path.resolve(import.meta.dirname, "../src/jsx-runtime/index.ts"),
+			"winzig-runtime": path.resolve(import.meta.dirname, "../runtime/all.ts"),
+			// "winzig": path.resolve(import.meta.dirname, "../runtime/all.ts"),
 		},
-		external: ["winzig/jsx-runtime"],
+		external: ["winzig/jsx-runtime", "winzig"],
 		plugins: [
 			babel({
 				presets: [
@@ -70,6 +71,9 @@ const buildProject = async () => {
 					[babelPluginTransformReactJsx, {
 						runtime: "automatic",
 						importSource: "winzig",
+						throwIfNamespace: false,
+						// useSpread: true,
+						// useBuiltIns: true,
 						// pragma: "createElement",
 						// pragmaFrag: "Fragment",
 					}],
@@ -80,7 +84,7 @@ const buildProject = async () => {
 			terser({
 				module: true,
 				compress: {
-					passes: 3,
+					passes: 1,
 					unsafe_math: true,
 				},
 				format: {
@@ -109,7 +113,8 @@ const buildProject = async () => {
 			symbols: true,
 		},
 		paths: {
-			"winzig/jsx-runtime": "$appfiles/winzig/jsx-runtime.js",
+			"winzig/jsx-runtime": "$appfiles/winzig-runtime.js",
+			"winzig": "$appfiles/winzig-runtime.js",
 		},
 		chunkFileNames: "[name].[hash:8].js",
 		entryFileNames: "[name].[hash:8].js",
@@ -172,6 +177,16 @@ const buildProject = async () => {
 			linkElement.setAttribute("href", path);
 			doc.head.append(linkElement);
 		}
+		doc.head.append("\n\t");
+		{
+			const style = doc.createElement("style");
+			style.textContent = [
+				`wz-frag {`,
+				`	display: contents;`,
+				`}`,
+			].map(line => "\n\t\t" + line).join("") + "\n\t";
+			doc.head.append(style);
+		}
 		doc.head.append("\n");
 
 		doc.documentElement.prepend("\n");
@@ -191,11 +206,7 @@ if (cmdArgs.get("watch")) {
 		for await (const { filename, eventType } of fs.watch(path.resolve(process.cwd(), "./src/"), { recursive: true })) {
 			if (performance.now() - lastChangeTime < 500) continue;
 			lastChangeTime = performance.now();
-			if (eventType === "change") {
-				console.info(`File change detected (${filename.replaceAll("\\", "/")}), rebuilding...`);
-			} else if (eventType === "rename") {
-				console.info(`File rename detected (${filename.replaceAll("\\", "/")}), rebuilding...`);
-			}
+			console.info(`File ${eventType} detected (${filename.replaceAll("\\", "/")}), rebuilding...`);
 			await buildProject();
 			console.info("Rebuilt!");
 		}

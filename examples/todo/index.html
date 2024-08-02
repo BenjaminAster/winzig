@@ -6,13 +6,15 @@
 	<meta name="robots" content="all">
 	<meta name="color-scheme" content="dark light">
 	<meta name="author" content="Benjamin Aster">
-	<!-- <meta name="description" content="DESCRIPTION" /> -->
+	<meta name="description" content="Winzig ToDo App Example">
 	<!-- <meta property="og:image" content="https://benjaminaster.com/NAME/assets/icon.png" /> -->
 	<!-- <meta name="twitter:card" content="summary_large_image" /> -->
 	<!-- <link rel="code-repository" href="https://github.com/BenjaminAster/NAME" /> -->
 	<!-- <link rel="canonical" href="https://benjaminaster.com/NAME/" /> -->
 
 	<title>Winzig ToDo App</title>
+	<meta property="og:title" content="Winzig ToDo App">
+
 	<!-- <link rel="icon" href="./assets/icon.svg" type="image/svg+xml" sizes="any" /> -->
 	<!-- <link rel="icon" href="./assets/icon.png" type="image/png" sizes="512x512" /> -->
 	<!-- <link rel="manifest" href="./app.webmanifest" /> -->
@@ -26,9 +28,8 @@
 			font-size-adjust: cap-height from-font;
 			overflow-wrap: break-word;
 			line-height: 1.5;
-			scrollbar-color: #8885 transparent;
+			scrollbar-color: light-dark(#ddd, #444) transparent;
 			background-color: Canvas;
-			touch-action: manipulation;
 			-webkit-text-size-adjust: none;
 			text-size-adjust: none;
 			-webkit-tap-highlight-color: transparent;
@@ -45,13 +46,13 @@
 	<script type="importmap">
 		{
 			"imports": {
-				"$appfiles/index.js": "./appfiles/index.bk7msj26.js",
-				"$appfiles/winzig-runtime.js": "./appfiles/winzig-runtime.bi3ka93h.js"
+				"$appfiles/index.js": "./appfiles/index.dlu81x16.js",
+				"$appfiles/winzig-runtime.js": "./appfiles/winzig-runtime.d24ogy7h.js"
 			}
 		}
 	</script>
-	<script type="module" src="./appfiles/index.bk7msj26.js"></script>
-	<link rel="modulepreload" href="./appfiles/winzig-runtime.bi3ka93h.js">
+	<script type="module" src="./appfiles/index.dlu81x16.js"></script>
+	<link rel="modulepreload" href="./appfiles/winzig-runtime.d24ogy7h.js">
 	<style>
 		wz-frag {
 			display: contents;

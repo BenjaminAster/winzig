@@ -1,5 +1,5 @@
 {
-	"extends": "winzig/tsconfig/tsconfig.base.json",
+	"extends": "winzig-types/tsconfig/tsconfig.base.json",
 	"exclude": [
 		"./appfiles/",
 	],

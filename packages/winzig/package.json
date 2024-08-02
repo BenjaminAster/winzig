@@ -3,10 +3,9 @@
 	"version": "0.0.1",
 	"type": "module",
 	"bin": "./dist/cli.js",
-	"main": "./runtime/index.ts",
 	"scripts": {
-		"build": "tsc --build ./cli/",
-		"build:watch": "tsc --build ./cli/ --watch",
+		"build": "tsc --build .",
+		"build:watch": "tsc --build . --watch",
 		"cli": "node ./dist/cli.js"
 	},
 	"devDependencies": {
@@ -15,7 +14,7 @@
 		"@rollup/plugin-terser": "^0.4.4",
 		"@rollup/plugin-babel": "^6.0.4",
 		"@babel/plugin-transform-react-jsx": "^7.24.7",
-		"@babel/plugin-preset-typescript": "^7.24.7",
+		"@babel/preset-typescript": "^7.24.7",
 		"jsdom": "^24.1.0"
 	}
 }

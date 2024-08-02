@@ -2,20 +2,27 @@
 
 import { rollup } from "rollup";
 
-import terser from "@rollup/plugin-terser";
-import babel from "@rollup/plugin-babel";
-import babelPluginTransformReactJsx from "@babel/plugin-transform-react-jsx";
+import type * as BabelCoreNamespace from "@babel/core";
+import type * as BabelTypesNamespace from "@babel/types";
+type Babel = typeof BabelCoreNamespace;
+type BabelTypes = typeof BabelTypesNamespace;
+type PluginObj = BabelCoreNamespace.PluginObj;
 
+import rollupPluginTerser from "@rollup/plugin-terser";
+import rollupPluginBabel from "@rollup/plugin-babel";
+
+/// <reference path="./types.d.ts" />
+import babelPluginTransformReactJsx from "@babel/plugin-transform-react-jsx";
 import babelPresetTypeScript from "@babel/preset-typescript";
 
 import { JSDOM } from "jsdom";
 
-import * as fs from "node:fs/promises";
+import * as FS from "node:fs/promises";
 
-import * as path from "node:path";
+import * as Path from "node:path";
 
 const cmdArgs = new Map<string, string | boolean>();
-const cmdArgsSingleLetterAliases = {
+const cmdArgsSingleLetterAliases: Record<string, string> = {
 	w: "watch",
 	o: "output",
 };
@@ -45,17 +52,45 @@ for (let i = 2; i < process.argv.length; i++) {
 const appfilesFolderPath = cmdArgs.get("appfiles") as string || "./appfiles/";
 const outputFolderPath = cmdArgs.get("output") as string || "./";
 
+// #region Babel Plugin
+
+// https://github.com/jamiebuilds/babel-handbook/blob/master/translations/en/plugin-handbook.md
+const babelPluginWinzig = (babel: Babel): PluginObj => {
+	// for (const key in babel) {
+	// 	console.log(key);
+	// }
+	return {
+		visitor: {
+			
+		},
+		// pre: (arg) => {
+		// 	console.log("-------")
+		// 	for (const key in arg) {
+		// 		console.log(key);
+		// 	}
+		// 	console.log(JSON.stringify(arg.ast));
+		// 	// console.log("pre called with args", args.length);
+		// },
+
+	};
+	// babel.
+	// console.log(babel);
+	// throw new Error("not implemented");
+};
+// #endregion
+
+// #region Builder
 const buildProject = async () => {
 	const build = await rollup({
 		input: {
 			// "winzig/jsx-runtime": "./testtest.js",
-			"index": path.resolve(process.cwd(), "./src/index.tsx"),
-			"winzig-runtime": path.resolve(import.meta.dirname, "../runtime/all.ts"),
+			"index": Path.resolve(process.cwd(), "./src/index.tsx"),
+			"winzig-runtime": Path.resolve(import.meta.dirname, "../runtime/index.ts"),
 			// "winzig": path.resolve(import.meta.dirname, "../runtime/all.ts"),
 		},
 		external: ["winzig/jsx-runtime", "winzig"],
 		plugins: [
-			babel({
+			rollupPluginBabel({
 				presets: [
 					[babelPresetTypeScript, {}],
 					// "@babel/preset-typescript",
@@ -77,11 +112,16 @@ const buildProject = async () => {
 						// pragma: "createElement",
 						// pragmaFrag: "Fragment",
 					}],
+					[babelPluginWinzig, { a: 42, b: "hello" }],
 					// babelPluginJsxDomExpressions,
 					// babelPluginTransformTypescript,
 				],
+				// ast: true,
+				// parserOpts: {
+				// 	plugins: []
+				// }
 			}),
-			terser({
+			rollupPluginTerser({
 				module: true,
 				compress: {
 					passes: 1,
@@ -98,11 +138,13 @@ const buildProject = async () => {
 		logLevel: "debug",
 	});
 
+	// console.log(build);
+
 	const { output } = await build.generate({
 		compact: true,
 		sourcemap: true,
 		sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-			return path.posix.join("../", relativeSourcePath);
+			return Path.posix.join("../", relativeSourcePath);
 		},
 		generatedCode: {
 			preset: "es2015",
@@ -123,36 +165,37 @@ const buildProject = async () => {
 
 	await build.close();
 
-	const absoluteAppfilesFolderPath = path.resolve(process.cwd(), outputFolderPath, appfilesFolderPath);
-	await fs.mkdir(absoluteAppfilesFolderPath, { recursive: true });
-	await Promise.all((await fs.readdir(absoluteAppfilesFolderPath, { withFileTypes: true })).map(async entry => {
-		await fs.rm(path.join(absoluteAppfilesFolderPath, entry.name), { force: true, recursive: true });
+	// console.log(output);
+
+	const absoluteAppfilesFolderPath = Path.resolve(process.cwd(), outputFolderPath, appfilesFolderPath);
+	await FS.mkdir(absoluteAppfilesFolderPath, { recursive: true });
+	await Promise.all((await FS.readdir(absoluteAppfilesFolderPath, { withFileTypes: true })).map(async entry => {
+		await FS.rm(Path.join(absoluteAppfilesFolderPath, entry.name), { force: true, recursive: true });
 	}));
-	await fs.mkdir(path.resolve(absoluteAppfilesFolderPath, "./winzig/"), { recursive: true });
 
 	let importMap = new Map<string, string>();
 	let entryFilePath: string;
 	let modulePreloadPaths: string[] = [];
 
 	for (const file of output) {
-		await fs.writeFile(
-			path.resolve(absoluteAppfilesFolderPath, file.fileName),
+		await FS.writeFile(
+			Path.resolve(absoluteAppfilesFolderPath, file.fileName),
 			file.type === "chunk" ? file.code : file.source,
 			{ encoding: "utf-8" }
 		);
 
 		if (file.type === "chunk") {
-			importMap.set(`$appfiles/${file.name}.js`, "./" + path.posix.join(appfilesFolderPath, file.fileName));
+			importMap.set(`$appfiles/${file.name}.js`, "./" + Path.posix.join(appfilesFolderPath, file.fileName));
 			if (file.name === "index") {
-				entryFilePath = "./" + path.posix.join(appfilesFolderPath, file.fileName);
+				entryFilePath = "./" + Path.posix.join(appfilesFolderPath, file.fileName);
 			} else {
-				modulePreloadPaths.push("./" + path.posix.join(appfilesFolderPath, file.fileName));
+				modulePreloadPaths.push("./" + Path.posix.join(appfilesFolderPath, file.fileName));
 			}
 		}
 	}
 
 	{
-		const html = await fs.readFile(path.resolve(process.cwd(), "./src/index.html"), { encoding: "utf-8" });
+		const html = await FS.readFile(Path.resolve(process.cwd(), "./src/index.html"), { encoding: "utf-8" });
 		const dom = new JSDOM(html);
 		const doc = dom.window.document;
 		doc.head.append("\n\t");
@@ -192,23 +235,30 @@ const buildProject = async () => {
 		doc.documentElement.prepend("\n");
 		doc.documentElement.append("\n");
 
-		await fs.writeFile(path.resolve(process.cwd(), outputFolderPath, "./index.html"), `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`, { encoding: "utf-8" });
+		await FS.writeFile(Path.resolve(process.cwd(), outputFolderPath, "./index.html"), `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`, { encoding: "utf-8" });
 	}
 };
 
-await buildProject();
-console.info("Built!");
+
+{
+	const startTime = performance.now();
+	await buildProject();
+	console.info(`Built in ${(performance.now() - startTime).toFixed(1)} ms.`);
+}
 
 if (cmdArgs.get("watch")) {
-	console.info(`Watching for file changes in ${path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`);
+	console.info(`Watching for file changes in ${Path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`);
 	(async () => {
 		let lastChangeTime = 0;
-		for await (const { filename, eventType } of fs.watch(path.resolve(process.cwd(), "./src/"), { recursive: true })) {
+		for await (const { filename, eventType } of FS.watch(Path.resolve(process.cwd(), "./src/"), { recursive: true })) {
 			if (performance.now() - lastChangeTime < 500) continue;
 			lastChangeTime = performance.now();
-			console.info(`File ${eventType} detected (${filename.replaceAll("\\", "/")}), rebuilding...`);
+			console.clear();
+			console.info(`File ${eventType} detected (./src/${filename.replaceAll("\\", "/")}), rebuilding...`);
 			await buildProject();
-			console.info("Rebuilt!");
+			console.info(`Rebuilt in ${(performance.now() - lastChangeTime).toFixed(1)} ms.`);
+		console.info(`Watching for file changes in ${Path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`);
 		}
 	})();
 }
+// #endregion

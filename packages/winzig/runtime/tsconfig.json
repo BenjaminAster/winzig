@@ -16,8 +16,8 @@
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": false,
 		"verbatimModuleSyntax": true,
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
-		"types": ["@types/babel__core", "@types/node"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable", "DOM.AsyncIterable"],
+		"types": [],
 		"noEmitOnError": false,
 	},
 }

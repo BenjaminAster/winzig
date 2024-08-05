@@ -6,23 +6,23 @@ const createUniqueId = () => ++currentUniqueId;
 
 const cssMap = new WeakMap<TemplateStringsArray, number>();
 
-export const CSSReference = class {
+const CSSReference = class {
 	id: number;
 	constructor(id: number) {
 		this.id = id;
 	}
 }
 
-export const jsxs = (elementTypeOrFunction: any, { children = [], ...params }) => {
+const jsx = (elementTypeOrFunction: any, params: any, ...children: any[]) => {
 	// if (!Array.isArray(children)) {
 	// 	children = [children];
 	// }
 
 	$: {
-		let element: HTMLElement;
+		let element: any;
 		if (typeof elementTypeOrFunction === "string") {
 			element = document.createElement(elementTypeOrFunction);
-			for (const [key, value] of Object.entries(params)) {
+			if (params) for (const [key, value] of Object.entries(params) as any) {
 				if (key.startsWith("on:")) {
 					const [eventName, ...modifiers] = key.slice(3).split("_");
 					element.addEventListener(
@@ -69,9 +69,10 @@ export const jsxs = (elementTypeOrFunction: any, { children = [], ...params }) =
 	}
 };
 
-export const jsx = (elementType: any, { children, ...params }) => jsxs(elementType, { children: children != null ? [children] : [], ...params });
+const Fragment = Symbol("Fragment");
 
-export const Fragment = Symbol("Fragment");
+// export { Fragment as __winzig__Fragment, createElement as __winzig__createElement };
+export { Fragment, jsx };
 
 // export * from "./index.ts";
 
@@ -111,8 +112,8 @@ interface Variable<T> extends EventTarget {
 	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 };
 
-declare var VariableConstructor: {
-	new<T>(value: T): Variable<T>;
+interface VariableConstructor {
+	new <T>(value: T): Variable<T>;
 	prototype: Variable<any>;
 };
 
@@ -129,5 +130,5 @@ export const Variable = class <T> extends EventTarget {
 		this.#value = value;
 		this.dispatchEvent(new CustomEvent("change", { detail: value }));
 	};
-} as typeof VariableConstructor;
+} as VariableConstructor;
 

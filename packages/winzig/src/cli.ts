@@ -1,39 +1,29 @@
 #!/usr/bin/env node
 
-import { rollup } from "rollup";
+import * as FS from "node:fs/promises";
+import * as Path from "node:path";
+import * as HTTP from "node:http";
+import type * as Net from "node:net";
+import * as NodeCrypto from "node:crypto";
 
-import type * as BabelCoreNamespace from "@babel/core";
-import type * as BabelTypesNamespace from "@babel/types";
-type Babel = typeof BabelCoreNamespace;
-type BabelTypes = typeof BabelTypesNamespace;
-type PluginObj = BabelCoreNamespace.PluginObj;
-
-import rollupPluginTerser from "@rollup/plugin-terser";
-import rollupPluginBabel from "@rollup/plugin-babel";
-
-/// <reference path="./types.d.ts" />
-import babelPluginTransformReactJsx from "@babel/plugin-transform-react-jsx";
-import babelPresetTypeScript from "@babel/preset-typescript";
+import * as ESBuild from "esbuild";
 
 import { JSDOM } from "jsdom";
-
-import * as FS from "node:fs/promises";
-
-import * as Path from "node:path";
 
 const cmdArgs = new Map<string, string | boolean>();
 const cmdArgsSingleLetterAliases: Record<string, string> = {
 	w: "watch",
 	o: "output",
+	d: "dev",
 };
 
 const standaloneCmdArgs: string[] = [];
 for (let i = 2; i < process.argv.length; i++) {
 	let arg = process.argv[i];
-	if (process.argv[i + 1]?.startsWith(".")) {
-		arg += process.argv[++i];
-	}
 	if (arg.startsWith("-")) {
+		if (process.argv[i + 1]?.startsWith(".") && arg.endsWith("=")) {
+			arg += process.argv[++i];
+		}
 		let [key, value = true] = arg.split("=");
 		if (key.startsWith("--")) {
 			key = key.slice(2);
@@ -51,145 +41,155 @@ for (let i = 2; i < process.argv.length; i++) {
 
 const appfilesFolderPath = cmdArgs.get("appfiles") as string || "./appfiles/";
 const outputFolderPath = cmdArgs.get("output") as string || "./";
+const devMode = cmdArgs.has("dev");
+const minify = !devMode && !cmdArgs.has("pretty");
+const watch = devMode || cmdArgs.has("watch");
+const liveReload = devMode || (watch && cmdArgs.has("live-reload"));
 
-// #region Babel Plugin
+let refreshPage: () => void;
+let webSocketPort: number;
 
-// https://github.com/jamiebuilds/babel-handbook/blob/master/translations/en/plugin-handbook.md
-const babelPluginWinzig = (babel: Babel): PluginObj => {
-	// for (const key in babel) {
-	// 	console.log(key);
-	// }
-	return {
-		visitor: {
-			
-		},
-		// pre: (arg) => {
-		// 	console.log("-------")
-		// 	for (const key in arg) {
-		// 		console.log(key);
-		// 	}
-		// 	console.log(JSON.stringify(arg.ast));
-		// 	// console.log("pre called with args", args.length);
-		// },
+if (liveReload) {
+	const magicString = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
+	const constructMessage = (message: any): Buffer => {
+		const messageBuffer = Buffer.from(JSON.stringify(message), "utf-8");
+		const messageLength = messageBuffer.length;
+
+		const shortMessage = messageLength < 126;
+		let offset = shortMessage ? 2 : 4;
+		const responseBuffer = Buffer.alloc(offset + messageLength);
+		responseBuffer[0] = 0b1000_0001;
+		if (shortMessage) {
+			responseBuffer[1] = messageLength;
+		} else {
+			responseBuffer[1] = 126;
+			responseBuffer.writeUInt16BE(messageLength, 2);
+		}
+		messageBuffer.copy(responseBuffer, offset);
+
+		return responseBuffer;
 	};
-	// babel.
-	// console.log(babel);
-	// throw new Error("not implemented");
-};
-// #endregion
+
+	const server = HTTP.createServer();
+	server.on("upgrade", (request, socket, head) => {
+		if (request.headers.upgrade !== "websocket") return;
+		const responseHead = [
+			`HTTP/1.1 101 Switching Protocols`,
+			`upgrade: websocket`,
+			`connection: Upgrade`,
+			`sec-websocket-accept: ${NodeCrypto.createHash("sha1").update(request.headers["sec-websocket-key"] + magicString).digest("base64")}`,
+		].join("\n") + "\n\n";
+		socket.write(responseHead);
+
+		refreshPage = () => socket.write(constructMessage({ type: "refresh-page", }));
+	});
+	webSocketPort = await new Promise((resolve) => {
+		server.listen({ port: 0 }, () => resolve((server.address() as Net.AddressInfo).port));
+	});
+}
 
 // #region Builder
+const absoluteAppfilesFolderPath = Path.resolve(process.cwd(), outputFolderPath, appfilesFolderPath);
+
+const nameHashSeparatorString = "$$";
+
+const winzigRuntimeDirectory = Path.resolve(import.meta.dirname, "../runtime/"); // note that import.meta is relative to `dist`, not `src`.
+
+const esBuildCommonOptions: ESBuild.BuildOptions = {
+	packages: "external",
+	splitting: false,
+	format: "esm",
+	outdir: absoluteAppfilesFolderPath,
+	sourcemap: "external",
+	bundle: true,
+	minifyIdentifiers: minify,
+	minifyWhitespace: minify,
+	metafile: true,
+	target: "esnext",
+	assetNames: `[name]${nameHashSeparatorString}[hash]`,
+	chunkNames: `[name]${nameHashSeparatorString}[hash]`,
+	entryNames: `[name]${nameHashSeparatorString}[hash]`,
+	write: false,
+	color: true,
+	tsconfigRaw: {},
+	// external: ["winzig", "winzig"],
+	alias: {
+		"winzig": "$appfiles/winzig-runtime.js",
+		"winzig/jsx-runtime": "$appfiles/winzig-runtime.js",
+	},
+};
+
+const esBuildChunksOptions: ESBuild.BuildOptions = {
+	...esBuildCommonOptions,
+	entryPoints: [
+		{
+			in: Path.resolve(process.cwd(), "./src/index.tsx"),
+			out: "index",
+		},
+	],
+	inject: [Path.resolve(winzigRuntimeDirectory, "./esbuild-import-proxy.ts")], // note that import.meta is relative to `dist`, not `src`.
+	jsx: "transform",
+	jsxFactory: "__winzig__jsx",
+	jsxFragment: "__winzig__Fragment",
+};
+
+const esBuildWinzigRuntimeOptions: ESBuild.BuildOptions = {
+	...esBuildCommonOptions,
+	entryPoints: [
+		{
+			in: Path.resolve(winzigRuntimeDirectory, "./index.ts"), // note that import.meta is relative to `dist`, not `src`.
+			out: "winzig-runtime",
+		},
+	],
+	...(liveReload ? {
+		inject: [Path.resolve(winzigRuntimeDirectory, "./dev-runtime-additions.ts")],
+		banner: {
+			"js": `let __winzig__webSocketPort = ${webSocketPort};`,
+		},
+	} : {}),
+};
+
+const [chunksBuildContext, winzigRuntimeBuildContext] = await Promise.all([ESBuild.context(esBuildChunksOptions), ESBuild.context(esBuildWinzigRuntimeOptions)]);
+
 const buildProject = async () => {
-	const build = await rollup({
-		input: {
-			// "winzig/jsx-runtime": "./testtest.js",
-			"index": Path.resolve(process.cwd(), "./src/index.tsx"),
-			"winzig-runtime": Path.resolve(import.meta.dirname, "../runtime/index.ts"),
-			// "winzig": path.resolve(import.meta.dirname, "../runtime/all.ts"),
-		},
-		external: ["winzig/jsx-runtime", "winzig"],
-		plugins: [
-			rollupPluginBabel({
-				presets: [
-					[babelPresetTypeScript, {}],
-					// "@babel/preset-typescript",
-					// babelPresetTypeScript.default,
-				],
-				extensions: [".js", ".ts", ".tsx", ".jsx"],
-				babelHelpers: "bundled",
-				plugins: [
-					// [babelPluginTransformReactJsx, new Proxy({}, {
-					// 	get(target, prop) {
-					// 	}
-					// })],
-					[babelPluginTransformReactJsx, {
-						runtime: "automatic",
-						importSource: "winzig",
-						throwIfNamespace: false,
-						// useSpread: true,
-						// useBuiltIns: true,
-						// pragma: "createElement",
-						// pragmaFrag: "Fragment",
-					}],
-					[babelPluginWinzig, { a: 42, b: "hello" }],
-					// babelPluginJsxDomExpressions,
-					// babelPluginTransformTypescript,
-				],
-				// ast: true,
-				// parserOpts: {
-				// 	plugins: []
-				// }
-			}),
-			rollupPluginTerser({
-				module: true,
-				compress: {
-					passes: 1,
-					unsafe_math: true,
-				},
-				format: {
-					wrap_func_args: false,
-					wrap_iife: false,
-				},
-				ecma: 2020,
-				sourceMap: true,
-			}),
-		],
-		logLevel: "debug",
-	});
-
-	// console.log(build);
-
-	const { output } = await build.generate({
-		compact: true,
-		sourcemap: true,
-		sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-			return Path.posix.join("../", relativeSourcePath);
-		},
-		generatedCode: {
-			preset: "es2015",
-			arrowFunctions: true,
-			constBindings: true,
-			objectShorthand: true,
-			reservedNamesAsProps: true,
-			symbols: true,
-		},
-		paths: {
-			"winzig/jsx-runtime": "$appfiles/winzig-runtime.js",
-			"winzig": "$appfiles/winzig-runtime.js",
-		},
-		chunkFileNames: "[name].[hash:8].js",
-		entryFileNames: "[name].[hash:8].js",
-		hashCharacters: "base36",
-	});
-
-	await build.close();
-
-	// console.log(output);
-
-	const absoluteAppfilesFolderPath = Path.resolve(process.cwd(), outputFolderPath, appfilesFolderPath);
 	await FS.mkdir(absoluteAppfilesFolderPath, { recursive: true });
 	await Promise.all((await FS.readdir(absoluteAppfilesFolderPath, { withFileTypes: true })).map(async entry => {
 		await FS.rm(Path.join(absoluteAppfilesFolderPath, entry.name), { force: true, recursive: true });
 	}));
 
-	let importMap = new Map<string, string>();
+	const outputFiles: ESBuild.OutputFile[] = [];
+
+	const [chunksBuild, winzigRuntimeBuild] = await Promise.all([chunksBuildContext.rebuild(), winzigRuntimeBuildContext.rebuild()]);
+	outputFiles.push(...chunksBuild.outputFiles, ...winzigRuntimeBuild.outputFiles);
+
+	const importMap = new Map<string, string>();
 	let entryFilePath: string;
-	let modulePreloadPaths: string[] = [];
+	const modulePreloadPaths: string[] = [];
 
-	for (const file of output) {
-		await FS.writeFile(
-			Path.resolve(absoluteAppfilesFolderPath, file.fileName),
-			file.type === "chunk" ? file.code : file.source,
-			{ encoding: "utf-8" }
-		);
+	for (const file of outputFiles) {
+		const originalRelativePath = Path.relative(absoluteAppfilesFolderPath, file.path).replaceAll("\\", "/");;
 
-		if (file.type === "chunk") {
-			importMap.set(`$appfiles/${file.name}.js`, "./" + Path.posix.join(appfilesFolderPath, file.fileName));
-			if (file.name === "index") {
-				entryFilePath = "./" + Path.posix.join(appfilesFolderPath, file.fileName);
+		const [name, hashPlusExtension] = originalRelativePath.split(nameHashSeparatorString);
+		const hash = hashPlusExtension.slice(0, 8).toLowerCase();
+		const extension = hashPlusExtension.slice(8);
+
+		const relativePath = `${name}-${hash}${extension}`;
+
+		const contentStringOrByteArray = extension === ".js"
+			? (file.text + `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`)
+			: file.contents;
+
+		await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, relativePath), contentStringOrByteArray, { encoding: "utf-8" });
+
+		const browserRelativePath = "./" + Path.posix.join(appfilesFolderPath, relativePath);
+
+		if (extension === ".js") {
+			importMap.set(`$appfiles/${name}.js`, browserRelativePath);
+			if (name === "index") {
+				entryFilePath = browserRelativePath;
 			} else {
-				modulePreloadPaths.push("./" + Path.posix.join(appfilesFolderPath, file.fileName));
+				modulePreloadPaths.push(browserRelativePath);
 			}
 		}
 	}
@@ -246,7 +246,7 @@ const buildProject = async () => {
 	console.info(`Built in ${(performance.now() - startTime).toFixed(1)} ms.`);
 }
 
-if (cmdArgs.get("watch")) {
+if (watch) {
 	console.info(`Watching for file changes in ${Path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`);
 	(async () => {
 		let lastChangeTime = 0;
@@ -254,11 +254,15 @@ if (cmdArgs.get("watch")) {
 			if (performance.now() - lastChangeTime < 500) continue;
 			lastChangeTime = performance.now();
 			console.clear();
-			console.info(`File ${eventType} detected (./src/${filename.replaceAll("\\", "/")}), rebuilding...`);
+			console.info(`File ${eventType} detected (src/${filename.replaceAll("\\", "/")}), rebuilding...`);
 			await buildProject();
 			console.info(`Rebuilt in ${(performance.now() - lastChangeTime).toFixed(1)} ms.`);
-		console.info(`Watching for file changes in ${Path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`);
+			console.info(`Watching for file changes in ${Path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`);
+			if (liveReload) refreshPage?.();
 		}
 	})();
+} else {
+	chunksBuildContext.dispose();
+	winzigRuntimeBuildContext.dispose();
 }
 // #endregion

@@ -2,12 +2,15 @@
 // / <reference path="./jsx-runtime.d.ts" />
 
 
-declare module "winzig" {
+namespace WinzigInternals {
 	interface CSSReference { }
 	var CSSReference: {
 		prototype: CSSReference;
 	};
-	export function css(templateArray: TemplateStringsArray, ...args: any[]): CSSReference;
+}
+
+declare module "winzig" {
+	export function css(templateArray: TemplateStringsArray, ...args: any[]): WinzigInternals.CSSReference;
 	export declare class Variable<T> {
 		constructor(value: T);
 		_: T;
@@ -83,6 +86,9 @@ declare module "winzig/jsx-runtime" {
 			// form: WinzigInternals.WinzigElement<WinzigInternals.KnownKeys<Partial<Omit<HTMLFormElement, "children">>>>;
 		}
 	}
+
+	export function jsx(): any;
+	export var Fragment: any;
 
 	declare global {
 		interface Element {

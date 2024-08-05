@@ -1,7 +1,9 @@
 
-import { toDos } from "./imported/test.tsx";
+import { toDos } from "./imported/test.ts";
 
 import { css, Variable } from "winzig";
+
+console.log(5);
 
 const ToDo = () => {
 	const toDoList = structuredClone(toDos);
@@ -11,9 +13,9 @@ const ToDo = () => {
 	const UL = <ul id="hi"></ul>;
 	const rerender = () => {
 		UL.innerHTML = "";
-		UL.append(...toDos.map((todo, i) =>
+		UL.append(...toDoList.map((todo, i) =>
 			<li>
-				{todo} <button on:click={() => { toDos.splice(i, 1); rerender(); }}>✗</button>
+				{todo} <button on:click={function () { toDoList.splice(i, 1); rerender(); }}>✗</button>
 				{css`
 					& {
 						color: ${fg};
@@ -43,13 +45,13 @@ const ToDo = () => {
 		<UL />
 
 		<form on:submit_preventDefault={function () {
-			toDos.push(input.value);
+			toDoList.push(input.value);
 			rerender();
 			input.value = "";
 		}}>
 			New ToDo item: {" "}
-			{input = <input type="text" ariaLabel="new ToDo item" />} {" "}
-			<button>✗</button>
+			{input = <input type="text" name="todo-item" ariaLabel="new ToDo item" />} {" "}
+			<button>✓</button>
 
 			{css`
 				& {
@@ -98,4 +100,3 @@ document.body.append(
 		`}
 	</main>
 );
-

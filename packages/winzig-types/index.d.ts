@@ -9,12 +9,25 @@ namespace WinzigInternals {
 	};
 }
 
+
 declare module "winzig" {
 	export function css(templateArray: TemplateStringsArray, ...args: any[]): WinzigInternals.CSSReference;
 	export declare class Variable<T> {
 		constructor(value: T);
 		_: T;
 	};
+
+	interface WinzigUsingExpressionPatch {
+		[Symbol.dispose](): any;
+	}
+
+	declare global {
+		interface Number extends WinzigUsingExpressionPatch { }
+		interface String extends WinzigUsingExpressionPatch { }
+		interface BigInt extends WinzigUsingExpressionPatch { }
+		interface Object extends WinzigUsingExpressionPatch { }
+		interface Boolean extends WinzigUsingExpressionPatch { }
+	}
 }
 
 // import { JSX, WinzigInternals } from "./jsx-runtime.d.ts";
@@ -81,14 +94,16 @@ declare module "winzig/jsx-runtime" {
 			br: WinzigInternals.WinzigElement<HTMLBRElement>;
 			code: WinzigInternals.WinzigElement<HTMLElement>;
 			form: any;
+			body: WinzigInternals.WinzigElement<HTMLBodyElement>;
+			html: WinzigInternals.WinzigElement<HTMLHtmlElement>;
+			head: WinzigInternals.WinzigElement<HTMLHeadElement>;
+			title: WinzigInternals.WinzigElement<HTMLTitleElement>;
 			// form: WinzigInternals.WinzigElement<Pick<HTMLFormElement, KnownKeys<HTMLFormElement>>>;
 			// form: WinzigInternals.WinzigElement<WinzigInternals.KnownKeys<HTMLFormElement>>;
 			// form: WinzigInternals.WinzigElement<WinzigInternals.KnownKeys<Partial<Omit<HTMLFormElement, "children">>>>;
 		}
 	}
 
-	export function jsx(): any;
-	export var Fragment: any;
 
 	declare global {
 		interface Element {

@@ -1,9 +1,23 @@
 
 import { toDos } from "./imported/test.ts";
 
-import { css, Variable } from "winzig";
+import { css } from "winzig";
 
-console.log(5);
+{
+	let a = 1;
+	a *= 10;
+	console.log(a);
+}
+{
+	let a = 1;
+	a *= 10;
+	console.log(a);
+}
+{
+	let a = 1;
+	a *= 10;
+	console.log(a);
+}
 
 const ToDo = () => {
 	const toDoList = structuredClone(toDos);
@@ -11,6 +25,9 @@ const ToDo = () => {
 	let bg = "#80f2";
 	let input: HTMLInputElement;
 	const UL = <ul id="hi"></ul>;
+
+	// console.log(new Variable(1), new _Variable(2));
+
 	const rerender = () => {
 		UL.innerHTML = "";
 		UL.append(...toDoList.map((todo, i) =>
@@ -32,14 +49,20 @@ const ToDo = () => {
 	};
 	rerender();
 
-	// In the future, this statement should look like this: `let count$ = 0;`
-	let count = new Variable(0);
+	{
+		console.log(1);
+	}
+
+	let count$ = 5;
+	using doubleCount$ = count$ * 2; // TODO: implement live expressions
+	console.log(count$);
 
 	return <>
 		<div>
-			Count: {count}
-			{" "}<button on:click={() => --count._}>decrease counter</button>
-			{" "}<button on:click={() => ++count._}>increase counter</button>
+			Count: {count$}
+			{" "}<button on:click={() => --count$} >decrease counter</button>
+			{" "}<button on:click={() => ++count$}>increase counter</button>
+			{" "}(Double count: {doubleCount$})
 		</div>
 
 		<UL />
@@ -100,3 +123,18 @@ document.body.append(
 		`}
 	</main>
 );
+
+console.log(3);
+
+<html>
+	<head>
+		<title>hello world</title>
+	</head>
+	<body>
+		<h1>testtest {console.log(2)} 6969</h1>
+	</body>
+</html>
+
+{
+	console.log(4);
+}

@@ -21,6 +21,8 @@
 		"lib": ["ESNext"],
 		"types": ["@types/babel__core", "@types/node"],
 		"noEmitOnError": false,
+		"skipDefaultLibCheck": true,
+		"skipLibCheck": true,
 	},
 	"exclude": ["./runtime/", "./dist/"],
 }

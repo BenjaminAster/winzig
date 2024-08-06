@@ -1,14 +1,28 @@
 #!/usr/bin/env node
 
+
 import * as FS from "node:fs/promises";
 import * as Path from "node:path";
 import * as HTTP from "node:http";
 import type * as Net from "node:net";
+import type * as Stream from "node:stream";
 import * as NodeCrypto from "node:crypto";
 
 import * as ESBuild from "esbuild";
 
 import { JSDOM } from "jsdom";
+
+import "@babel/plugin-transform-react-jsx"
+
+import * as BabelParser from "@babel/parser";
+
+import type * as ESTree from "estree";
+import * as Terser from "terser";
+const terserMinify = Terser.minify as any as (files: ESTree.Program[], options?: Terser.MinifyOptions & { parse: { spidermonkey: boolean } }) => Promise<Terser.MinifyOutput>;
+
+import type { EncodedSourceMap } from "@jridgewell/gen-mapping";
+
+import { modifyAST } from "./ast-modifier.js";
 
 const cmdArgs = new Map<string, string | boolean>();
 const cmdArgsSingleLetterAliases: Record<string, string> = {
@@ -50,7 +64,15 @@ let refreshPage: () => void;
 let webSocketPort: number;
 
 if (liveReload) {
-	const magicString = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+	const webSocketMagicString = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+	const sockets = new Set<Stream.Duplex>();
+
+	refreshPage = () => {
+		for (const socket of sockets) {
+			socket.write(constructMessage({ type: "refresh-page", }));
+		}
+	};
 
 	const constructMessage = (message: any): Buffer => {
 		const messageBuffer = Buffer.from(JSON.stringify(message), "utf-8");
@@ -78,18 +100,19 @@ if (liveReload) {
 			`HTTP/1.1 101 Switching Protocols`,
 			`upgrade: websocket`,
 			`connection: Upgrade`,
-			`sec-websocket-accept: ${NodeCrypto.createHash("sha1").update(request.headers["sec-websocket-key"] + magicString).digest("base64")}`,
+			`sec-websocket-accept: ${NodeCrypto.createHash("sha1").update(request.headers["sec-websocket-key"] + webSocketMagicString).digest("base64")}`,
 		].join("\n") + "\n\n";
 		socket.write(responseHead);
 
-		refreshPage = () => socket.write(constructMessage({ type: "refresh-page", }));
+		sockets.add(socket);
+		socket.on("close", () => sockets.delete(socket));
+		socket.on("error", () => sockets.delete(socket));
 	});
 	webSocketPort = await new Promise((resolve) => {
 		server.listen({ port: 0 }, () => resolve((server.address() as Net.AddressInfo).port));
 	});
 }
 
-// #region Builder
 const absoluteAppfilesFolderPath = Path.resolve(process.cwd(), outputFolderPath, appfilesFolderPath);
 
 const nameHashSeparatorString = "$$";
@@ -103,20 +126,20 @@ const esBuildCommonOptions: ESBuild.BuildOptions = {
 	outdir: absoluteAppfilesFolderPath,
 	sourcemap: "external",
 	bundle: true,
-	minifyIdentifiers: minify,
 	minifyWhitespace: minify,
+	minifySyntax: minify,
 	metafile: true,
 	target: "esnext",
 	assetNames: `[name]${nameHashSeparatorString}[hash]`,
 	chunkNames: `[name]${nameHashSeparatorString}[hash]`,
 	entryNames: `[name]${nameHashSeparatorString}[hash]`,
 	write: false,
-	color: true,
 	tsconfigRaw: {},
-	// external: ["winzig", "winzig"],
+	external: ["winzig", "winzig/jsx-runtime", "$appfiles/winzig-runtime.js"],
 	alias: {
 		"winzig": "$appfiles/winzig-runtime.js",
 		"winzig/jsx-runtime": "$appfiles/winzig-runtime.js",
+		"winzig/internal-jsx-runtime": "$appfiles/winzig-runtime.js",
 	},
 };
 
@@ -128,31 +151,42 @@ const esBuildChunksOptions: ESBuild.BuildOptions = {
 			out: "index",
 		},
 	],
-	inject: [Path.resolve(winzigRuntimeDirectory, "./esbuild-import-proxy.ts")], // note that import.meta is relative to `dist`, not `src`.
+	// inject: [Path.resolve(winzigRuntimeDirectory, "./esbuild-import-proxy.ts")],
+	banner: {
+		js: `import { _jsx as __winzig__jsx, _Fragment as __winzig__Fragment, Variable as __winzig__Variable } from "$appfiles/winzig-runtime.js";`,
+	},
 	jsx: "transform",
 	jsxFactory: "__winzig__jsx",
 	jsxFragment: "__winzig__Fragment",
+	jsxSideEffects: true,
+	minifyWhitespace: false,
+	minifySyntax: false,
+	pure: [],
 };
 
 const esBuildWinzigRuntimeOptions: ESBuild.BuildOptions = {
 	...esBuildCommonOptions,
 	entryPoints: [
 		{
-			in: Path.resolve(winzigRuntimeDirectory, "./index.ts"), // note that import.meta is relative to `dist`, not `src`.
+			in: Path.resolve(winzigRuntimeDirectory, "./index.ts"),
 			out: "winzig-runtime",
 		},
 	],
 	...(liveReload ? {
-		inject: [Path.resolve(winzigRuntimeDirectory, "./dev-runtime-additions.ts")],
+		inject: [Path.resolve(winzigRuntimeDirectory, "./devmode-additions.ts")],
 		banner: {
 			"js": `let __winzig__webSocketPort = ${webSocketPort};`,
 		},
 	} : {}),
+	minifyIdentifiers: minify,
 };
 
 const [chunksBuildContext, winzigRuntimeBuildContext] = await Promise.all([ESBuild.context(esBuildChunksOptions), ESBuild.context(esBuildWinzigRuntimeOptions)]);
 
 const buildProject = async () => {
+
+	0;
+	console.time("Bundling");
 	await FS.mkdir(absoluteAppfilesFolderPath, { recursive: true });
 	await Promise.all((await FS.readdir(absoluteAppfilesFolderPath, { withFileTypes: true })).map(async entry => {
 		await FS.rm(Path.join(absoluteAppfilesFolderPath, entry.name), { force: true, recursive: true });
@@ -167,6 +201,10 @@ const buildProject = async () => {
 	let entryFilePath: string;
 	const modulePreloadPaths: string[] = [];
 
+	let previousSourceMap: any;
+
+	console.timeEnd("Bundling");
+
 	for (const file of outputFiles) {
 		const originalRelativePath = Path.relative(absoluteAppfilesFolderPath, file.path).replaceAll("\\", "/");;
 
@@ -176,24 +214,78 @@ const buildProject = async () => {
 
 		const relativePath = `${name}-${hash}${extension}`;
 
-		const contentStringOrByteArray = extension === ".js"
-			? (file.text + `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`)
-			: file.contents;
-
-		await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, relativePath), contentStringOrByteArray, { encoding: "utf-8" });
-
 		const browserRelativePath = "./" + Path.posix.join(appfilesFolderPath, relativePath);
 
-		if (extension === ".js") {
-			importMap.set(`$appfiles/${name}.js`, browserRelativePath);
-			if (name === "index") {
-				entryFilePath = browserRelativePath;
+		let contentStringOrByteArray: string | Uint8Array;
+
+		if (extension === ".js.map" && name !== "winzig-runtime") {
+			previousSourceMap = JSON.parse(file.text);
+			// contentStringOrByteArray = "69420";
+		} else {
+			if (extension === ".js") {
+				if (name === "index") {
+					entryFilePath = browserRelativePath;
+				} else {
+					modulePreloadPaths.push(browserRelativePath);
+				}
+
+				let code = file.text;
+				if (name !== "winzig-runtime") {
+					console.time("Parse code");
+
+					// console.log(code);
+
+					// const ast = parse(code, {
+					// 	ecmaVersion: "latest",
+					// 	sourceType: "module",
+					// 	locations: true,
+					// });
+					const ast = BabelParser.parse(code, {
+						plugins: ["estree", "explicitResourceManagement"],
+						sourceType: "module",
+					}).program as any as ESTree.Program;
+					console.timeEnd("Parse code");
+
+					// console.log(ast);
+					// throw "asdf";
+
+					console.time("Modify AST");
+					modifyAST(ast);
+					console.timeEnd("Modify AST");
+
+					console.time("Print code");
+
+					let terserResult = await terserMinify([ast], {
+						parse: {
+							spidermonkey: true,
+						},
+						compress: false,
+						module: true,
+						ecma: 2020,
+						mangle: minify,
+						sourceMap: {
+							content: previousSourceMap,
+							asObject: true,
+							includeSources: true,
+						},
+					});
+					code = terserResult.code;
+					const map = terserResult.map as EncodedSourceMap;
+					await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, relativePath) + ".map", JSON.stringify(map, null, "\t"), { encoding: "utf-8" });
+
+					console.timeEnd("Print code");
+				}
+				contentStringOrByteArray = (code + `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`);
+				importMap.set(`$appfiles/${name}.js`, browserRelativePath);
 			} else {
-				modulePreloadPaths.push(browserRelativePath);
+				contentStringOrByteArray = file.contents;
 			}
+
+			await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, relativePath), contentStringOrByteArray, { encoding: "utf-8" });
 		}
 	}
 
+	console.time("HTML");
 	{
 		const html = await FS.readFile(Path.resolve(process.cwd(), "./src/index.html"), { encoding: "utf-8" });
 		const dom = new JSDOM(html);
@@ -237,8 +329,8 @@ const buildProject = async () => {
 
 		await FS.writeFile(Path.resolve(process.cwd(), outputFolderPath, "./index.html"), `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`, { encoding: "utf-8" });
 	}
+	console.timeEnd("HTML");
 };
-
 
 {
 	const startTime = performance.now();
@@ -265,4 +357,3 @@ if (watch) {
 	chunksBuildContext.dispose();
 	winzigRuntimeBuildContext.dispose();
 }
-// #endregion

@@ -72,7 +72,7 @@ const jsx = (elementTypeOrFunction: any, params: any, ...children: any[]) => {
 const Fragment = Symbol("Fragment");
 
 // export { Fragment as __winzig__Fragment, createElement as __winzig__createElement };
-export { Fragment, jsx };
+export { Fragment as _Fragment, jsx as _jsx };
 
 // export * from "./index.ts";
 

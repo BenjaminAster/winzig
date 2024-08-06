@@ -18,6 +18,8 @@
 		"verbatimModuleSyntax": true,
 		"lib": ["ESNext", "DOM", "DOM.Iterable", "DOM.AsyncIterable"],
 		"types": [],
+		"skipDefaultLibCheck": true,
+		"skipLibCheck": true,
 		"noEmitOnError": false,
 	},
 }

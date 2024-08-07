@@ -1,7 +1,4 @@
 
-// / <reference path="./jsx-runtime.d.ts" />
-
-
 namespace WinzigInternals {
 	interface CSSReference { }
 	var CSSReference: {
@@ -98,6 +95,7 @@ declare module "winzig/jsx-runtime" {
 			html: WinzigInternals.WinzigElement<HTMLHtmlElement>;
 			head: WinzigInternals.WinzigElement<HTMLHeadElement>;
 			title: WinzigInternals.WinzigElement<HTMLTitleElement>;
+			slot: WinzigInternals.WinzigElement<HTMLSlotElement>;
 			// form: WinzigInternals.WinzigElement<Pick<HTMLFormElement, KnownKeys<HTMLFormElement>>>;
 			// form: WinzigInternals.WinzigElement<WinzigInternals.KnownKeys<HTMLFormElement>>;
 			// form: WinzigInternals.WinzigElement<WinzigInternals.KnownKeys<Partial<Omit<HTMLFormElement, "children">>>>;

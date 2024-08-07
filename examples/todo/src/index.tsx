@@ -3,30 +3,10 @@ import { toDos } from "./imported/test.ts";
 
 import { css } from "winzig";
 
-{
-	let a = 1;
-	a *= 10;
-	console.log(a);
-}
-{
-	let a = 1;
-	a *= 10;
-	console.log(a);
-}
-{
-	let a = 1;
-	a *= 10;
-	console.log(a);
-}
-
 const ToDo = () => {
 	const toDoList = structuredClone(toDos);
-	let fg = "light-dark(maroon, khaki)";
-	let bg = "#80f2";
 	let input: HTMLInputElement;
 	const UL = <ul id="hi"></ul>;
-
-	// console.log(new Variable(1), new _Variable(2));
 
 	const rerender = () => {
 		UL.innerHTML = "";
@@ -35,13 +15,17 @@ const ToDo = () => {
 				{todo} <button on:click={function () { toDoList.splice(i, 1); rerender(); }}>✗</button>
 				{css`
 					& {
-						color: ${fg};
-						background-color: ${bg};
+						color: light-dark(maroon, khaki);
+						background-color: #80f2;
 						margin-block-end: .3rem;
 					}
 
 					button {
 						padding: .1em .5em;
+
+						&:hover {
+							color: lime;
+						}
 					}
 				`}
 			</li>
@@ -60,7 +44,7 @@ const ToDo = () => {
 	return <>
 		<div>
 			Count: {count$}
-			{" "}<button on:click={() => --count$} >decrease counter</button>
+			{" "}<button on:click={() => --count$}>decrease counter</button>
 			{" "}<button on:click={() => ++count$}>increase counter</button>
 			{" "}(Double count: {doubleCount$})
 		</div>
@@ -96,6 +80,17 @@ const ToDo = () => {
 	</>;
 };
 
+// const Test = (args: any) => {
+// 	console.log(args);
+
+// 	return <>
+// 		<div>div 1</div>
+// 		<div>div 2</div>
+// 		<slot />
+// 		<div>div 3 (after slot)</div>
+// 	</>
+// }
+
 document.body.append(
 	<main>
 		<h1>Winzig ToDo App</h1>
@@ -103,7 +98,18 @@ document.body.append(
 		<div>This is a <code>&lt;div&gt;</code> outside of <code>&lt;ToDo /&gt;</code>.</div>
 		<br />
 
+		{[
+			<div>A</div>,
+			<div>B</div>,
+			<div>C</div>,
+		]}
+
 		<ToDo />
+
+		{/* <Test arg1={5}>
+			<div>test child 1</div>
+			<div>test child 2</div>
+		</Test> */}
 
 		{css`
 			& {
@@ -126,14 +132,14 @@ document.body.append(
 
 console.log(3);
 
-<html>
-	<head>
-		<title>hello world</title>
-	</head>
-	<body>
-		<h1>testtest {console.log(2)} 6969</h1>
-	</body>
-</html>
+// <html>
+// 	<head>
+// 		<title>hello world</title>
+// 	</head>
+// 	<body>
+// 		<h1>testtest {console.log(2)} 6969</h1>
+// 	</body>
+// </html>
 
 {
 	console.log(4);

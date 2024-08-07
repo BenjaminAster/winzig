@@ -1,7 +1,7 @@
 
 # Winzig
 
-Yet another JavaScript framework.
+Yet another reactive JavaScript frontend framework—but different.
 
 ## CLI arguments
 - `-w`, `--watch`: Watch for file changes in the `src` folder and rebuild the project.

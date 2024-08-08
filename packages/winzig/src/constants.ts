@@ -4,10 +4,10 @@ export const initialCSS = `
 	:root {
 		color-scheme: dark light;
 		font-family: system-ui, sans-serif;
-		font-size-adjust: cap-height from-font;
 		overflow-wrap: break-word;
 		line-height: 1.5;
-		scrollbar-color: light-dark(#ddd, #444) transparent;
+		scrollbar-color: light-dark(#ccc, #333) transparent;
+		scrollbar-width: thin;
 		background-color: Canvas;
 		-webkit-text-size-adjust: none;
 		text-size-adjust: none;

@@ -1,10 +1,12 @@
 
-const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]) => {
+const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): Element => {
+	// if (["html", "head"].includes(elementTypeOrFunction)) return;
 	$: {
-		let element: any;
-		let isFragment: boolean;
-		if (typeof elementTypeOrFunction === "string" || (isFragment = elementTypeOrFunction === FragmentSymbol)) {
-			element = document.createElement(isFragment ? "wz-frag" : elementTypeOrFunction);
+		"hello world!";
+		if (typeof elementTypeOrFunction !== "function") {
+			let element = typeof elementTypeOrFunction === "object"
+				? elementTypeOrFunction
+				: document.createElement(elementTypeOrFunction === FragmentSymbol ? "wz-frag" : elementTypeOrFunction);
 			if (namedArgs) {
 				const { dataset, ...params } = namedArgs;
 				if (dataset) Object.assign(element.dataset, dataset);
@@ -25,30 +27,24 @@ const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]) => 
 					}
 				}
 			}
-		} else {
-			break $;
-		}
 
-		for (const child of children) {
-			if (typeof child === "string") {
-				element.append(child);
-			} else if (child instanceof Variable) {
-				const textNode = new Text(child._);
-				child.addEventListener("", (event) => textNode.data = event.detail);
-				element.append(textNode);
-			} else {
-				element.append(Array.isArray(child) ? jsx(FragmentSymbol, null, ...child) : child);
+			for (const child of children) {
+				if (typeof child === "string") {
+					element.append(child);
+				} else if (child instanceof Variable) {
+					const textNode = new Text(child._);
+					child.addEventListener("", (event) => textNode.data = event.detail);
+					element.append(textNode);
+				} else {
+					element.append(Array.isArray(child) ? jsx(FragmentSymbol, null, ...child) : child);
+				}
 			}
+			return element;
+		} else {
+			const element: HTMLElement = elementTypeOrFunction();
+			element.dataset.wzNewScope = "";
+			return element;
 		}
-		return element;
-	}
-
-	if (elementTypeOrFunction instanceof Element) {
-		return elementTypeOrFunction;
-	} else {
-		const element: HTMLElement = elementTypeOrFunction();
-		element.dataset.wzNewScope = "";
-		return element;
 	}
 };
 
@@ -86,4 +82,4 @@ const Variable = class <T> extends EventTarget {
 } as VariableConstructor;
 
 
-export { FragmentSymbol as _Fragment, jsx as _jsx, Variable };
+export { FragmentSymbol as _F, jsx as _j, Variable as _V };

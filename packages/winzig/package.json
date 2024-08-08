@@ -9,7 +9,7 @@
 	"main": "./dist/main.js",
 	"types": "./types/main.d.ts",
 	"scripts": {
-		"build": "node -e \"fs.rmSync('./dist/',{force:true,recursive:true})\" && esbuild ./src/cli.ts ./src/main.ts --bundle --splitting --outdir=./dist --platform=node --packages=external --format=esm --legal-comments=inline",
+		"build": "node -e \"fs.rmSync('./dist/',{force:true,recursive:true})\" && esbuild cli=./src/cli.ts main=./src/main.ts prerender-worker=./runtime/prerender-worker.ts --bundle --splitting --outdir=./dist/ --entry-names=[name] --platform=node --packages=external --format=esm --legal-comments=inline",
 		"build:watch": "node --run build -- --watch"
 	},
 	"homepage": "https://github.com/BenjaminAster/winzig",

@@ -1,7 +1,7 @@
 
 import type * as ESTree from "estree";
 
-// import * as FS from "node:fs/promises"
+// import * as FS from "node:fs/promises";
 
 let tempExpression: ESTree.Expression;
 
@@ -40,32 +40,37 @@ const visitExpression = (node: ESTree.Expression | ESTree.Pattern | ESTree.Sprea
 		}
 		case "CallExpression": {
 			if (node.callee.type === "Identifier" && node.callee.name === "__winzig__jsx") {
-				const isHTMLElement = node.arguments[0].type === "Literal";
-				const isFragment = node.arguments[0].type === "Identifier" && node.arguments[0].name === "__winzig__Fragment";
+				const firstArg = node.arguments[0];
+				const isStandardElement = firstArg.type === "Literal";
+				const isFragment = firstArg.type === "Identifier" && firstArg.name === "__winzig__Fragment";
 				let arg: ESTree.Expression | ESTree.SpreadElement;
 				let cssId: number;
-				for (let i = 2; i < node.arguments.length; ++i) {
-					arg = node.arguments[i] as ESTree.Expression;
 
+				if (node.arguments.length >= 3) {
+					const lastArg = node.arguments.at(-1);
 					if (
-						i === node.arguments.length - 1
-						&& (isHTMLElement || isFragment)
-						&& arg.type === "TaggedTemplateExpression"
-						&& arg.tag.type === "Identifier"
-						&& arg.tag.name === "css"
+						(isStandardElement || isFragment)
+						&& lastArg.type === "TaggedTemplateExpression"
+						&& lastArg.tag.type === "Identifier"
+						&& lastArg.tag.name === "css"
 					) {
-						if (arg.quasi.expressions.length > 0) throw new Error("CSS dynamic Template string insertions not yet supported.");
+						if (lastArg.quasi.expressions.length > 0) throw new Error("CSS dynamic Template string insertions not supported.");
 						cssId = createUniqueId();
 
-						let cssString = arg.quasi.quasis[0].value.cooked.trim();
+						let cssString = lastArg.quasi.quasis[0].value.cooked.trim();
 						const [firstLine, ...otherLines] = cssString.split("\n");
 						const leadingWhitespace = otherLines.at(-1).match(/^(\s*)/)[0].length;
 						cssString = [firstLine, ...otherLines.map(line => line.slice(leadingWhitespace - 1))].join("\n");
 						cssSnippets.push(`@scope ([data-wz-id="${cssId.toString(36)}"]) to ([data-wz-new-scope]) {\n\t${cssString}\n}\n`);
 						node.arguments.pop();
 					}
+				}
+
+				for (let i = 2; i < node.arguments.length; ++i) {
+					arg = node.arguments[i] as ESTree.Expression;
 					visitExpression(arg, true);
 				}
+
 				if (cssId) {
 					if (node.arguments[1].type !== "ObjectExpression") {
 						node.arguments[1] = {
@@ -110,6 +115,92 @@ const visitExpression = (node: ESTree.Expression | ESTree.Pattern | ESTree.Sprea
 					} satisfies ESTree.Property)
 				}
 				visitExpression(node.arguments[1] as ESTree.Expression);
+
+				if (isStandardElement) {
+					if ((firstArg as ESTree.Literal).value === "html") {
+						const expressions: ESTree.Expression[] = [];
+						const [headCall, bodyCall] = node.arguments.splice(2) as ESTree.CallExpression[];
+						node.arguments[0] = {
+							type: "MemberExpression",
+							computed: false,
+							loc: firstArg.loc,
+							optional: false,
+							object: {
+								type: "Identifier",
+								name: "document",
+								loc: firstArg.loc,
+							} satisfies ESTree.Identifier,
+							property: {
+								type: "Identifier",
+								name: "documentElement",
+								loc: firstArg.loc,
+							} satisfies ESTree.Identifier,
+						} satisfies ESTree.MemberExpression;
+						expressions.push(node);
+
+						const separatorIdentifier: ESTree.Identifier = {
+							type: "Identifier",
+							name: "__$WZ_SEPARATOR__"
+						};
+						expressions.push(separatorIdentifier);
+						expressions.push(headCall);
+						expressions.push(structuredClone(separatorIdentifier));
+						expressions.push({
+							type: "AssignmentExpression",
+							operator: "=",
+							left: {
+								type: "MemberExpression",
+								object: {
+									type: "MemberExpression",
+									object: {
+										type: "Identifier",
+										name: "document",
+									} satisfies ESTree.Identifier,
+									computed: false,
+									property: {
+										type: "Identifier",
+										name: "body",
+									} satisfies ESTree.Identifier,
+									optional: false,
+								} satisfies ESTree.MemberExpression,
+								computed: false,
+								property: {
+									type: "Identifier",
+									name: "textContent",
+								} satisfies ESTree.Identifier,
+								optional: false,
+							} satisfies ESTree.MemberExpression,
+							right: {
+								type: "Literal",
+								value: "",
+							} satisfies ESTree.Literal,
+						} satisfies ESTree.AssignmentExpression);
+						expressions.push(bodyCall);
+
+						const expression = {
+							type: "SequenceExpression",
+							expressions,
+						} satisfies ESTree.SequenceExpression;
+						return expression;
+					} else if (["head", "body"].includes((firstArg as ESTree.Literal).value as string)) {
+						node.arguments[0] = {
+							type: "MemberExpression",
+							computed: false,
+							loc: firstArg.loc,
+							optional: false,
+							object: {
+								type: "Identifier",
+								name: "document",
+								loc: firstArg.loc,
+							} satisfies ESTree.Identifier,
+							property: {
+								type: "Identifier",
+								name: firstArg.value as string,
+								loc: firstArg.loc,
+							} satisfies ESTree.Identifier,
+						} satisfies ESTree.MemberExpression;
+					}
+				}
 			} else {
 				for (let i = 0; i < node.arguments.length; ++i) {
 					tempExpression = visitExpression(node.arguments[i]);
@@ -140,8 +231,14 @@ const visitExpression = (node: ESTree.Expression | ESTree.Pattern | ESTree.Sprea
 			break;
 		}
 		case "SpreadElement": {
-			// console.log(node);
 			visitExpression(node.argument);
+			break;
+		}
+		case "SequenceExpression": {
+			for (let i = 0; i < node.expressions.length; ++i) {
+				tempExpression = visitExpression(node.expressions[i]);
+				if (tempExpression) node.expressions[i] = tempExpression;
+			}
 			break;
 		}
 	}
@@ -158,15 +255,15 @@ const visitStatementOrProgram = (node: ESTree.Statement | ESTree.Program | ESTre
 			break;
 		}
 		case "VariableDeclaration": {
-			let isLet = node.kind === "let";
+			let isVar = node.kind === "let" || node.kind === "var";
 			let isUsing = (node.kind as string) === "using";
 			let declarator: ESTree.VariableDeclarator;
 			for (let i = 0; i < node.declarations.length; ++i) {
 				declarator = node.declarations[i];
-				if (isLet || isUsing) {
+				if (isVar || isUsing) {
 					if (declarator.id.type === "Identifier") {
 						if (declarator.id.name.endsWith("$")) {
-							if (isLet) {
+							if (isVar) {
 								const newNode: ESTree.NewExpression = {
 									type: "NewExpression",
 									loc: declarator.init.loc,
@@ -211,6 +308,7 @@ const visitStatementOrProgram = (node: ESTree.Statement | ESTree.Program | ESTre
 					return null;
 				}
 			}
+			break;
 		}
 	}
 };

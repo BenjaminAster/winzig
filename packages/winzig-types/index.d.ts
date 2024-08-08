@@ -14,6 +14,12 @@ declare module "winzig" {
 		_: T;
 	};
 
+	export interface Config {
+		appfiles?: string;
+		pretty?: boolean;
+		output?: string;
+	}
+
 	interface WinzigUsingExpressionPatch {
 		[Symbol.dispose](): any;
 	}
@@ -95,6 +101,7 @@ declare module "winzig/jsx-runtime" {
 			html: WinzigInternals.WinzigElement<HTMLHtmlElement>;
 			head: WinzigInternals.WinzigElement<HTMLHeadElement>;
 			title: WinzigInternals.WinzigElement<HTMLTitleElement>;
+			meta: WinzigInternals.WinzigElement<HTMLMetaElement>;
 			slot: WinzigInternals.WinzigElement<HTMLSlotElement>;
 			// form: WinzigInternals.WinzigElement<Pick<HTMLFormElement, KnownKeys<HTMLFormElement>>>;
 			// form: WinzigInternals.WinzigElement<WinzigInternals.KnownKeys<HTMLFormElement>>;

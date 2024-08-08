@@ -10,7 +10,7 @@ const cmdArgsSingleLetterAliases: Record<string, string> = {
 };
 
 const standaloneCmdArgs: string[] = [];
-for (let i = 2; i < process.argv.length; i++) {
+for (let i = 2; i < process.argv.length; ++i) {
 	let arg = process.argv[i];
 	if (arg.startsWith("-")) {
 		if (process.argv[i + 1]?.startsWith(".") && arg.endsWith("=")) {
@@ -37,6 +37,7 @@ const devMode = cmdArgs.has("dev");
 const minify = !devMode && !cmdArgs.has("pretty");
 const watch = devMode || cmdArgs.has("watch");
 const liveReload = devMode || (watch && cmdArgs.has("live-reload"));
+const keepPrerenderFolder = cmdArgs.has("keep-prerender-folder");
 
 init({
 	appfilesFolderPath,
@@ -44,4 +45,5 @@ init({
 	minify,
 	outputFolderPath,
 	watch,
+	keepPrerenderFolder,
 });

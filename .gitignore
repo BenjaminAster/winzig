@@ -1,4 +1,4 @@
 node_modules/
 /packages/winzig/dist/
-/examples/todo/appfiles/
-/examples/todo/index.html
+/examples/*/appfiles/
+/examples/*/index.html

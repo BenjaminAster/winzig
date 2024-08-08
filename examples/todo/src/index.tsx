@@ -12,7 +12,7 @@ const ToDo = () => {
 		UL.innerHTML = "";
 		UL.append(...toDoList.map((todo, i) =>
 			<li>
-				{todo} <button on:click={function () { toDoList.splice(i, 1); rerender(); }}>✗</button>
+				{todo} <button on:click={() => { toDoList.splice(i, 1); rerender(); }}>✗</button>
 				{css`
 					& {
 						color: light-dark(maroon, khaki);
@@ -33,13 +33,8 @@ const ToDo = () => {
 	};
 	rerender();
 
-	{
-		console.log(1);
-	}
-
-	let count$ = 5;
+	let count$ = 3;
 	using doubleCount$ = count$ * 2; // TODO: implement live expressions
-	console.log(count$);
 
 	return <>
 		<div>
@@ -56,7 +51,7 @@ const ToDo = () => {
 			rerender();
 			input.value = "";
 		}}>
-			New ToDo item: {" "}
+			New ToDo item: {""}
 			{input = <input type="text" name="todo-item" ariaLabel="new ToDo item" />} {" "}
 			<button>✓</button>
 
@@ -80,67 +75,54 @@ const ToDo = () => {
 	</>;
 };
 
-// const Test = (args: any) => {
-// 	console.log(args);
+<html lang="en">
+	<head>
+		<title>Winzig ToDo App</title>
+	</head>
+	<body>
+		<main>
+			<h1>Winzig ToDo App</h1>
 
-// 	return <>
-// 		<div>div 1</div>
-// 		<div>div 2</div>
-// 		<slot />
-// 		<div>div 3 (after slot)</div>
-// 	</>
-// }
+			<div>This is a <code>&lt;div&gt;</code> outside of <code>&lt;ToDo /&gt;</code>.</div>
+			<br />
 
-document.body.append(
-	<main>
-		<h1>Winzig ToDo App</h1>
+			{[
+				<div>A</div>,
+				<div>B</div>,
+				<div>C</div>,
+			]}
 
-		<div>This is a <code>&lt;div&gt;</code> outside of <code>&lt;ToDo /&gt;</code>.</div>
-		<br />
+			<ToDo />
 
-		{[
-			<div>A</div>,
-			<div>B</div>,
-			<div>C</div>,
-		]}
+			asdfasdf {navigator.userAgent}
+			<br />
+			Time: {new Date().toLocaleString("de-DE")}
 
-		<ToDo />
+			<ul>
+				<li>1</li>
+				<>
+					<li>2</li>
+					<li>3</li>
+				</>
+				<li>4</li>
+			</ul>
 
-		{/* <Test arg1={5}>
-			<div>test child 1</div>
-			<div>test child 2</div>
-		</Test> */}
+			{css`
+				& {
+					display: flow-root;
+					padding-inline: 1rem;
+				}
 
-		{css`
-			& {
-				display: flow-root;
-				padding-inline: 1rem;
-			}
+				div {
+					border: 1px solid red;
+					padding-inline: .3em;
+				}
 
-			div {
-				border: 1px solid red;
-				padding-inline: .3em;
-			}
-
-			code {
-				background-color: #8884;
-				padding-inline: .2em;
-			}
-		`}
-	</main>
-);
-
-console.log(3);
-
-// <html>
-// 	<head>
-// 		<title>hello world</title>
-// 	</head>
-// 	<body>
-// 		<h1>testtest {console.log(2)} 6969</h1>
-// 	</body>
-// </html>
-
-{
-	console.log(4);
-}
+				code {
+					background-color: #8884;
+					padding-inline: .2em;
+				}
+			`}
+		</main>
+	</body>
+</html>;

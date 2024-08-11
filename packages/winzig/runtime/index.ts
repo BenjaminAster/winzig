@@ -1,12 +1,26 @@
 
+const globalSlottableChildrenStack: any[] = [];
+
+const FragmentSymbol = Symbol();
+const SlotSymbol = Symbol();
+
 const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): Element => {
-	// if (["html", "head"].includes(elementTypeOrFunction)) return;
-	$: {
-		"hello world!";
-		if (typeof elementTypeOrFunction !== "function") {
-			let element = typeof elementTypeOrFunction === "object"
-				? elementTypeOrFunction
-				: document.createElement(elementTypeOrFunction === FragmentSymbol ? "wz-frag" : elementTypeOrFunction);
+	if (typeof elementTypeOrFunction === "function") {
+		let currentGlobalSlottableChildrenStackLength = globalSlottableChildrenStack.length;
+		globalSlottableChildrenStack.push(children);
+		const element: HTMLElement = elementTypeOrFunction();
+		if (currentGlobalSlottableChildrenStackLength !== globalSlottableChildrenStack.length) {
+			globalSlottableChildrenStack.pop();
+		}
+		element.dataset.wzNewScope = "";
+		return element;
+	} else {
+		let element: any = typeof elementTypeOrFunction === "object"
+			? elementTypeOrFunction
+			: document.createElement(typeof elementTypeOrFunction === "symbol" ? "wz-frag" : elementTypeOrFunction);
+		if (elementTypeOrFunction === SlotSymbol) {
+			element.append(...globalSlottableChildrenStack.pop());
+		} else {
 			if (namedArgs) {
 				const { dataset, ...params } = namedArgs;
 				if (dataset) Object.assign(element.dataset, dataset);
@@ -31,7 +45,7 @@ const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): El
 			for (const child of children) {
 				if (typeof child === "string") {
 					element.append(child);
-				} else if (child instanceof Variable) {
+				} else if (child instanceof LiveVariable) {
 					const textNode = new Text(child._);
 					child.addEventListener("", (event) => textNode.data = event.detail);
 					element.append(textNode);
@@ -39,16 +53,11 @@ const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): El
 					element.append(Array.isArray(child) ? jsx(FragmentSymbol, null, ...child) : child);
 				}
 			}
-			return element;
-		} else {
-			const element: HTMLElement = elementTypeOrFunction();
-			element.dataset.wzNewScope = "";
-			return element;
 		}
+		return element;
 	}
 };
 
-const FragmentSymbol = Symbol();
 interface VariableEventMap {
 	"": CustomEvent;
 };
@@ -66,7 +75,7 @@ interface VariableConstructor {
 	prototype: Variable<any>;
 };
 
-const Variable = class <T> extends EventTarget {
+const LiveVariable = class <T> extends EventTarget {
 	#value: T;
 	constructor(value: T) {
 		super();
@@ -81,5 +90,17 @@ const Variable = class <T> extends EventTarget {
 	};
 } as VariableConstructor;
 
+const liveExpression = <T>(func: () => T, ...dependencies: Variable<any>[]) => {
+	const returnVariable = new LiveVariable<T>(func());
+	addListeners(() => returnVariable._ = func(), ...dependencies);
+	return returnVariable;
+};
 
-export { FragmentSymbol as _F, jsx as _j, Variable as _V };
+const addListeners = (func: () => any, ...dependencies: Variable<any>[]) => {
+	for (const dependency of dependencies) {
+		dependency.addEventListener("", func);
+	}
+};
+
+
+export { FragmentSymbol as _F, jsx as _j, LiveVariable as _V, SlotSymbol as _S, addListeners as _l, liveExpression as _e };

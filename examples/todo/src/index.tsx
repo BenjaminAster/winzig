@@ -75,6 +75,14 @@ const ToDo = () => {
 	</>;
 };
 
+const SomethingSomething = () => {
+	return <div>
+		<div>before slot</div>
+		<slot />
+		<div>after slot</div>
+	</div>;
+};
+
 <html lang="en">
 	<head>
 		<title>Winzig ToDo App</title>
@@ -106,6 +114,13 @@ const ToDo = () => {
 				</>
 				<li>4</li>
 			</ul>
+
+			<SomethingSomething>
+				<div>child 1</div>
+				<div>child 2</div>
+			</SomethingSomething>
+
+			<SomethingSomething />
 
 			{css`
 				& {

@@ -12,5 +12,6 @@
 		"type": "git",
 		"url": "git+https://github.com/BenjaminAster/winzig.git",
 		"directory": "packages/winzig-types"
-	}
+	},
+	"license": "WTFPL"
 }

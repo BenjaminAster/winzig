@@ -1,7 +1,14 @@
 
 /// <reference path="./internal-types.d.ts" />
 
-import { _j as originalJsx, _F as FragmentSymbol, _V as Variable } from "$appfiles/winzig-original-runtime.js";
+import {
+	_j as originalJsx,
+	_F as FragmentSymbol,
+	_S as SlotSymbol,
+	_V as LiveVariable,
+	_e as liveExpression,
+	_l as addListeners,
+} from "$appfiles/winzig-original-runtime.js";
 
 import { parentPort } from "node:worker_threads";
 
@@ -64,4 +71,11 @@ const jsx = (originalType, params, ...children) => {
 	return element;
 };
 
-export { jsx as _j, FragmentSymbol as _F, Variable as _V };
+export { 
+	jsx as _j,
+	FragmentSymbol as _F,
+	SlotSymbol as _S,
+	LiveVariable as _V,
+	liveExpression as _e,
+	addListeners as _l,
+};

@@ -2,8 +2,7 @@
 import { css } from "winzig";
 
 let count$ = 0;
-
-import.meta.resolve;
+using tripleCount$ = count$ * 3;
 
 <html lang="en">
 	<head>
@@ -12,7 +11,9 @@ import.meta.resolve;
 	</head>
 	<body>
 		<h1>Winzig counter</h1>
-		Count: {count$} { }
+		Count: {count$}<br />
+		Double count: {count$ * 2}<br />
+		Triple count: {tripleCount$}<br />
 		<button on:click={() => ++count$}>+</button> { }
 		<button on:click={() => --count$}>-</button>
 
@@ -22,14 +23,8 @@ import.meta.resolve;
 			}
 
 			button {
-				all: unset;
-				display: inline-block;
+				font: bold 1.2em monospace;
 				cursor: pointer;
-				background-color: #8885;
-				padding: .1em .6em;
-				border-radius: .2em;
-				font-family: monospace;
-				font-size: 1.2em;
 			}
 		`}
 	</body>

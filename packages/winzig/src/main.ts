@@ -17,7 +17,7 @@ import * as Terser from "terser";
 const terserMinify = Terser.minify as (
 	files: Parameters<typeof Terser.minify>[0] | ESTree.Program[],
 	options?: (Omit<Terser.MinifyOptions, "ecma" | "parse">
-		& { parse?: (Terser.ParseOptions & { spidermonkey?: boolean }), ecma?: number }),
+		& { parse?: (Terser.ParseOptions & { spidermonkey?: boolean; }), ecma?: number; }),
 ) => Promise<Terser.MinifyOutput>;
 
 import type { EncodedSourceMap } from "@jridgewell/gen-mapping";
@@ -28,7 +28,12 @@ import { initialCSS } from "./constants.ts";
 let refreshPage: () => void;
 let webSocketPort: number;
 
+const DEBUG = false;
+
 import type { WinzigOptions } from "../types/main.d.ts";
+
+let FakeDOM: typeof import("./minimal-fake-dom.ts");
+let addWinzigHTML: typeof import("../runtime/add-winzig-html.ts").default;
 
 export const init = async ({
 	appfilesFolderPath = "./appfiles/",
@@ -37,7 +42,15 @@ export const init = async ({
 	watch = false,
 	liveReload = false,
 	keepPrerenderFolder = false,
+	prerender = true,
 }: WinzigOptions) => {
+
+	const startTime = performance.now();
+
+	if (!prerender) {
+		FakeDOM ??= await import("./minimal-fake-dom.ts");
+		addWinzigHTML ??= (await import("../runtime/add-winzig-html.ts")).default;
+	}
 
 	if (liveReload) {
 		const webSocketMagicString = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -70,7 +83,7 @@ export const init = async ({
 		};
 
 		const server = HTTP.createServer();
-		server.on("upgrade", (request, socket, head) => {
+		server.on("upgrade", (request, socket) => {
 			if (request.headers.upgrade !== "websocket") return;
 			const acceptKeyPlusMagicString = request.headers["sec-websocket-key"] + webSocketMagicString;
 			const responseHead = [
@@ -126,7 +139,16 @@ export const init = async ({
 			},
 		],
 		banner: {
-			js: `import { _j as __winzig__jsx, _F as __winzig__Fragment, _S as __winzig__Slot, _V as __winzig__LiveVariable, _l as __winzig__addListeners, _e as __winzig__liveExpression } from "$appfiles/winzig-runtime.js";`,
+			js: [
+				`import {`,
+				`\tj as __winzig__jsx,`,
+				`\ts as __winzig__jsxSlot,`,
+				`\tV as __winzig__LiveVariable,`,
+				`\tl as __winzig__addListeners,`,
+				`\te as __winzig__liveExpression,`,
+				`\tf as __winzig__liveFragment,`,
+				`} from "$appfiles/winzig-runtime.js";`,
+			].join("\n"),
 		},
 		jsx: "transform",
 		jsxFactory: "__winzig__jsx",
@@ -150,6 +172,7 @@ export const init = async ({
 			},
 		} : {}),
 		minifyIdentifiers: minify,
+		minifySyntax: minify,
 	};
 
 	const esBuildWinzigPrerenderingRuntimeOptions: ESBuild.BuildOptions = {
@@ -165,9 +188,9 @@ export const init = async ({
 		// alias: {
 		// 	"$winzig-runtime-internal": "./winzig-runtime.js",
 		// },
-		// packages: "external",
+		packages: "external",
 		// external: ["./winzig-runtime.js"],
-		bundle: false,
+		bundle: true,
 		sourcemap: false,
 	};
 
@@ -180,28 +203,30 @@ export const init = async ({
 	] = await Promise.all([
 		ESBuild.context(esBuildChunksOptions),
 		ESBuild.build(esBuildWinzigRuntimeOptions),
-		ESBuild.build(esBuildWinzigPrerenderingRuntimeOptions),
+		prerender ? ESBuild.build(esBuildWinzigPrerenderingRuntimeOptions) : null,
 	] as const);
 
-	const prerenderWorker = new Worker(Path.resolve(import.meta.dirname, "./prerender-worker.js"));
+	const prerenderWorker = prerender ? new Worker(Path.resolve(import.meta.dirname, "./prerender-worker.js")) : null;
 
 	const buildProject = async () => {
-		console.time("Bundle JavaScript");
+		if (DEBUG) console.time("Bundle JavaScript");
 		await FS.mkdir(absoluteAppfilesFolderPath, { recursive: true });
 		await Promise.all((await FS.readdir(absoluteAppfilesFolderPath, { withFileTypes: true })).map(async entry => {
 			await FS.rm(Path.join(absoluteAppfilesFolderPath, entry.name), { force: true, recursive: true });
 		}));
-		await FS.mkdir(prerenderFolder, { recursive: true });
-		await FS.writeFile(
-			Path.resolve(prerenderFolder, "./package.json"),
-			JSON.stringify({ type: "module" }, null, "\t"),
-		);
+		if (prerender) {
+			await FS.mkdir(prerenderFolder, { recursive: true });
+			await FS.writeFile(
+				Path.resolve(prerenderFolder, "./package.json"),
+				JSON.stringify({ type: "module" }, null, "\t"),
+			);
+		}
 
 		const outputFiles: ESBuild.OutputFile[] = [];
 
 		resetCompilationData();
 		const chunksBuild = await chunksBuildContext.rebuild();
-		outputFiles.push(...chunksBuild.outputFiles, ...winzigRuntimeBuild.outputFiles, ...winzigPrerenderingRuntimeBuild.outputFiles);
+		outputFiles.push(...chunksBuild.outputFiles, ...winzigRuntimeBuild.outputFiles, ...(winzigPrerenderingRuntimeBuild?.outputFiles ?? []));
 
 		const importMap = new Map<string, string>();
 		let entryFilePath: string;
@@ -209,13 +234,13 @@ export const init = async ({
 
 		let previousSourceMap: any;
 
-		console.timeEnd("Bundle JavaScript");
+		if (DEBUG) console.timeEnd("Bundle JavaScript");
 
 		let cssSnippets: string[] = [
 			initialCSS,
 		];
 
-		console.time("Compile and generate files");
+		if (DEBUG) console.time("Compile and generate files");
 		for (const file of outputFiles) {
 			const originalRelativePath = Path.relative(absoluteAppfilesFolderPath, file.path).replaceAll("\\", "/");;
 
@@ -255,20 +280,20 @@ export const init = async ({
 					let code = file.text;
 					if (name !== "winzig-prerender-runtime") {
 						if (name !== "winzig-runtime") {
-							console.time("Parse code");
+							if (DEBUG) console.time("Parse code");
 							const ast = BabelParser.parse(code, {
 								plugins: ["estree", "explicitResourceManagement"],
 								sourceType: "module",
 								attachComment: false,
 							}).program as unknown as ESTree.Program;
-							console.timeEnd("Parse code");
+							if (DEBUG) console.timeEnd("Parse code");
 
-							console.time("Modify AST");
+							if (DEBUG) console.time("Modify AST");
 							const { cssSnippets: newCSSSnippets } = compileAST(ast);
 							cssSnippets.push(...newCSSSnippets);
-							console.timeEnd("Modify AST");
+							if (DEBUG) console.timeEnd("Modify AST");
 
-							console.time("Print code");
+							if (DEBUG) console.time("Print code");
 							let terserResult = await terserMinify([ast], {
 								parse: {
 									spidermonkey: true,
@@ -292,14 +317,14 @@ export const init = async ({
 								Path.resolve(absoluteAppfilesFolderPath, relativePath) + ".map",
 								JSON.stringify(map, null, "\t"),
 							);
-							console.timeEnd("Print code");
+							if (DEBUG) console.timeEnd("Print code");
 						}
 						const sourceMapComment = `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`;
 						code = (code + (name === "winzig-runtime" ? "" : "\n") + sourceMapComment);
 						if (name !== "index") importMap.set(`$appfiles/${name}.js`, browserRelativePath);
 					}
 
-					{
+					if (prerender) {
 						const prerenderingCode = (name === "winzig-runtime") ? code : code.replace(`}from"$appfiles/`, `}from"./`);
 						const newName = name === "winzig-prerender-runtime"
 							? "winzig-runtime"
@@ -309,8 +334,8 @@ export const init = async ({
 						await FS.writeFile(Path.resolve(prerenderFolder, `./${newName}.js`), prerenderingCode);
 					}
 					if (name !== "winzig-prerender-runtime") {
-						if (name === "index") {
-							code = code.split("__$WZ_SEPARATOR__,").toSpliced(1, 1).join("");
+						if (name === "index" && prerender) {
+							code = code.split('"__$WZ_SEPARATOR__",').toSpliced(1, 1).join("");
 						}
 						await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, relativePath), code);
 					}
@@ -319,9 +344,9 @@ export const init = async ({
 				}
 			}
 		}
-		console.timeEnd("Compile and generate files");
+		if (DEBUG) console.timeEnd("Compile and generate files");
 
-		console.time("Build CSS");
+		if (DEBUG) console.time("Build CSS");
 		let cssFilePath: string;
 		{
 			const [sourceMapFile, cssFile] = (await ESBuild.build({
@@ -329,7 +354,6 @@ export const init = async ({
 					contents: cssSnippets.join("\n"),
 					loader: "css",
 					sourcefile: "main.css",
-					resolveDir: "../.winzig-virtual-fs/",
 				},
 				write: false,
 				bundle: true,
@@ -345,46 +369,57 @@ export const init = async ({
 				Path.resolve(absoluteAppfilesFolderPath, cssFileName),
 				cssFile.text + `/*# sourceMappingURL=./${global.encodeURI(cssFileName)}.map */`,
 			);
-			await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, `./${cssFileName}.map`), sourceMapFile.contents);
+			const sourceMap = JSON.parse(sourceMapFile.text);
+			sourceMap.sourceRoot = "//winzig-virtual-fs/css/";
+			await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, `./${cssFileName}.map`), JSON.stringify(sourceMap, null, "\t"));
 		}
-		console.timeEnd("Build CSS");
+		if (DEBUG) console.timeEnd("Build CSS");
 
 		{
-			console.time("Prerender");
-			const html: string = await new Promise((resolve) => {
-				const listener = (data: any) => {
-					if (data.type === "send-html") {
-						prerenderWorker.removeListener("message", listener);
-						resolve(data.html);
-					}
-				};
-				prerenderWorker.on("message", listener);
-				prerenderWorker.postMessage({
-					type: "run",
-					cssFilePath,
-					modulePreloadPaths,
-					entryFilePath,
-					importMap,
-					prerenderFolder,
+			const buildData = {
+				cssFilePath,
+				modulePreloadPaths,
+				entryFilePath,
+				importMap,
+				prerenderFolder,
+			};
+
+			if (prerender) {
+				if (DEBUG) console.time("Prerender");
+				const html: string = await new Promise((resolve) => {
+					const listener = (data: any) => {
+						if (data.type === "send-html") {
+							prerenderWorker.removeListener("message", listener);
+							resolve(data.html);
+						}
+					};
+					prerenderWorker.on("message", listener);
+					prerenderWorker.postMessage({
+						type: "run",
+						...buildData,
+					});
 				});
-			});
-			await FS.writeFile(Path.resolve(process.cwd(), outputFolderPath, "./index.html"), html);
-			console.timeEnd("Prerender");
+				await FS.writeFile(Path.resolve(process.cwd(), outputFolderPath, "./index.html"), html);
+				if (DEBUG) console.timeEnd("Prerender");
+			} else {
+				const document = new FakeDOM.Document();
+				addWinzigHTML({ document, Text: FakeDOM.Text }, buildData);
+				const html = `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
+				await FS.writeFile(Path.resolve(process.cwd(), outputFolderPath, "./index.html"), html);
+			}
 		}
 
-		if (!keepPrerenderFolder) {
+		if (prerender && !keepPrerenderFolder) {
 			await FS.rm(prerenderFolder, { recursive: true });
 		}
 	};
 
-	{
-		const startTime = performance.now();
-		await buildProject();
-		console.info(`Built in ${(performance.now() - startTime).toFixed(1)} ms.`);
-	}
+	await buildProject();
+	console.info(`Built in ${(performance.now() - startTime).toFixed(1)} ms.`);
 
 	if (watch) {
-		console.info(`Watching for file changes in ${Path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`);
+		const watchingForFileChangesText = `Watching for file changes in ${Path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`;
+		console.info(watchingForFileChangesText);
 		(async () => {
 			let lastChangeTime = 0;
 			for await (const { filename, eventType } of FS.watch(Path.resolve(process.cwd(), "./src/"), { recursive: true })) {
@@ -394,12 +429,12 @@ export const init = async ({
 				console.info(`File ${eventType} detected (src/${filename.replaceAll("\\", "/")}), rebuilding...`);
 				await buildProject();
 				console.info(`Rebuilt in ${(performance.now() - lastChangeTime).toFixed(1)} ms.`);
-				console.info(`Watching for file changes in ${Path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`);
+				console.info(watchingForFileChangesText);
 				if (liveReload) refreshPage?.();
 			}
 		})();
 	} else {
 		chunksBuildContext.dispose();
-		prerenderWorker.unref();
+		prerenderWorker?.unref();
 	}
 };

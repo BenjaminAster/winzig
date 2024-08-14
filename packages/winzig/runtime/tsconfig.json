@@ -22,5 +22,6 @@
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
 		"noEmitOnError": false,
+		"noImplicitAny": true,
 	},
 }

@@ -6,6 +6,7 @@ export interface WinzigOptions {
 	watch?: boolean;
 	liveReload?: boolean;
 	keepPrerenderFolder?: boolean;
+	prerender?: boolean;
 }
 
 export declare function init(options: WinzigOptions): Promise<void>;

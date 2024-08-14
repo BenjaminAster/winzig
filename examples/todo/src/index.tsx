@@ -4,37 +4,11 @@ import { toDos } from "./imported/test.ts";
 import { css } from "winzig";
 
 const ToDo = () => {
-	const toDoList = structuredClone(toDos);
+	let toDoList$ = structuredClone(toDos);
 	let input: HTMLInputElement;
-	const UL = <ul id="hi"></ul>;
-
-	const rerender = () => {
-		UL.innerHTML = "";
-		UL.append(...toDoList.map((todo, i) =>
-			<li>
-				{todo} <button on:click={() => { toDoList.splice(i, 1); rerender(); }}>✗</button>
-				{css`
-					& {
-						color: light-dark(maroon, khaki);
-						background-color: #80f2;
-						margin-block-end: .3rem;
-					}
-
-					button {
-						padding: .1em .5em;
-
-						&:hover {
-							color: lime;
-						}
-					}
-				`}
-			</li>
-		));
-	};
-	rerender();
 
 	let count$ = 3;
-	using doubleCount$ = count$ * 2; // TODO: implement live expressions
+	using doubleCount$ = count$ * 2;
 
 	return <>
 		<div>
@@ -44,11 +18,31 @@ const ToDo = () => {
 			{" "}(Double count: {doubleCount$})
 		</div>
 
-		<UL />
+		<ul>
+			{...toDoList$.map((todo, i) =>
+				<li>
+					{todo} <button on:click={() => { toDoList$ = toDoList$.toSpliced(i, 1); }}>✗</button>
+					{css`
+						& {
+							color: light-dark(maroon, khaki);
+							background-color: #80f2;
+							margin-block-end: .3rem;
+						}
 
-		<form on:submit_preventDefault={function () {
-			toDoList.push(input.value);
-			rerender();
+						button {
+							padding: .1em .5em;
+
+							&:hover {
+								color: lime;
+							}
+						}
+					`}
+				</li>
+			)}
+		</ul>
+
+		<form on:submit_preventDefault={() => {
+			toDoList$ = [...toDoList$, input.value];
 			input.value = "";
 		}}>
 			New ToDo item: {""}
@@ -94,7 +88,7 @@ const SomethingSomething = () => {
 			<div>This is a <code>&lt;div&gt;</code> outside of <code>&lt;ToDo /&gt;</code>.</div>
 			<br />
 
-			{[
+			{...[
 				<div>A</div>,
 				<div>B</div>,
 				<div>C</div>,
@@ -103,6 +97,34 @@ const SomethingSomething = () => {
 			<ToDo />
 
 			asdfasdf {navigator.userAgent}
+			<br />
+			{navigator.appCodeName}
+			<br />
+			{navigator.appName}
+			<br />
+			{navigator.appVersion}
+			<br />
+			{navigator.cookieEnabled}
+			<br />
+			{navigator.language}
+			<br />
+			{navigator.languages.toString()}
+			<br />
+			{navigator.vendor}
+			<br />
+			{window.screen}
+			<br />
+			{window.screen.height}
+			<br />
+			{window.screen.width}
+			<br />
+			{window.innerHeight}
+			<br />
+			{window.innerWidth}
+			<br />
+			{document.compatMode}
+			<br />
+			{JSON.stringify(document.body.getBoundingClientRect())}
 			<br />
 			Time: {new Date().toLocaleString("de-DE")}
 

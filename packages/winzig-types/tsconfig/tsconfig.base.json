@@ -9,7 +9,6 @@
 		"jsxImportSource": "winzig",
 		"noEmit": true,
 		"rootDir": "${configDir}/src/",
-		"outDir": "${configDir}/",
 		"lib": ["ESNext", "DOM", "DOM.Iterable", "DOM.AsyncIterable"],
 		"types": ["winzig-types"],
 		"strict": false,

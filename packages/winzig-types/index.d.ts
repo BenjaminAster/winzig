@@ -21,7 +21,7 @@ declare module "winzig" {
 	}
 
 	interface WinzigUsingExpressionPatch {
-		[Symbol.dispose](): any;
+		[Symbol.dispose](): void;
 	}
 
 	declare global {
@@ -30,6 +30,11 @@ declare module "winzig" {
 		interface BigInt extends WinzigUsingExpressionPatch { }
 		interface Object extends WinzigUsingExpressionPatch { }
 		interface Boolean extends WinzigUsingExpressionPatch { }
+		interface Symbol extends WinzigUsingExpressionPatch { }
+
+		// interface Function {
+		// 	await<A, T>(param: A): Awaited<T>;
+		// }
 	}
 }
 
@@ -37,76 +42,86 @@ declare module "winzig" {
 
 declare module "winzig/jsx-runtime" {
 	declare namespace WinzigInternals {
-		// type WinzigElement<T> = {
-		// 	[key in keyof (Omit<T, "children">)]?: T[key];
-		// 	// [key in keyof T]?: T[key];
-		// 	// children?: any;
-		// }
-
-		// type WinzigElement<T> extends asdf<T> {
-		// 	// [key: `on:${string}`]: any;
-		// }
-
-		// interface WinzigElement<T> extends T {
-		// 	// [key: `on:${string}`]: any;
-		// }
-
 		interface ElementBase {
 			[key: `on:${string}`]: any;
 		}
-
-		// type KnownKeys<T> = {
-		// 	[K in keyof T]: string extends K ? never : number extends K ? never : K
-		// } extends { [_ in keyof T]: infer U } ? U : never;
-		type KnownKeys<T> = Required<{
-			[K in keyof T]: string extends K ? undefined : number extends K ? undefined : T[K]
-		}>;
 
 		type WinzigElement<T extends globalThis.Element = globalThis.Element> = Partial<Omit<T, "children">> & WinzigInternals.ElementBase;
 	}
 
 	export declare namespace JSX {
-		// type Element = HTMLElement & { value?: string };
 		type Element = (
 			HTMLElement
-			& HTMLInputElement
+			& HTMLAnchorElement
+			& HTMLAreaElement
+			& HTMLAudioElement
+			& HTMLBaseElement
+			& HTMLQuoteElement
+			& HTMLBodyElement
 			& HTMLButtonElement
+			& HTMLCanvasElement
+			& HTMLTableColElement
+			& HTMLDataElement
+			& HTMLDataListElement
+			& HTMLModElement
+			& HTMLDetailsElement
+			& HTMLDialogElement
+			& HTMLDivElement
+			& HTMLDListElement
+			& HTMLEmbedElement
+			& HTMLFieldSetElement
 			& HTMLFormElement
-			& {
-				children: any;
-			}
+			& HTMLHeadingElement
+			& HTMLHeadElement
+			& HTMLHRElement
+			& HTMLHtmlElement
+			& HTMLIFrameElement
+			& HTMLImageElement
+			& HTMLInputElement
+			& HTMLModElement
+			& HTMLLabelElement
+			& HTMLLegendElement
+			& HTMLLIElement
+			& HTMLLinkElement
+			& HTMLMapElement
+			& HTMLMenuElement
+			& HTMLMetaElement
+			& HTMLMeterElement
+			& HTMLObjectElement
+			& HTMLOListElement
+			& HTMLOptGroupElement
+			& HTMLOptionElement
+			& HTMLOutputElement
+			& HTMLParagraphElement
+			& HTMLPictureElement
+			& HTMLPreElement
+			& HTMLProgressElement
+			& HTMLQuoteElement
+			& HTMLScriptElement
+			// & HTMLSelectElement
+			// & HTMLSlotElement
+			// & HTMLSourceElement
+			// & HTMLSpanElement
+			// & HTMLStyleElement
+			// & HTMLTableElement
+			// & HTMLTableSectionElement
+			// & HTMLTableCellElement
+			// & HTMLTemplateElement
+			// & HTMLTextAreaElement
+			// & HTMLTableSectionElement
+			// & HTMLTableCellElement
+			// & HTMLTableSectionElement
+			// & HTMLTimeElement
+			// & HTMLTitleElement
+			// & HTMLTableRowElement
+			// & HTMLTrackElement
+			// & HTMLUListElement
+			// & HTMLVideoElement
 		);
 
-		// interface ElementClass {}
-
-		// interface ElementChildrenAttribute extends React.JSX.ElementChildrenAttribute {}
-		// type LibraryManagedAttributes<C, P> = React.JSX.LibraryManagedAttributes<C, P>;
-		// type LibraryManagedAttributes<C, P> = unknown;
-		// interface IntrinsicAttributes extends React.JSX.IntrinsicAttributes {}
-		// interface IntrinsicClassAttributes<T> extends React.JSX.IntrinsicClassAttributes<T> {}
-		// interface IntrinsicElements extends React.JSX.IntrinsicElements {}
-
-		export interface IntrinsicElements {
-			div: WinzigInternals.WinzigElement<HTMLDivElement>;
-			ul: WinzigInternals.WinzigElement<HTMLUListElement>;
-			li: WinzigInternals.WinzigElement<HTMLLIElement>;
-			button: WinzigInternals.WinzigElement<HTMLButtonElement>;
-			input: WinzigInternals.WinzigElement<HTMLInputElement>;
-			main: WinzigInternals.WinzigElement<HTMLElement>;
-			h1: WinzigInternals.WinzigElement<HTMLHeadingElement>;
-			br: WinzigInternals.WinzigElement<HTMLBRElement>;
-			code: WinzigInternals.WinzigElement<HTMLElement>;
-			form: any;
-			body: WinzigInternals.WinzigElement<HTMLBodyElement>;
-			html: WinzigInternals.WinzigElement<HTMLHtmlElement>;
-			head: WinzigInternals.WinzigElement<HTMLHeadElement>;
-			title: WinzigInternals.WinzigElement<HTMLTitleElement>;
-			meta: WinzigInternals.WinzigElement<HTMLMetaElement>;
-			slot: WinzigInternals.WinzigElement<HTMLSlotElement>;
-			// form: WinzigInternals.WinzigElement<Pick<HTMLFormElement, KnownKeys<HTMLFormElement>>>;
-			// form: WinzigInternals.WinzigElement<WinzigInternals.KnownKeys<HTMLFormElement>>;
-			// form: WinzigInternals.WinzigElement<WinzigInternals.KnownKeys<Partial<Omit<HTMLFormElement, "children">>>>;
-		}
+		export type IntrinsicElements = {
+			[key in keyof HTMLElementTagNameMap]: WinzigInternals.WinzigElement<HTMLElementTagNameMap[key]>;
+		};
 	}
 
 

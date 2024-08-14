@@ -1,14 +1,17 @@
 
 const globalSlottableChildrenStack: any[] = [];
 
-const FragmentSymbol = Symbol();
-const SlotSymbol = Symbol();
+const jsxSlot = () => {
+	const element = document.createElement("wz-frag");
+	element.append(...globalSlottableChildrenStack.pop());
+	return element;
+};
 
 const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): Element => {
 	if (typeof elementTypeOrFunction === "function") {
 		let currentGlobalSlottableChildrenStackLength = globalSlottableChildrenStack.length;
 		globalSlottableChildrenStack.push(children);
-		const element: HTMLElement = elementTypeOrFunction();
+		const element: HTMLElement = elementTypeOrFunction(namedArgs ?? {});
 		if (currentGlobalSlottableChildrenStackLength !== globalSlottableChildrenStack.length) {
 			globalSlottableChildrenStack.pop();
 		}
@@ -17,41 +20,38 @@ const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): El
 	} else {
 		let element: any = typeof elementTypeOrFunction === "object"
 			? elementTypeOrFunction
-			: document.createElement(typeof elementTypeOrFunction === "symbol" ? "wz-frag" : elementTypeOrFunction);
-		if (elementTypeOrFunction === SlotSymbol) {
-			element.append(...globalSlottableChildrenStack.pop());
-		} else {
-			if (namedArgs) {
-				const { dataset, ...params } = namedArgs;
-				if (dataset) Object.assign(element.dataset, dataset);
-				for (const [key, value] of Object.entries(params) as any) {
-					if (key.startsWith("on:")) {
-						const [eventName, ...modifiers] = key.slice(3).split("_");
-						element.addEventListener(
-							eventName,
-							modifiers.includes("preventDefault")
-								? (event) => {
-									event.preventDefault();
-									value.call(element, event);
-								}
-								: value,
-						);
-					} else {
-						element[key] = value;
-					}
+			: document.createElement(elementTypeOrFunction);
+
+		if (namedArgs) {
+			const { dataset, ...params } = namedArgs;
+			if (dataset) Object.assign(element.dataset, dataset);
+			for (const [key, value] of Object.entries(params) as any) {
+				if (key.startsWith("on:")) {
+					const [eventName, ...modifiers] = key.slice(3).split("_");
+					element.addEventListener(
+						eventName,
+						modifiers.includes("preventDefault")
+							? (event: any) => {
+								event.preventDefault();
+								value.call(element, event);
+							}
+							: value,
+					);
+				} else {
+					element[key] = value;
 				}
 			}
+		}
 
-			for (const child of children) {
-				if (typeof child === "string") {
-					element.append(child);
-				} else if (child instanceof LiveVariable) {
-					const textNode = new Text(child._);
-					child.addEventListener("", (event) => textNode.data = event.detail);
-					element.append(textNode);
-				} else {
-					element.append(Array.isArray(child) ? jsx(FragmentSymbol, null, ...child) : child);
-				}
+		for (const child of children) {
+			if (typeof child === "string") {
+				element.append(child);
+			} else if (child instanceof LiveVariable) {
+				const textNode = new Text(child._);
+				child.addEventListener("", (event) => textNode.data = event.detail);
+				element.append(textNode);
+			} else {
+				element.append(Array.isArray(child) ? jsx("wz-frag", null, ...child) : child);
 			}
 		}
 		return element;
@@ -62,23 +62,27 @@ interface VariableEventMap {
 	"": CustomEvent;
 };
 
-interface Variable<T> extends EventTarget {
+interface LiveVariable<T> extends EventTarget {
 	_: T;
-	addEventListener<K extends keyof VariableEventMap>(type: K, listener: (this: Variable<T>, ev: VariableEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+	addEventListener<K extends keyof VariableEventMap>(type: K, listener: (this: LiveVariable<T>, ev: VariableEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
 	addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-	removeEventListener<K extends keyof VariableEventMap>(type: K, listener: (this: Variable<T>, ev: VariableEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+	removeEventListener<K extends keyof VariableEventMap>(type: K, listener: (this: LiveVariable<T>, ev: VariableEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
 	removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 };
 
-interface VariableConstructor {
-	new <T>(value: T): Variable<T>;
-	prototype: Variable<any>;
+interface LiveVariableConstructor {
+	new <T>(value: T): LiveVariable<T>;
+	prototype: LiveVariable<any>;
 };
+
 
 const LiveVariable = class <T> extends EventTarget {
 	#value: T;
 	constructor(value: T) {
 		super();
+		// if (Array.isArray(value)) {
+		// 	return new LiveArray(value) as any;
+		// }
 		this.#value = value;
 	};
 	get _() {
@@ -88,19 +92,75 @@ const LiveVariable = class <T> extends EventTarget {
 		this.#value = value;
 		this.dispatchEvent(new CustomEvent("", { detail: value }));
 	};
-} as VariableConstructor;
+} as LiveVariableConstructor;
 
-const liveExpression = <T>(func: () => T, ...dependencies: Variable<any>[]) => {
+// TODO: Implement live arrays
+
+// const LiveArray = class <T> extends LiveVariable<T[]> {
+// 	constructor(value: T[]) {
+// 		super(undefined);
+// 		this._ = value;
+// 	};
+
+// 	// copyWithin(target: number, start: number, end: number) {
+// 	// 	this._.copyWithin(target, start, end);
+// 	// 	this.dispatchEvent(new CustomEvent("", { detail: this._ }));
+// 	// };
+// 	// push(...items: T[]) {
+// 	// 	this._.push(...items);
+// 	// 	this.dispatchEvent(new CustomEvent("", { detail: this._ }));
+// 	// };
+// 	// pop() {
+// 	// 	this._.pop();
+// 	// 	this.dispatchEvent(new CustomEvent("", { detail: this._ }));
+// 	// };
+// 	// shift() {
+// 	// 	this._.shift();
+// 	// 	this.dispatchEvent(new CustomEvent("", { detail: this._ }));
+// 	// };
+// 	// unshift(...items: T[]) {
+// 	// 	this._.unshift(...items);
+// 	// 	this.dispatchEvent(new CustomEvent("", { detail: this._ }));
+// 	// };
+// 	// splice(start: number, deleteCount: number) {
+// 	// 	this._.splice(start, deleteCount);
+// 	// 	this.dispatchEvent(new CustomEvent("", { detail: this._ }));
+// 	// };
+// 	// reverse() {
+// 	// 	this._.reverse();
+// 	// 	this.dispatchEvent(new CustomEvent("", { detail: this._ }));
+// 	// };
+// 	// sort(compareFunction: any) {
+// 	// 	this._.sort(compareFunction);
+// 	// 	this.dispatchEvent(new CustomEvent("", { detail: this._ }));
+// 	// };
+// 	// fill(item: T, start: number, end: number) {
+// 	// 	this._.fill(item, start, end);
+// 	// 	this.dispatchEvent(new CustomEvent("", { detail: this._ }));
+// 	// };
+// };
+
+const liveExpression = <T>(func: () => T, ...dependencies: LiveVariable<any>[]) => {
 	const returnVariable = new LiveVariable<T>(func());
 	addListeners(() => returnVariable._ = func(), ...dependencies);
 	return returnVariable;
 };
 
-const addListeners = (func: () => any, ...dependencies: Variable<any>[]) => {
+const addListeners = (func: () => any, ...dependencies: LiveVariable<any>[]) => {
 	for (const dependency of dependencies) {
 		dependency.addEventListener("", func);
 	}
 };
 
+const liveFragment = (liveExpression: LiveVariable<any>) => {
+	const fragment = document.createElement("wz-frag");
+	const update = () => {
+		fragment.textContent = "";
+		fragment.append(...liveExpression._);
+	};
+	update();
+	liveExpression.addEventListener("", update);
+	return fragment;
+};
 
-export { FragmentSymbol as _F, jsx as _j, LiveVariable as _V, SlotSymbol as _S, addListeners as _l, liveExpression as _e };
+export { jsx as j, LiveVariable as V, addListeners as l, liveExpression as e, jsxSlot as s, liveFragment as f };

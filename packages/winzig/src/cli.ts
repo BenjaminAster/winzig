@@ -38,6 +38,7 @@ const minify = !devMode && !cmdArgs.has("pretty");
 const watch = devMode || cmdArgs.has("watch");
 const liveReload = devMode || (watch && cmdArgs.has("live-reload"));
 const keepPrerenderFolder = cmdArgs.has("keep-prerender-folder");
+const prerender = !devMode && !cmdArgs.has("no-prerender");
 
 init({
 	appfilesFolderPath,
@@ -46,4 +47,5 @@ init({
 	outputFolderPath,
 	watch,
 	keepPrerenderFolder,
+	prerender,
 });

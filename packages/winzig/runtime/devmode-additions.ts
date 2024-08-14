@@ -2,7 +2,7 @@
 declare var __winzig__webSocketPort: number;
 
 const formatMessage = (message: string) => {
-	return [`%c[winzig] %c${message}`, "color: light-dark(blue, skyblue); font-weight: bold;", ""];
+	return [`%c[winzig]%c ${message}`, "color: light-dark(blue, skyblue); font-weight: bold;", ""];
 };
 
 const socket = new WebSocket(`ws://localhost:${__winzig__webSocketPort}/`);

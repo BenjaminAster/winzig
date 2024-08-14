@@ -2,6 +2,8 @@
 import { parentPort } from "node:worker_threads";
 import * as Path from "node:path";
 
+import * as NodeURL from "node:url";
+
 import { JSDOM } from "jsdom";
 
 let setBuildData: any;
@@ -48,14 +50,12 @@ parentPort.on("message", async (data) => {
 			writable: true,
 		});
 
-		globalThis.__$WZ_SEPARATOR__ = undefined;
-
 		if (!setBuildData) {
-			({ setBuildData } = await import("file://" + Path.resolve(data.prerenderFolder, "./winzig-runtime.js")));
+			({ setBuildData } = await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./winzig-runtime.js")).href));
 		}
 
 		setBuildData(data);
-		await import("file://" + Path.resolve(data.prerenderFolder, "./index.js" + "?" + Date.now()));
+		await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./index.js")).href + "?" + Date.now());
 	}
 })
 

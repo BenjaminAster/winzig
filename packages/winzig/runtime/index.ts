@@ -23,35 +23,25 @@ const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): El
 			: document.createElement(elementTypeOrFunction);
 
 		if (namedArgs) {
-			const { dataset, ...params } = namedArgs;
+			const { dataset, _l, _r, ...params } = namedArgs;
 			if (dataset) Object.assign(element.dataset, dataset);
-			for (const [key, value] of Object.entries(params) as any) {
-				if (key.startsWith("on:")) {
-					const [eventName, ...modifiers] = key.slice(3).split("_");
-					element.addEventListener(
-						eventName,
-						modifiers.includes("preventDefault")
-							? (event: any) => {
-								event.preventDefault();
-								value.call(element, event);
-							}
-							: value,
-					);
-				} else {
-					element[key] = value;
-				}
+			Object.assign(element, params);
+			if (_l) for (const [event, callback] of _l) {
+				element.addEventListener(event, callback);
+			}
+			if (_r) for (const [attribute, value] of _r) {
+				element[attribute] = value._;
+				value.addEventListener("", (event: CustomEvent) => element[attribute] = event.detail);
 			}
 		}
 
 		for (const child of children) {
-			if (typeof child === "string") {
-				element.append(child);
-			} else if (child instanceof LiveVariable) {
+			if (child instanceof LiveVariable) {
 				const textNode = new Text(child._);
 				child.addEventListener("", (event) => textNode.data = event.detail);
 				element.append(textNode);
 			} else {
-				element.append(Array.isArray(child) ? jsx("wz-frag", null, ...child) : child);
+				element.append(child);
 			}
 		}
 		return element;

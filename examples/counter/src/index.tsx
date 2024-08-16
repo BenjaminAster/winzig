@@ -3,6 +3,7 @@ import { css } from "winzig";
 
 let count$ = 0;
 using tripleCount$ = count$ * 3;
+$: console.log(`Count is now ${count$}.`);
 
 <html lang="en">
 	<head>

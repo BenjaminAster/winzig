@@ -1,7 +1,7 @@
 
 import type * as ESTree from "estree";
 
-import * as FS from "node:fs/promises";
+// import * as FS from "node:fs/promises";
 
 let currentUniqueId: number = 0;
 const createUniqueId = () => ++currentUniqueId;
@@ -9,13 +9,13 @@ const createUniqueId = () => ++currentUniqueId;
 const reactiveVarRegExp = /\$\d?$/;
 
 export const compileAST = (ast: ESTree.Program) => {
-	FS.writeFile("./ast.json", JSON.stringify(ast, null, "\t"));
+	// FS.writeFile("./ast.json", JSON.stringify(ast, null, "\t"));
 
 	let tempExpression: ESTree.Expression;
+	let tempStatement: ESTree.Statement;
 
 	let cssSnippets: string[] = [];
 	let dependencyStack: (Set<string> | null)[] = [];
-	let dependencyDeterminationDepth = 0;
 
 	const transformToLiveExpression = (node: ESTree.Expression, dependencies: string[]) => {
 		return {
@@ -44,33 +44,45 @@ export const compileAST = (ast: ESTree.Program) => {
 		} satisfies ESTree.CallExpression;
 	};
 
+	// #region visit expression
 	const visitExpression = (node: ESTree.Expression | ESTree.Pattern | ESTree.SpreadElement, leaveLiveVars: boolean = false) => {
 		if (!node) return;
 		switch (node.type) {
-			case "ArrowFunctionExpression": {
-				if (node.expression) {
-					visitExpression(node.body as ESTree.Expression);
-				} else {
-					visitStatementOrProgram(node.body as ESTree.BlockStatement);
+			case "ArrayExpression": {
+				for (let i = 0; i < node.elements.length; ++i) {
+					if (tempExpression = visitExpression(node.elements[i])) node.elements[i] = tempExpression;
 				}
 				break;
 			}
-			case "Identifier": {
-				if (!leaveLiveVars && reactiveVarRegExp.test(node.name)) {
-					if (dependencyDeterminationDepth) dependencyStack.at(-1)?.add(node.name);
-					return {
-						type: "MemberExpression",
-						computed: false,
-						loc: node.loc,
-						object: node,
-						optional: false,
-						property: {
-							type: "Identifier",
-							name: "_",
-							loc: node.loc,
-						} satisfies ESTree.Identifier,
-					} satisfies ESTree.MemberExpression;
+			case "ArrayPattern": {
+				console.warn(`TODO: implement expression: ${node.type}`);
+				break;
+			}
+			case "ArrowFunctionExpression": {
+				if (node.expression) {
+					visitExpression(node.body as ESTree.Expression);
+					break;
 				}
+			} case "FunctionExpression": {
+				visitStatementOrProgram(node.body as ESTree.BlockStatement);
+				break;
+			}
+			case "AssignmentExpression": {
+				if (tempExpression = visitExpression(node.left)) node.left = tempExpression as ESTree.Pattern;
+				if (tempExpression = visitExpression(node.right)) node.right = tempExpression;
+				break;
+			}
+			case "AssignmentPattern": {
+				console.warn(`TODO: implement expression: ${node.type}`);
+				break;
+			}
+			case "AwaitExpression": {
+				visitExpression(node.argument);
+				break;
+			}
+			case "BinaryExpression": case "LogicalExpression": {
+				if (tempExpression = visitExpression(node.left)) node.left = tempExpression;
+				if (tempExpression = visitExpression(node.right)) node.right = tempExpression;
 				break;
 			}
 			case "CallExpression": {
@@ -94,7 +106,7 @@ export const compileAST = (ast: ESTree.Program) => {
 
 							let cssString = lastArg.quasi.quasis[0].value.cooked.trim();
 							const [firstLine, ...otherLines] = cssString.split("\n");
-							const leadingWhitespace = otherLines.at(-1).match(/^(\s*)/)[0].length;
+							const leadingWhitespace = otherLines.at(-1)?.match(/^(\s*)/)[0].length ?? 0;
 							cssString = [firstLine, ...otherLines.map(line => line.slice(leadingWhitespace - 1))].join("\n");
 							cssSnippets.push(`@scope ([data-wz-id="${cssId.toString(36)}"]) to ([data-wz-new-scope]) {\n\t${cssString}\n}\n`);
 							node.arguments.pop();
@@ -113,10 +125,8 @@ export const compileAST = (ast: ESTree.Program) => {
 						arg = node.arguments[i];
 						if (arg.type === "SpreadElement") {
 							let spreadItem = arg.argument;
-							++dependencyDeterminationDepth;
 							dependencyStack.push(new Set());
-							tempExpression = visitExpression(spreadItem);
-							if (tempExpression) spreadItem = tempExpression;
+							if (tempExpression = visitExpression(spreadItem)) spreadItem = tempExpression;
 							if (dependencyStack.at(-1).size) {
 								node.arguments[i] = {
 									type: "CallExpression",
@@ -132,16 +142,13 @@ export const compileAST = (ast: ESTree.Program) => {
 								} satisfies ESTree.CallExpression;
 							}
 							dependencyStack.pop();
-							--dependencyDeterminationDepth;
 						} else {
-							++dependencyDeterminationDepth;
 							dependencyStack.push(new Set());
 							visitExpression(arg, true);
 							if (dependencyStack.at(-1).size) {
 								node.arguments[i] = transformToLiveExpression(arg, [...dependencyStack.at(-1)]);
 							}
 							dependencyStack.pop();
-							--dependencyDeterminationDepth;
 						}
 					}
 
@@ -181,19 +188,168 @@ export const compileAST = (ast: ESTree.Program) => {
 											value: cssId.toString(36),
 											loc: node.arguments[1].loc,
 										} satisfies ESTree.SimpleLiteral,
-										loc: node.arguments[1].loc
+										loc: node.arguments[1].loc,
 									} satisfies ESTree.Property,
 								],
 							} satisfies ESTree.ObjectExpression,
-							loc: node.arguments[1].loc
+							loc: node.arguments[1].loc,
 						} satisfies ESTree.Property);
 					}
 					{
-						++dependencyDeterminationDepth;
-						dependencyStack.push(null);
-						visitExpression(node.arguments[1] as ESTree.Expression);
-						--dependencyDeterminationDepth;
-						dependencyStack.pop();
+						const arg = node.arguments[1];
+						if (arg.type === "ObjectExpression") {
+							const listeners: ESTree.ArrayExpression[] = [];
+							const reactiveAttributes: ESTree.ArrayExpression[] = [];
+							for (let i = arg.properties.length - 1; i >= 0; --i) {
+								const property = arg.properties[i];
+								if (property.type === "Property") {
+									if (property.key.type === "Literal" && (property.key.value as string).startsWith?.("on:")) {
+										dependencyStack.push(null);
+										visitExpression(property.value);
+										const [eventName, ...modifiers] = (property.key.value as string).slice(3).split("_");
+										listeners.push({
+											type: "ArrayExpression",
+											loc: property.loc,
+											elements: [
+												{
+													type: "Literal",
+													loc: property.loc,
+													value: eventName,
+												} satisfies ESTree.SimpleLiteral,
+												modifiers.includes("preventDefault")
+													? {
+														type: "FunctionExpression",
+														loc: property.value.loc,
+														params: [
+															{
+																type: "Identifier",
+																name: "__winzig__event",
+															} satisfies ESTree.Identifier
+														],
+														body: {
+															type: "BlockStatement",
+															body: [
+																{
+																	type: "ExpressionStatement",
+																	expression: {
+																		type: "CallExpression",
+																		arguments: [],
+																		optional: false,
+																		callee: {
+																			type: "MemberExpression",
+																			computed: false,
+																			object: {
+																				// What, code *shouldn't* be indented 20 levels deep, you say??
+																				type: "Identifier",
+																				name: "__winzig__event",
+																			} satisfies ESTree.Identifier,
+																			property: {
+																				type: "Identifier",
+																				name: "preventDefault",
+																			} satisfies ESTree.Identifier,
+																			optional: false,
+																		} satisfies ESTree.MemberExpression,
+																	} satisfies ESTree.CallExpression,
+																} satisfies ESTree.ExpressionStatement,
+																{
+																	type: "ExpressionStatement",
+																	expression: {
+																		type: "CallExpression",
+																		callee: {
+																			type: "MemberExpression",
+																			computed: false,
+																			optional: false,
+																			object: property.value as ESTree.Expression,
+																			property: {
+																				type: "Identifier",
+																				name: "call",
+																			} satisfies ESTree.Identifier,
+																		} satisfies ESTree.MemberExpression,
+																		arguments: [
+																			{
+																				type: "ThisExpression",
+																			} satisfies ESTree.ThisExpression,
+																			{
+																				type: "Identifier",
+																				name: "__winzig__event",
+																			} satisfies ESTree.Identifier,
+																		],
+																		optional: false,
+																	} satisfies ESTree.CallExpression,
+																} satisfies ESTree.ExpressionStatement,
+															],
+														} satisfies ESTree.BlockStatement,
+													} satisfies ESTree.FunctionExpression
+													: property.value as ESTree.Expression,
+											],
+										} satisfies ESTree.ArrayExpression);
+										arg.properties.splice(i, 1);
+										dependencyStack.pop();
+									} else if (property.key.type === "Identifier") {
+										const isReactiveIdentifier =
+											property.value.type === "Identifier"
+											&& reactiveVarRegExp.test(property.value.name);
+										dependencyStack.push(new Set());
+										if (tempExpression = visitExpression(property.value, isReactiveIdentifier)) property.value = tempExpression;
+										if (dependencyStack.at(-1).size) {
+											property.value = transformToLiveExpression(property.value as ESTree.Expression, [...dependencyStack.at(-1)]);
+										}
+										if (isReactiveIdentifier || dependencyStack.at(-1).size) {
+											reactiveAttributes.push({
+												type: "ArrayExpression",
+												loc: property.loc,
+												elements: [
+													{
+														type: "Literal",
+														loc: property.loc,
+														value: property.key.name,
+													} satisfies ESTree.SimpleLiteral,
+													property.value as ESTree.Expression,
+												],
+											} satisfies ESTree.ArrayExpression);
+											arg.properties.splice(i, 1);
+										}
+										dependencyStack.pop();
+									}
+								} else {
+									visitExpression(property.argument);
+								}
+							}
+							if (listeners.length) {
+								arg.properties.push({
+									type: "Property",
+									computed: false,
+									key: {
+										type: "Identifier",
+										name: "_l",
+									} satisfies ESTree.Identifier,
+									kind: "init",
+									method: false,
+									shorthand: false,
+									value: {
+										type: "ArrayExpression",
+										elements: listeners,
+									} satisfies ESTree.ArrayExpression,
+								} satisfies ESTree.Property);
+							}
+							if (reactiveAttributes.length) {
+								arg.properties.push({
+									type: "Property",
+									computed: false,
+									key: {
+										type: "Identifier",
+										name: "_r",
+									} satisfies ESTree.Identifier,
+									kind: "init",
+									method: false,
+									shorthand: false,
+									value: {
+										type: "ArrayExpression",
+										elements: reactiveAttributes,
+									} satisfies ESTree.ArrayExpression,
+								} satisfies ESTree.Property);
+							}
+						}
 					}
 
 					if (isStandardElement) {
@@ -294,79 +450,324 @@ export const compileAST = (ast: ESTree.Program) => {
 						}
 					}
 				} else {
-					tempExpression = visitExpression(node.callee as ESTree.Expression);
-					if (tempExpression) node.callee = tempExpression;
+					if (tempExpression = visitExpression(node.callee as ESTree.Expression)) node.callee = tempExpression;
 					for (let i = 0; i < node.arguments.length; ++i) {
-						tempExpression = visitExpression(node.arguments[i]);
-						if (tempExpression) node.arguments[i] = tempExpression;
+						if (tempExpression = visitExpression(node.arguments[i])) node.arguments[i] = tempExpression;
 					}
+				}
+				break;
+			}
+			case "ChainExpression": {
+				console.warn(`TODO: implement expression: ${node.type}`);
+				break;
+			}
+			case "ClassExpression": {
+				console.warn(`TODO: implement expression: ${node.type}`);
+				break;
+			}
+			case "ConditionalExpression": {
+				if (tempExpression = visitExpression(node.test)) node.test = tempExpression;
+				if (tempExpression = visitExpression(node.consequent)) node.consequent = tempExpression;
+				if (tempExpression = visitExpression(node.alternate)) node.alternate = tempExpression;
+				break;
+			}
+			// case "FunctionExpression": see case "ArrowFunctionExpression"
+			case "Identifier": {
+				if (!leaveLiveVars && reactiveVarRegExp.test(node.name)) {
+					if (dependencyStack.length) dependencyStack.at(-1)?.add(node.name);
+					return {
+						type: "MemberExpression",
+						computed: false,
+						loc: node.loc,
+						object: node,
+						optional: false,
+						property: {
+							type: "Identifier",
+							name: "_",
+							loc: node.loc,
+						} satisfies ESTree.Identifier,
+					} satisfies ESTree.MemberExpression;
+				}
+				break;
+			}
+			case "ImportExpression": {
+				console.warn(`TODO: implement expression: ${node.type}`);
+				break;
+			}
+			case "Literal": {
+				break;
+			}
+			// case "LogicalExpression": see case "BinaryExpression"
+			case "MemberExpression": {
+				if (tempExpression = visitExpression(node.object as ESTree.Expression)) node.object = tempExpression;
+				if (tempExpression = visitExpression(node.property as ESTree.Expression)) node.property = tempExpression;
+				break;
+			}
+			case "MetaProperty": {
+				console.warn(`TODO: implement expression: ${node.type}`);
+				break;
+			}
+			case "NewExpression": {
+				for (let i = 0; i < node.arguments.length; ++i) {
+					if (tempExpression = visitExpression(node.arguments[i])) node.arguments[i] = tempExpression;
 				}
 				break;
 			}
 			case "ObjectExpression": {
 				for (const prop of node.properties) {
 					if (prop.type === "Property") {
-						tempExpression = visitExpression(prop.value);
-						if (tempExpression) prop.value = tempExpression;
+						if (tempExpression = visitExpression(prop.value)) prop.value = tempExpression;
 					}
 				}
 				break;
 			}
-			case "UpdateExpression": {
-				tempExpression = visitExpression(node.argument);
-				if (tempExpression) node.argument = tempExpression;
+			case "ObjectPattern": {
+				console.warn(`TODO: implement expression: ${node.type}`);
 				break;
 			}
-			case "BinaryExpression": {
-				tempExpression = visitExpression(node.left);
-				if (tempExpression) node.left = tempExpression;
-				tempExpression = visitExpression(node.right);
-				if (tempExpression) node.right = tempExpression;
-				break;
-			}
-			case "SpreadElement": {
-				tempExpression = visitExpression(node.argument);
-				if (tempExpression) node.argument = tempExpression;
+			case "RestElement": {
+				console.warn(`TODO: implement expression: ${node.type}`);
 				break;
 			}
 			case "SequenceExpression": {
 				for (let i = 0; i < node.expressions.length; ++i) {
-					tempExpression = visitExpression(node.expressions[i]);
-					if (tempExpression) node.expressions[i] = tempExpression;
+					if (tempExpression = visitExpression(node.expressions[i])) node.expressions[i] = tempExpression;
 				}
 				break;
 			}
-			case "MemberExpression": {
-				tempExpression = visitExpression(node.object as ESTree.Expression);
-				if (tempExpression) node.object = tempExpression;
-				tempExpression = visitExpression(node.property as ESTree.Expression);
-				if (tempExpression) node.property = tempExpression;
+			case "SpreadElement": {
+				if (tempExpression = visitExpression(node.argument)) node.argument = tempExpression;
 				break;
 			}
-			case "AssignmentExpression": {
-				tempExpression = visitExpression(node.left);
-				if (tempExpression) node.left = tempExpression as ESTree.Pattern;
-				tempExpression = visitExpression(node.right);
-				if (tempExpression) node.right = tempExpression;
+			case "TaggedTemplateExpression": {
+				console.warn(`TODO: implement expression: ${node.type}`);
 				break;
 			}
-			case "ArrayExpression": {
-				for (let i = 0; i < node.elements.length; ++i) {
-					tempExpression = visitExpression(node.elements[i]);
-					if (tempExpression) node.elements[i] = tempExpression;
+			case "TemplateLiteral": {
+				for (let i = 0; i < node.expressions.length; ++i) {
+					if (tempExpression = visitExpression(node.expressions[i])) node.expressions[i] = tempExpression;
 				}
+				break;
+			}
+			case "ThisExpression": {
+				break;
+			}
+			case "UnaryExpression": case "UpdateExpression": case "YieldExpression": {
+				if (tempExpression = visitExpression(node.argument)) node.argument = tempExpression;
+				break;
+			}
+			// case "UpdateExpression": see case "UnaryExpression"
+			// case "YieldExpression": see case "UnaryExpression"
+			default: {
+				console.error(`Unknown expression type: ${(node as any).type}`);
+				break;
 			}
 		}
 	};
+	// #endregion
 
-	const visitStatementOrProgram = (node: ESTree.Statement | ESTree.Program | ESTree.ModuleDeclaration): undefined | null => {
+	// #region visit statement
+	const visitStatementOrProgram = (node: ESTree.Statement | ESTree.Program | ESTree.ModuleDeclaration): ESTree.Statement | null | undefined => {
 		switch (node.type) {
-			case "Program": case "BlockStatement": {
+			case "BlockStatement": case "Program": {
 				for (let i = node.body.length - 1; i >= 0; --i) {
-					if (visitStatementOrProgram(node.body[i]) === null) {
+					if (tempStatement = visitStatementOrProgram(node.body[i])) {
+						node.body[i] = tempStatement;
+					} else if (tempStatement === null) {
 						node.body.splice(i, 1);
 					};
 				}
+				break;
+			}
+			case "BreakStatement": {
+				break;
+			}
+			case "ClassDeclaration": {
+				console.warn("TODO: implement statement: ClassDeclaration");
+				break;
+			}
+			case "ContinueStatement": {
+				break;
+			}
+			case "DebuggerStatement": {
+				break;
+			}
+			case "DoWhileStatement": {
+				visitStatementOrProgram(node.body);
+				if (tempExpression = visitExpression(node.test)) node.test = tempExpression;
+				break;
+			}
+			case "EmptyStatement": {
+				break;
+			}
+			case "ExportAllDeclaration": {
+				console.warn("TODO: implement statement: ExportAllDeclaration");
+				node.type;
+				break;
+			}
+			case "ExpressionStatement": {
+				if (tempExpression = visitExpression(node.expression)) node.expression = tempExpression;
+				break;
+			}
+			case "ExportDefaultDeclaration": {
+				console.warn("TODO: implement statement: ExportDefaultDeclaration");
+				node.type;
+				break;
+			}
+			case "ExportNamedDeclaration": {
+				console.warn("TODO: implement statement: ExportNamedDeclaration");
+				node.type;
+				break;
+			}
+			case "ForInStatement": case "ForOfStatement": {
+				if (tempExpression = visitExpression(node.right)) node.right = tempExpression;
+				visitStatementOrProgram(node.body);
+				break;
+			}
+			// case "ForOfStatement": see case "ForInStatement"
+			case "ForStatement": {
+				console.warn("TODO: implement statement: ForStatement");
+				node.type;
+				if (node.init.type === "VariableDeclaration") visitStatementOrProgram(node.init);
+				else if (tempExpression = visitExpression(node.init)) node.init = tempExpression;
+				if (tempExpression = visitExpression(node.test)) node.test = tempExpression;
+				if (tempExpression = visitExpression(node.update)) node.update = tempExpression;
+				visitStatementOrProgram(node.body);
+				break;
+			}
+			case "FunctionDeclaration": {
+				visitStatementOrProgram(node.body);
+				break;
+			}
+			case "IfStatement": {
+				if (tempExpression = visitExpression(node.test)) node.test = tempExpression;
+				visitStatementOrProgram(node.consequent);
+				if (node.alternate) visitStatementOrProgram(node.alternate);
+				break;
+			}
+			case "ImportDeclaration": {
+				if (node.source.value === "$appfiles/winzig-runtime.js") {
+					for (let i = node.specifiers.length - 1; i >= 0; --i) {
+						let specifier = node.specifiers[i];
+						if (specifier.type === "ImportSpecifier" && specifier.imported.name === "css") {
+							node.specifiers.splice(i, 1);
+						}
+					}
+					if (node.specifiers.length === 0) {
+						return null;
+					}
+				}
+				break;
+			}
+			case "LabeledStatement": {
+				if (node.label.name === "$") {
+					dependencyStack.push(new Set());
+					visitStatementOrProgram(node.body);
+					if (dependencyStack.at(-1).size) {
+						const returnStatement = {
+							type: "BlockStatement",
+							loc: node.loc,
+							body: [
+								{
+									type: "VariableDeclaration",
+									kind: "const",
+									loc: node.loc,
+									declarations: [
+										{
+											type: "VariableDeclarator",
+											id: {
+												type: "Identifier",
+												name: "__winzig__tempFunction",
+											} satisfies ESTree.Identifier,
+											loc: node.loc,
+											init: {
+												type: "ArrowFunctionExpression",
+												params: [] as any[],
+												expression: false,
+												loc: node.loc,
+												body: node.body.type === "BlockStatement" ? node.body : {
+													type: "BlockStatement",
+													loc: node.loc,
+													body: [node.body],
+												} satisfies ESTree.BlockStatement,
+											} satisfies ESTree.ArrowFunctionExpression,
+										} satisfies ESTree.VariableDeclarator,
+									],
+								} satisfies ESTree.VariableDeclaration,
+								{
+									type: "ExpressionStatement",
+									expression: {
+										type: "CallExpression",
+										arguments: [],
+										callee: {
+											type: "Identifier",
+											name: "__winzig__tempFunction",
+											loc: node.loc,
+										} satisfies ESTree.Identifier,
+										optional: false,
+										loc: node.loc,
+									} satisfies ESTree.CallExpression,
+								} satisfies ESTree.ExpressionStatement,
+								{
+									type: "ExpressionStatement",
+									expression: {
+										type: "CallExpression",
+										optional: false,
+										loc: node.loc,
+										arguments: [
+											{
+												type: "Identifier",
+												name: "__winzig__tempFunction",
+											} satisfies ESTree.Identifier,
+											...[...dependencyStack.at(-1)].map((dependency) => ({
+												type: "Identifier",
+												name: dependency,
+												loc: node.loc,
+											} satisfies ESTree.Identifier))
+										],
+										callee: {
+											type: "Identifier",
+											name: "__winzig__addListeners",
+											loc: node.loc,
+										} satisfies ESTree.Identifier,
+									} satisfies ESTree.CallExpression,
+								} satisfies ESTree.ExpressionStatement,
+							],
+						} satisfies ESTree.BlockStatement;
+						dependencyStack.pop();
+						return returnStatement;
+					}
+					dependencyStack.pop();
+				} else {
+					visitStatementOrProgram(node.body);
+				}
+				break;
+			}
+			// case "Program": see case "BlockStatement"
+			case "ReturnStatement": {
+				if (tempExpression = visitExpression(node.argument)) node.argument = tempExpression;
+				break;
+			}
+			case "StaticBlock": {
+				node.body.forEach(visitStatementOrProgram);
+				break;
+			}
+			case "SwitchStatement": {
+				if (tempExpression = visitExpression(node.discriminant)) node.discriminant = tempExpression;
+				for (const switchCase of node.cases) {
+					if (tempExpression = visitExpression(switchCase.test)) switchCase.test = tempExpression;
+					switchCase.consequent.forEach(visitStatementOrProgram);
+				}
+				break;
+			}
+			case "ThrowStatement": {
+				if (tempExpression = visitExpression(node.argument)) node.argument = tempExpression;
+				break;
+			}
+			case "TryStatement": {
+				visitStatementOrProgram(node.block);
+				if (node.finalizer) visitStatementOrProgram(node.finalizer);
+				if (node.handler?.body) visitStatementOrProgram(node.handler.body);
 				break;
 			}
 			case "VariableDeclaration": {
@@ -391,49 +792,37 @@ export const compileAST = (ast: ESTree.Program) => {
 								declarator.init = newNode;
 							} else {
 								node.kind = "let";
-								++dependencyDeterminationDepth;
 								dependencyStack.push(new Set());
 								visitExpression(declarator.init, true);
 								if (dependencyStack.at(-1).size) {
 									declarator.init = transformToLiveExpression(declarator.init, [...dependencyStack.at(-1)]);
 								}
 								dependencyStack.pop();
-								--dependencyDeterminationDepth;
 							}
 							continue;
 						}
 					}
-					tempExpression = visitExpression(declarator.init, true);
-					if (tempExpression) declarator.init = tempExpression;
+					if (tempExpression = visitExpression(declarator.init, true)) declarator.init = tempExpression;
 				}
 				break;
 			}
-			case "ExpressionStatement": {
-				tempExpression = visitExpression(node.expression);
-				if (tempExpression) node.expression = tempExpression;
+			case "WhileStatement": {
+				if (tempExpression = visitExpression(node.test)) node.test = tempExpression;
+				visitStatementOrProgram(node.body);
 				break;
 			}
-			case "ReturnStatement": {
-				tempExpression = visitExpression(node.argument);
-				if (tempExpression) node.argument = tempExpression;
+			case "WithStatement": {
+				console.warn("TODO: implement statement: WithStatement");
+				node.type;
 				break;
 			}
-			case "ImportDeclaration": {
-				if (node.source.value === "$appfiles/winzig-runtime.js") {
-					for (let i = node.specifiers.length - 1; i >= 0; --i) {
-						let specifier = node.specifiers[i];
-						if (specifier.type === "ImportSpecifier" && specifier.imported.name === "css") {
-							node.specifiers.splice(i, 1);
-						}
-					}
-					if (node.specifiers.length === 0) {
-						return null;
-					}
-				}
+			default: {
+				console.error(`Unknown statement type: ${(node as any).type}`);
 				break;
 			}
 		}
 	};
+	// #endregion
 
 	visitStatementOrProgram(ast);
 

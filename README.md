@@ -1,17 +1,19 @@
 
 # Winzig
 
-Yet another reactive JavaScript frontend framework—but different.
+Yet another reactive JavaScript (+CSS) frontend framework—but different.
 
 > [!NOTE]
-> 🚧 This project is still very much under construction. Apart from a few select examples, what you are trying to build will most definitely not work yet. Also, note that Firefox is not yet supported. To test your winzig app in Firefox, enable `layout.css.at-scope.enabled` in `about:config`.
+> 🚧 This project is still very much under construction. Apart from a few select examples, what you are trying to build will most definitely not work yet. Also, note that winzig apps currently do not work in Firefox due to it not supporting the CSS [`@scope`](https://developer.mozilla.org/en-US/docs/Web/CSS/@scope) rule. To test your winzig app in Firefox, please enable `layout.css.at-scope.enabled` in `about:config`.
+
+Winzig tries to keep things minimalistic while still being powerful and extensible. It tries to combine the nice DX of the compiled nature of frameworks like Svelte with the JSX/TSX syntax and flexibility of frameworks like React. For example, here is a simple counter app implemented with winzig. Note that this one file (index.tsx), is (apart from a recommended `tsconfig.json` file) the only file that you need to get started.
 
 ```tsx
 // src/index.tsx
 
 import { css } from "winzig";
 
-let count$ = 0;
+let count$ = 0; // the "$" after the variable name makes it reactive
 
 <html lang="en">
 	<head>
@@ -37,7 +39,11 @@ let count$ = 0;
 </html>;
 ```
 
-## CLI arguments
+## Documentation
+
+TODO: write documentation. Meanwhile, see the [examples](./examples/).
+
+## CLI options
 - `-w`, `--watch`: Watch for file changes in the `src` folder and rebuild the project.
 - `-o`, `--output`: The path to the root folder where the project is saved to. (default: `./`)
 - `--appfiles`: The path to the folder where the compiled JavaScript files will be saved. (default: `./appfiles/`)

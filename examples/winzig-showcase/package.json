@@ -1,0 +1,6 @@
+{
+	"type": "module",
+	"dependencies": {
+		"winzig-types": "file:../../packages/winzig-types"
+	}
+}

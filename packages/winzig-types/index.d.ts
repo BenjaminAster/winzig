@@ -1,135 +1,71 @@
 
-namespace WinzigInternals {
-	interface CSSReference { }
-	var CSSReference: {
-		prototype: CSSReference;
-	};
-}
+/// <reference lib="ESNext" />
+/// <reference lib="DOM" />
+/// <reference lib="DOM.Iterable" />
+/// <reference lib="DOM.AsyncIterable" />
 
+/// <reference path="./generic-element.d.ts" />
+/// <reference path="./htmlformelement.d.ts" />
 
-declare module "winzig" {
-	export function css(templateArray: TemplateStringsArray, ...args: any[]): WinzigInternals.CSSReference;
-	export declare class Variable<T> {
-		constructor(value: T);
-		_: T;
-	};
+declare namespace WinzigInternals {
+	interface OpaqueCSSReference { }
 
-	export interface Config {
-		appfiles?: string;
-		pretty?: boolean;
-		output?: string;
-	}
+	type ElementBase = Partial<{
+		[key in keyof GlobalEventHandlersEventMap as `on:${key}${"_preventDefault" | ""}`]: (event: GlobalEventHandlersEventMap[key]) => any;
+	}>;
+
+	type WinzigElement<T extends globalThis.Element = globalThis.Element> = Partial<
+		Omit<T, keyof GlobalEventHandlers | keyof WindowEventHandlers | "onfullscreenchange" | "onfullscreenerror" | "children">
+	> & WinzigInternals.ElementBase;
 
 	interface WinzigUsingExpressionPatch {
 		[Symbol.dispose](): void;
 	}
+}
 
-	declare global {
-		interface Number extends WinzigUsingExpressionPatch { }
-		interface String extends WinzigUsingExpressionPatch { }
-		interface BigInt extends WinzigUsingExpressionPatch { }
-		interface Object extends WinzigUsingExpressionPatch { }
-		interface Boolean extends WinzigUsingExpressionPatch { }
-		interface Symbol extends WinzigUsingExpressionPatch { }
+declare module "winzig" {
+	export function css(templateArray: TemplateStringsArray, ...args: any[]): WinzigInternals.OpaqueCSSReference;
+	// export declare class Variable<T> {
+	// 	constructor(value: T);
+	// 	_: T;
+	// };
 
-		// interface Function {
-		// 	await<A, T>(param: A): Awaited<T>;
-		// }
+	// export interface Config {
+	// 	appfiles?: string;
+	// 	pretty?: boolean;
+	// 	output?: string;
+	// }
+
+	export interface GenericElement extends WinzigInternals.WinzigGenericElement { }
+
+	global {
+		interface Number extends WinzigInternals.WinzigUsingExpressionPatch { }
+		interface String extends WinzigInternals.WinzigUsingExpressionPatch { }
+		interface BigInt extends WinzigInternals.WinzigUsingExpressionPatch { }
+		interface Object extends WinzigInternals.WinzigUsingExpressionPatch { }
+		interface Boolean extends WinzigInternals.WinzigUsingExpressionPatch { }
+		interface Symbol extends WinzigInternals.WinzigUsingExpressionPatch { }
 	}
 }
 
-// import { JSX, WinzigInternals } from "./jsx-runtime.d.ts";
-
 declare module "winzig/jsx-runtime" {
-	declare namespace WinzigInternals {
-		interface ElementBase {
-			[key: `on:${string}`]: any;
-		}
+	export namespace JSX {
+		export interface Element extends WinzigInternals.WinzigGenericElement { }
 
-		type WinzigElement<T extends globalThis.Element = globalThis.Element> = Partial<Omit<T, "children">> & WinzigInternals.ElementBase;
-	}
+		type asdf = keyof HTMLElementTagNameMap;
 
-	export declare namespace JSX {
-		type Element = (
-			HTMLElement
-			& HTMLAnchorElement
-			& HTMLAreaElement
-			& HTMLAudioElement
-			& HTMLBaseElement
-			& HTMLQuoteElement
-			& HTMLBodyElement
-			& HTMLButtonElement
-			& HTMLCanvasElement
-			& HTMLTableColElement
-			& HTMLDataElement
-			& HTMLDataListElement
-			& HTMLModElement
-			& HTMLDetailsElement
-			& HTMLDialogElement
-			& HTMLDivElement
-			& HTMLDListElement
-			& HTMLEmbedElement
-			& HTMLFieldSetElement
-			& HTMLFormElement
-			& HTMLHeadingElement
-			& HTMLHeadElement
-			& HTMLHRElement
-			& HTMLHtmlElement
-			& HTMLIFrameElement
-			& HTMLImageElement
-			& HTMLInputElement
-			& HTMLModElement
-			& HTMLLabelElement
-			& HTMLLegendElement
-			& HTMLLIElement
-			& HTMLLinkElement
-			& HTMLMapElement
-			& HTMLMenuElement
-			& HTMLMetaElement
-			& HTMLMeterElement
-			& HTMLObjectElement
-			& HTMLOListElement
-			& HTMLOptGroupElement
-			& HTMLOptionElement
-			& HTMLOutputElement
-			& HTMLParagraphElement
-			& HTMLPictureElement
-			& HTMLPreElement
-			& HTMLProgressElement
-			& HTMLQuoteElement
-			& HTMLScriptElement
-			// & HTMLSelectElement
-			// & HTMLSlotElement
-			// & HTMLSourceElement
-			// & HTMLSpanElement
-			// & HTMLStyleElement
-			// & HTMLTableElement
-			// & HTMLTableSectionElement
-			// & HTMLTableCellElement
-			// & HTMLTemplateElement
-			// & HTMLTextAreaElement
-			// & HTMLTableSectionElement
-			// & HTMLTableCellElement
-			// & HTMLTableSectionElement
-			// & HTMLTimeElement
-			// & HTMLTitleElement
-			// & HTMLTableRowElement
-			// & HTMLTrackElement
-			// & HTMLUListElement
-			// & HTMLVideoElement
-		);
-
-		export type IntrinsicElements = {
-			[key in keyof HTMLElementTagNameMap]: WinzigInternals.WinzigElement<HTMLElementTagNameMap[key]>;
+		type IntrinsicElements = {
+			[key in Exclude<keyof HTMLElementTagNameMap, "form">]: WinzigInternals.WinzigElement<HTMLElementTagNameMap[key]>;
+		} & {
+			// This special case for <form> is necessary due to lib.dom.d.ts' HTMLFormElement interface having a
+			// `[name: string]: any` property, which would mean that any attribute on <form> elements is valid.
+			form: WinzigInternals.WinzigElement<WinzigInternals.FormElementWithoutIndexedAccess>;
 		};
 	}
 
-
-	declare global {
+	global {
 		interface Element {
 			(): this;
 		}
 	}
-
-	// export * from "react/jsx-runtime";
 }

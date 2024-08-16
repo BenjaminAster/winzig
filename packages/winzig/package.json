@@ -9,7 +9,7 @@
 	"main": "./dist/main.js",
 	"types": "./types/main.d.ts",
 	"scripts": {
-		"build": "node --eval \"fs.rmSync('./dist/', { force: true, recursive: true })\" && esbuild cli=./src/cli.ts main=./src/main.ts prerender-worker=./runtime/prerender-worker.ts --bundle --splitting --outdir=./dist/ --entry-names=[name] --platform=node --packages=external --format=esm --legal-comments=inline --log-level=error",
+		"build": "node --eval \"fs.rmSync('./dist/', { force: true, recursive: true })\" && esbuild cli=./src/cli.ts main=./src/main.ts prerender-worker=./runtime/prerender-worker.ts --bundle --splitting --outdir=./dist/ --entry-names=[name] --platform=node --packages=external --format=esm --legal-comments=inline",
 		"build:watch": "node --run build -- --watch"
 	},
 	"homepage": "https://github.com/BenjaminAster/winzig",
@@ -31,5 +31,8 @@
 	"devDependencies": {
 		"@types/estree": "^1.0.5",
 		"@jridgewell/gen-mapping": "^0.3.5"
+	},
+	"overrides": {
+		"tough-cookie": "^5.0.0-rc.4"
 	}
 }

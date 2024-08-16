@@ -40,12 +40,17 @@ const liveReload = devMode || (watch && cmdArgs.has("live-reload"));
 const keepPrerenderFolder = cmdArgs.has("keep-prerender-folder");
 const prerender = !devMode && !cmdArgs.has("no-prerender");
 
-init({
-	appfilesFolderPath,
-	liveReload,
-	minify,
-	outputFolderPath,
-	watch,
-	keepPrerenderFolder,
-	prerender,
-});
+if (cmdArgs.has("help")) {
+	console.info("Please see https://github.com/BenjaminAster/winzig#cli-options for help.")
+} else {
+	init({
+		appfilesFolderPath,
+		liveReload,
+		minify,
+		outputFolderPath,
+		watch,
+		keepPrerenderFolder,
+		prerender,
+		workingDirectory: process.cwd(),
+	});
+}

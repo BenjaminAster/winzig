@@ -43,6 +43,7 @@ export const init = async ({
 	liveReload = false,
 	keepPrerenderFolder = false,
 	prerender = true,
+	workingDirectory = process.cwd(),
 }: WinzigOptions) => {
 
 	const startTime = performance.now();
@@ -128,6 +129,7 @@ export const init = async ({
 		alias: {
 			"winzig": "$appfiles/winzig-runtime.js",
 		},
+		pure: [],
 	};
 
 	const esBuildChunksOptions: ESBuild.BuildOptions = {
@@ -154,7 +156,6 @@ export const init = async ({
 		jsxFactory: "__winzig__jsx",
 		jsxFragment: "__winzig__Fragment",
 		jsxSideEffects: true,
-		pure: [],
 	};
 
 	const esBuildWinzigRuntimeOptions: ESBuild.BuildOptions = {
@@ -171,6 +172,7 @@ export const init = async ({
 				"js": `let __winzig__webSocketPort = ${webSocketPort};`,
 			},
 		} : {}),
+		minifyWhitespace: minify,
 		minifyIdentifiers: minify,
 		minifySyntax: minify,
 	};

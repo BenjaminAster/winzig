@@ -46,14 +46,11 @@ export class Element extends Node {
 };
 
 export class Document extends Node {
-	body: Element;
-	head: Element;
-	documentElement: Element;
+	head = new Element("head");
+	body = new Element("body");
+	documentElement = new Element("html");
 	constructor() {
 		super();
-		this.head = new Element("head");
-		this.body = new Element("body");
-		this.documentElement = new Element("html");
 		this.documentElement.append(this.head, this.body);
 	};
 	createElement(type: string) {

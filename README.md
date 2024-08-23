@@ -52,3 +52,4 @@ TODO: write documentation. Meanwhile, see the [examples](./examples/).
 - `-d`, `--dev`: Shortcut for `--watch`, `--pretty`, `--no-prerender` and `--live-reload`.
 - `--no-prerender`: Disable prerendering
 - `--keep-prerender-folder`: Keep winzig's internal `.winzig-prerender` folder after building.
+- `--log-level`: Log level. Set to `verbose` for verbose logging.

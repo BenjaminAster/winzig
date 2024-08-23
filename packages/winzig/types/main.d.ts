@@ -8,6 +8,7 @@ export interface WinzigOptions {
 	keepPrerenderFolder?: boolean;
 	prerender?: boolean;
 	workingDirectory?: string;
+	logLevel?: string;
 }
 
 export declare function init(options: WinzigOptions): Promise<void>;

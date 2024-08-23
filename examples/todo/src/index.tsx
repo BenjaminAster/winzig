@@ -8,6 +8,9 @@ const ToDo = () => {
 	let input: HTMLInputElement;
 
 	return <>
+		<div>This is a <code>&lt;div&gt;</code> inside of <code>&lt;ToDo /&gt;</code>.</div>
+		<br />
+
 		<form on:submit_preventDefault={() => {
 			toDoList$ = [...toDoList$, input.value];
 			input.value = "";
@@ -55,7 +58,6 @@ const ToDo = () => {
 			<h1>{document.title}</h1>
 
 			<div>This is a <code>&lt;div&gt;</code> outside of <code>&lt;ToDo /&gt;</code>.</div>
-			<br />
 
 			<ToDo />
 

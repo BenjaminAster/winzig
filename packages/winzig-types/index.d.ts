@@ -10,13 +10,13 @@
 declare namespace WinzigInternals {
 	interface OpaqueCSSReference { }
 
-	type ElementBase = Partial<{
-		[key in keyof GlobalEventHandlersEventMap as `on:${key}${"_preventDefault" | ""}`]: (event: GlobalEventHandlersEventMap[key]) => any;
+	type ElementBase<T> = Partial<{
+		[key in keyof GlobalEventHandlersEventMap as `on:${key}${"_preventDefault" | ""}`]: (this: T, event: GlobalEventHandlersEventMap[key]) => any;
 	}>;
 
 	type WinzigElement<T extends globalThis.Element = globalThis.Element> = Partial<
 		Omit<T, keyof GlobalEventHandlers | keyof WindowEventHandlers | "onfullscreenchange" | "onfullscreenerror" | "children">
-	> & WinzigInternals.ElementBase;
+	> & WinzigInternals.ElementBase<T>;
 
 	interface WinzigUsingExpressionPatch {
 		[Symbol.dispose](): void;
@@ -30,11 +30,11 @@ declare module "winzig" {
 	// 	_: T;
 	// };
 
-	// export interface Config {
-	// 	appfiles?: string;
-	// 	pretty?: boolean;
-	// 	output?: string;
-	// }
+	export interface Config {
+		appfiles?: string;
+		output?: string;
+		css?: string;
+	}
 
 	export interface GenericElement extends WinzigInternals.WinzigGenericElement { }
 
@@ -61,11 +61,29 @@ declare module "winzig/jsx-runtime" {
 			// `[name: string]: any` property, which would mean that any attribute on <form> elements is valid.
 			form: WinzigInternals.WinzigElement<WinzigInternals.FormElementWithoutIndexedAccess>;
 		};
+
+		interface ElementClass {
+			render: any;
+		}
+
+		interface ElementAttributesProperty {
+			__props: any;
+		}
+
+		interface IntrinsicAttributes extends WinzigInternals.ElementBase<HTMLElement> {
+		}
+
 	}
 
 	global {
 		interface Element {
 			(): this;
+		}
+
+		interface Function {
+			props: {
+				asdf: string;
+			};
 		}
 	}
 }

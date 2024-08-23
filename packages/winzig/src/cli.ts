@@ -2,46 +2,79 @@
 
 import { init } from "./main.ts";
 
-const cmdArgs = new Map<string, string | boolean>();
-const cmdArgsSingleLetterAliases: Record<string, string> = {
-	w: "watch",
-	o: "output",
-	d: "dev",
-};
+import { parseArgs, styleText } from "node:util";
 
-const standaloneCmdArgs: string[] = [];
-for (let i = 2; i < process.argv.length; ++i) {
-	let arg = process.argv[i];
-	if (arg.startsWith("-")) {
-		if (process.argv[i + 1]?.startsWith(".") && arg.endsWith("=")) {
-			arg += process.argv[++i];
-		}
-		let [key, value = true] = arg.split("=");
-		if (key.startsWith("--")) {
-			key = key.slice(2);
-		} else {
-			key = key.slice(1);
-			if (key in cmdArgsSingleLetterAliases) {
-				key = cmdArgsSingleLetterAliases[key];
-			}
-		}
-		cmdArgs.set(key, value);
-	} else {
-		standaloneCmdArgs.push(arg);
-	}
+try {
+	var { values: cmdArgs } = parseArgs({
+		allowPositionals: false,
+		args: process.argv.slice(2),
+		options: {
+			watch: {
+				type: "boolean",
+				default: false,
+				short: "w",
+			},
+			output: {
+				type: "string",
+				short: "o",
+			},
+			appfiles: {
+				type: "string",
+			},
+			pretty: {
+				type: "boolean",
+				default: false,
+			},
+			"live-reload": {
+				type: "boolean",
+				default: false,
+			},
+			dev: {
+				type: "boolean",
+				default: false,
+				short: "d",
+			},
+			"no-prerender": {
+				type: "boolean",
+				default: false,
+			},
+			"keep-prerender-folder": {
+				type: "boolean",
+				default: false,
+			},
+			help: {
+				type: "boolean",
+				default: false,
+			},
+			"log-level": {
+				type: "string",
+				default: "normal",
+			},
+		},
+		strict: true,
+		tokens: true,
+	});
+} catch (error) {
+	console.error("Invalid CLI argument passed");
+	throw error;
 }
 
-const appfilesFolderPath = cmdArgs.get("appfiles") as string;
-const outputFolderPath = cmdArgs.get("output") as string;
-const devMode = cmdArgs.has("dev");
-const minify = !devMode && !cmdArgs.has("pretty");
-const watch = devMode || cmdArgs.has("watch");
-const liveReload = devMode || (watch && cmdArgs.has("live-reload"));
-const keepPrerenderFolder = cmdArgs.has("keep-prerender-folder");
-const prerender = !devMode && !cmdArgs.has("no-prerender");
+const appfilesFolderPath = cmdArgs.appfiles;
+const outputFolderPath = cmdArgs.output;
+const devMode = cmdArgs.dev;
+const minify = !devMode && !cmdArgs.pretty;
+const watch = devMode || cmdArgs.watch;
+const liveReload = devMode || (watch && cmdArgs["live-reload"]);
+const keepPrerenderFolder = cmdArgs["keep-prerender-folder"];
+const prerender = !devMode && !cmdArgs["no-prerender"];
+const logLevel = cmdArgs["log-level"];
 
-if (cmdArgs.has("help")) {
-	console.info("Please see https://github.com/BenjaminAster/winzig#cli-options for help.")
+if (cmdArgs.help) {
+	console.info(
+		styleText(["green"], "💡 Please see ")
+		+ styleText(["green", "underline"], "https://github.com/BenjaminAster/winzig#cli-options")
+		+ styleText(["green"], " for help.")
+	);
 } else {
 	init({
 		appfilesFolderPath,
@@ -52,5 +85,6 @@ if (cmdArgs.has("help")) {
 		keepPrerenderFolder,
 		prerender,
 		workingDirectory: process.cwd(),
+		logLevel,
 	});
 }

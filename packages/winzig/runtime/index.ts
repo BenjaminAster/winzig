@@ -15,6 +15,9 @@ const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): El
 		if (currentGlobalSlottableChildrenStackLength !== globalSlottableChildrenStack.length) {
 			globalSlottableChildrenStack.pop();
 		}
+		if (namedArgs?._l) for (const [event, callback] of namedArgs._l) {
+			element.addEventListener(event, callback);
+		}
 		element.dataset.wzNewScope = "";
 		return element;
 	} else {
@@ -35,6 +38,11 @@ const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): El
 			}
 		}
 
+		// if (elementTypeOrFunction === "template") {
+		// 	for (const child of children) {
+		// 		element.content.append(child);
+		// 	}
+		// } else
 		for (const child of children) {
 			if (child instanceof LiveVariable) {
 				const textNode = new Text(child._);

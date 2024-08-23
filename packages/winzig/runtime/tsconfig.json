@@ -23,5 +23,7 @@
 		"skipLibCheck": true,
 		"noEmitOnError": false,
 		"noImplicitAny": true,
+		"noUncheckedIndexedAccess": false,
+		"noPropertyAccessFromIndexSignature": false,
 	},
 }

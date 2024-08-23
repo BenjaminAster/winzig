@@ -1,8 +1,11 @@
 
+// https://html.spec.whatwg.org/multipage/syntax.html#void-elements
+// deprecated void elements (https://html.spec.whatwg.org/multipage/parsing.html#serializes-as-void) excluded
+const voidElements = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
+
 export class Node {
 	textContent: string;
-	constructor() {
-	};
+	constructor() { };
 };
 
 export class Text extends Node {
@@ -30,6 +33,12 @@ export class Element extends Node {
 		const index = this.childNodes.indexOf(referenceNode);
 		this.childNodes.splice(index, 0, newNode);
 	};
+	getAttribute(name: string) {
+		this.attributes.get(name);
+	};
+	hasAttribute(name: string) {
+		this.attributes.has(name);
+	};
 	setAttribute(name: string, value: string) {
 		this.attributes.set(name, value);
 	};
@@ -39,8 +48,13 @@ export class Element extends Node {
 			+ this.localName
 			+ [...this.attributes].map(([name, value]) => ` ${name}="${value.replaceAll('"', "&quot;")}"`).join("")
 			+ ">"
-			+ this.childNodes.map((childNode) => childNode instanceof Element ? childNode.outerHTML : childNode.textContent).join("")
-			+ `</${this.localName}>`
+			+ (voidElements.has(this.localName) ? "" :
+				// TODO: maybe care about HTML sanitization?
+				// Currently, it really doesn't matter since the only element that gets text content
+				// is the importmap <script>, which is a raw text element anyway.
+				this.childNodes.map((childNode) => childNode instanceof Element ? childNode.outerHTML : childNode.textContent).join("")
+				+ `</${this.localName}>`
+			)
 		);
 	};
 };

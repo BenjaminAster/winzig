@@ -20,6 +20,8 @@ const terserMinify = Terser.minify as (
 		& { parse?: (Terser.ParseOptions & { spidermonkey?: boolean; }), ecma?: number; }),
 ) => Promise<Terser.MinifyOutput>;
 
+// import * as ESRap from "esrap";
+
 import type { EncodedSourceMap } from "@jridgewell/gen-mapping";
 
 import { compileAST, reset as resetCompilationData } from "./compiler.ts";
@@ -28,23 +30,23 @@ import { initialCSS } from "./constants.ts";
 let refreshPage: () => void;
 let webSocketPort: number;
 
-const DEBUG = false;
-
 import type { WinzigOptions } from "../types/main.d.ts";
 
 let FakeDOM: typeof import("./minimal-fake-dom.ts");
 let addWinzigHTML: typeof import("../runtime/add-winzig-html.ts").default;
 
 export const init = async ({
-	appfilesFolderPath = "./appfiles/",
-	outputFolderPath = "./",
+	appfilesFolderPath: originalAppfilesFolderPath,
+	outputFolderPath: originalOutputFolderPath,
 	minify = true,
 	watch = false,
 	liveReload = false,
 	keepPrerenderFolder = false,
 	prerender = true,
 	workingDirectory = process.cwd(),
+	logLevel = "normal",
 }: WinzigOptions) => {
+	const debug = logLevel === "verbose";
 
 	const startTime = performance.now();
 
@@ -104,16 +106,17 @@ export const init = async ({
 		});
 	}
 
-	const absoluteAppfilesFolderPath = Path.resolve(process.cwd(), outputFolderPath, appfilesFolderPath);
 
 	const nameHashSeparatorString = "$$";
 
 	const winzigRuntimeDirectory = Path.resolve(import.meta.dirname, "../runtime/"); // note that import.meta is relative to `dist`, not `src`.
+	const winzigVirtualDirectory = Path.resolve(workingDirectory, "./.winzig-virtual-fs/");
 
 	const esBuildCommonOptions: ESBuild.BuildOptions = {
 		splitting: false,
 		format: "esm",
-		outdir: absoluteAppfilesFolderPath,
+		// outdir: absoluteAppfilesFolderPath,
+		outdir: winzigVirtualDirectory,
 		sourcemap: "external",
 		bundle: true,
 		minifyWhitespace: true,
@@ -136,7 +139,7 @@ export const init = async ({
 		...esBuildCommonOptions,
 		entryPoints: [
 			{
-				in: Path.resolve(process.cwd(), "./src/index.tsx"),
+				in: Path.resolve(workingDirectory, "./src/index.tsx"),
 				out: "index",
 			},
 		],
@@ -196,8 +199,6 @@ export const init = async ({
 		sourcemap: false,
 	};
 
-	const prerenderFolder = Path.resolve(absoluteAppfilesFolderPath, "./.winzig-prerender/");
-
 	const [
 		chunksBuildContext,
 		winzigRuntimeBuild,
@@ -208,14 +209,38 @@ export const init = async ({
 		prerender ? ESBuild.build(esBuildWinzigPrerenderingRuntimeOptions) : null,
 	] as const);
 
-	const prerenderWorker = prerender ? new Worker(Path.resolve(import.meta.dirname, "./prerender-worker.js")) : null;
+	const prerenderWorker = prerender ? new Worker(Path.resolve(import.meta.dirname, "./prerender-worker.js"), {
+		workerData: {
+			logLevel,
+		},
+	}) : null;
 
 	const buildProject = async () => {
-		if (DEBUG) console.time("Bundle JavaScript");
+		if (debug) console.time("Bundle JavaScript");
+
+		{
+			const IndexTSX = await FS.readFile(Path.resolve(workingDirectory, "./src/index.tsx"), { encoding: "utf8" });
+			const match = IndexTSX.match(/^winzigConfig: \({(?<config>.+)^}\)/ms);
+			const configObject: any = {};
+			for (let line of match?.groups.config?.split("\n") ?? []) {
+				line = line.trim();
+				if (line.startsWith("//")) continue;
+				const lineMatch = line.match(/^(?<key>\w+): ?(?<quoteType>['"])(?<value>[^'"]+)\k<quoteType>/);
+				if (lineMatch) configObject[lineMatch.groups.key] = lineMatch.groups.value;
+			}
+			var outputFolderPath = originalOutputFolderPath || Path.posix.join("./src/", configObject.output || "../");
+			var appfilesFolderPath = originalAppfilesFolderPath || Path.posix.join("./src/", configObject.appfiles || "../appfiles/");
+			var cssEntryPath = configObject.css && Path.posix.join("./src/", configObject.css);
+		}
+
+		const absoluteAppfilesFolderPath = Path.resolve(workingDirectory, outputFolderPath, appfilesFolderPath);
 		await FS.mkdir(absoluteAppfilesFolderPath, { recursive: true });
 		await Promise.all((await FS.readdir(absoluteAppfilesFolderPath, { withFileTypes: true })).map(async entry => {
 			await FS.rm(Path.join(absoluteAppfilesFolderPath, entry.name), { force: true, recursive: true });
 		}));
+
+		const prerenderFolder = Path.resolve(absoluteAppfilesFolderPath, "./.winzig-prerender/");
+
 		if (prerender) {
 			await FS.mkdir(prerenderFolder, { recursive: true });
 			await FS.writeFile(
@@ -236,15 +261,15 @@ export const init = async ({
 
 		let previousSourceMap: any;
 
-		if (DEBUG) console.timeEnd("Bundle JavaScript");
+		if (debug) console.timeEnd("Bundle JavaScript");
 
 		let cssSnippets: string[] = [
 			initialCSS,
 		];
 
-		if (DEBUG) console.time("Compile and generate files");
+		if (debug) console.time("Compile and generate files");
 		for (const file of outputFiles) {
-			const originalRelativePath = Path.relative(absoluteAppfilesFolderPath, file.path).replaceAll("\\", "/");;
+			const originalRelativePath = Path.relative(winzigVirtualDirectory, file.path).replaceAll("\\", "/");
 
 			const [name, hashPlusExtension] = originalRelativePath.split(nameHashSeparatorString);
 			const hash = hashPlusExtension.slice(0, 8).toLowerCase();
@@ -253,8 +278,6 @@ export const init = async ({
 			const relativePath = `${name}-${hash}${extension}`;
 
 			const browserRelativePath = "./" + Path.posix.join(appfilesFolderPath, relativePath);
-
-			// let contentStringOrByteArray: string | Uint8Array;
 
 			if (extension === ".js.map") {
 				if (name === "winzig-runtime") {
@@ -282,20 +305,20 @@ export const init = async ({
 					let code = file.text;
 					if (name !== "winzig-prerender-runtime") {
 						if (name !== "winzig-runtime") {
-							if (DEBUG) console.time("Parse code");
+							if (debug) console.time("Parse code");
 							const ast = BabelParser.parse(code, {
-								plugins: ["estree", "explicitResourceManagement"],
+								plugins: [["estree", { classFeatures: true }], "explicitResourceManagement"],
 								sourceType: "module",
 								attachComment: false,
 							}).program as unknown as ESTree.Program;
-							if (DEBUG) console.timeEnd("Parse code");
+							if (debug) console.timeEnd("Parse code");
 
-							if (DEBUG) console.time("Modify AST");
+							if (debug) console.time("Modify AST");
 							const { cssSnippets: newCSSSnippets } = compileAST(ast);
 							cssSnippets.push(...newCSSSnippets);
-							if (DEBUG) console.timeEnd("Modify AST");
+							if (debug) console.timeEnd("Modify AST");
 
-							if (DEBUG) console.time("Print code");
+							if (debug) console.time("Print code");
 							let terserResult = await terserMinify([ast], {
 								parse: {
 									spidermonkey: true,
@@ -313,13 +336,15 @@ export const init = async ({
 									wrap_func_args: false,
 								},
 							});
+							// let terserResult = ESRap.print(ast, {
+							// });
 							code = terserResult.code;
 							const map = terserResult.map as EncodedSourceMap;
 							await FS.writeFile(
 								Path.resolve(absoluteAppfilesFolderPath, relativePath) + ".map",
 								JSON.stringify(map, null, "\t"),
 							);
-							if (DEBUG) console.timeEnd("Print code");
+							if (debug) console.timeEnd("Print code");
 						}
 						const sourceMapComment = `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`;
 						code = (code + (name === "winzig-runtime" ? "" : "\n") + sourceMapComment);
@@ -346,48 +371,67 @@ export const init = async ({
 				}
 			}
 		}
-		if (DEBUG) console.timeEnd("Compile and generate files");
+		if (debug) console.timeEnd("Compile and generate files");
 
-		if (DEBUG) console.time("Build CSS");
-		let cssFilePath: string;
+		if (debug) console.time("Build CSS");
+		let cssFilePaths: string[] = [];
 		{
-			const [sourceMapFile, cssFile] = (await ESBuild.build({
+			const cssFiles = (await ESBuild.build({
 				stdin: {
 					contents: cssSnippets.join("\n"),
 					loader: "css",
 					sourcefile: "main.css",
 				},
+				entryPoints: cssEntryPath ? [
+					{
+						in: Path.resolve(workingDirectory, cssEntryPath),
+						out: "global",
+					},
+				] : [],
 				write: false,
 				bundle: true,
 				minifyWhitespace: minify,
 				sourcemap: "external",
 				sourcesContent: true,
-				entryNames: "main-[hash]",
+				entryNames: "[name]-[hash]",
 				outdir: absoluteAppfilesFolderPath,
+				loader: {
+					// otf: "copy",
+				},
+				external: ["*.otf"],
 			})).outputFiles;
-			const cssFileName = cssFile.path.replaceAll("\\", "/").split("/").at(-1).toLowerCase();
-			cssFilePath = "./" + Path.posix.join(appfilesFolderPath, cssFileName);
-			await FS.writeFile(
-				Path.resolve(absoluteAppfilesFolderPath, cssFileName),
-				cssFile.text + `/*# sourceMappingURL=./${global.encodeURI(cssFileName)}.map */`,
-			);
-			const sourceMap = JSON.parse(sourceMapFile.text);
-			sourceMap.sourceRoot = "//winzig-virtual-fs/css/";
-			await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, `./${cssFileName}.map`), JSON.stringify(sourceMap, null, "\t"));
+			for (const file of cssFiles) {
+				let fileName = file.path.replaceAll("\\", "/").split("/").at(-1).toLowerCase();
+				const isStdin = fileName.startsWith("stdin-");
+				if (isStdin) fileName = "main-" + fileName.slice(6);
+				if (fileName.endsWith(".map")) {
+					const sourceMap = JSON.parse(file.text);
+					if (isStdin) sourceMap.sourceRoot = "//winzig-virtual-fs/css/";
+					await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, `./${fileName}`), JSON.stringify(sourceMap, null, "\t"));
+				} else {
+					cssFilePaths.push("./" + Path.posix.join(appfilesFolderPath, fileName));
+					await FS.writeFile(
+						Path.resolve(absoluteAppfilesFolderPath, fileName),
+						file.text + `/*# sourceMappingURL=./${global.encodeURI(fileName)}.map */`,
+					);
+				}
+			}
+			cssFilePaths.reverse();
 		}
-		if (DEBUG) console.timeEnd("Build CSS");
+		if (debug) console.timeEnd("Build CSS");
 
 		{
 			const buildData = {
-				cssFilePath,
+				cssFilePaths,
 				modulePreloadPaths,
 				entryFilePath,
 				importMap,
 				prerenderFolder,
+				absoluteAppfilesFolderPath,
 			};
 
 			if (prerender) {
-				if (DEBUG) console.time("Prerender");
+				if (debug) console.time("Prerender");
 				const html: string = await new Promise((resolve) => {
 					const listener = (data: any) => {
 						if (data.type === "send-html") {
@@ -397,17 +441,17 @@ export const init = async ({
 					};
 					prerenderWorker.on("message", listener);
 					prerenderWorker.postMessage({
-						type: "run",
 						...buildData,
+						type: "run",
 					});
 				});
-				await FS.writeFile(Path.resolve(process.cwd(), outputFolderPath, "./index.html"), html);
-				if (DEBUG) console.timeEnd("Prerender");
+				await FS.writeFile(Path.resolve(workingDirectory, outputFolderPath, "./index.html"), html);
+				if (debug) console.timeEnd("Prerender");
 			} else {
 				const document = new FakeDOM.Document();
 				addWinzigHTML({ document, Text: FakeDOM.Text }, buildData);
 				const html = `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
-				await FS.writeFile(Path.resolve(process.cwd(), outputFolderPath, "./index.html"), html);
+				await FS.writeFile(Path.resolve(workingDirectory, outputFolderPath, "./index.html"), html);
 			}
 		}
 
@@ -420,11 +464,11 @@ export const init = async ({
 	console.info(`Built in ${(performance.now() - startTime).toFixed(1)} ms.`);
 
 	if (watch) {
-		const watchingForFileChangesText = `Watching for file changes in ${Path.resolve(process.cwd(), "./src/").replaceAll("\\", "/")}...`;
+		const watchingForFileChangesText = `Watching for file changes in ${Path.resolve(workingDirectory, "./src/").replaceAll("\\", "/")}...`;
 		console.info(watchingForFileChangesText);
 		(async () => {
 			let lastChangeTime = 0;
-			for await (const { filename, eventType } of FS.watch(Path.resolve(process.cwd(), "./src/"), { recursive: true })) {
+			for await (const { filename, eventType } of FS.watch(Path.resolve(workingDirectory, "./src/"), { recursive: true })) {
 				if (performance.now() - lastChangeTime < 500) continue;
 				lastChangeTime = performance.now();
 				console.clear();

@@ -34,5 +34,10 @@
 	},
 	"overrides": {
 		"tough-cookie": "^5.0.0-rc.4"
+	},
+	"pnpm": {
+		"overrides": {
+			"tough-cookie": "^5.0.0-rc.4"
+		}
 	}
 }

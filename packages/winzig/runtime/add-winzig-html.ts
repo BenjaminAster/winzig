@@ -9,21 +9,21 @@ export default (
 	document.documentElement.prepend(new Text("\n"));
 	document.documentElement.insertBefore(new Text("\n"), document.body);
 	document.documentElement.append(new Text("\n"));
-	{
+	if (![...document.head.childNodes].some((node: Element) => node.localName === "meta" && node.getAttribute("name") === "viewport")) {
 		const meta = document.createElement("meta");
 		meta.setAttribute("name", "viewport");
 		meta.setAttribute("content", "width=device-width, initial-scale=1, interactive-widget=resizes-content, viewport-fit=cover");
 		document.head.prepend(meta);
 	}
-	{
+	if (![...document.head.childNodes].some((node: Element) => node.localName === "meta" && node.hasAttribute("charset"))) {
 		const meta = document.createElement("meta");
 		meta.setAttribute("charset", "UTF-8");
 		document.head.prepend(meta);
 	}
-	{
+	for (const cssFilePath of buildData.cssFilePaths) {
 		const stylesheetLink = document.createElement("link");
 		stylesheetLink.setAttribute("rel", "stylesheet");
-		stylesheetLink.setAttribute("href", buildData.cssFilePath);
+		stylesheetLink.setAttribute("href", cssFilePath);
 		document.head.append(stylesheetLink);
 	}
 	{

@@ -1,9 +1,16 @@
 
-// import { css } from "winzig";
+import { css, type Config as WinzigConfig } from "winzig";
+
+winzigConfig: ({
+	appfiles: "../appfiles/",
+	output: "../",
+	css: "./test.css",
+}) satisfies WinzigConfig;
 
 let count$ = 5;
 using doubleCount$ = count$ * 2;
-$: console.log(count$);
+$: console.log("%c" + count$, "color: red;"); // runs once and on every update of count$
+$: () => console.log("%c" + count$, "color: light-dark(blue, dodgerblue);"); // runs on every update of count$, but not at the beginning
 
 const SomethingSomething = () => {
 	return <div>
@@ -13,7 +20,9 @@ const SomethingSomething = () => {
 	</div>;
 };
 
-let Input = <input type="text" />;
+let Input = <input type="text" value="hello" />;
+
+console.log(Input, Input.value);
 
 <html lang="en">
 	<head>
@@ -24,6 +33,7 @@ let Input = <input type="text" />;
 		Double count: {doubleCount$}<br />
 		Triple count: {count$ * 3}<br />
 		<button className={`count-${count$.toString(16)}`} on:click={() => ++count$}>increase count</button>
+		<div>some div</div>
 		<hr />
 		<SomethingSomething>
 			<div>child 1</div>
@@ -31,5 +41,12 @@ let Input = <input type="text" />;
 		</SomethingSomething>
 		<hr />
 		<SomethingSomething />
+		<hr />
+		<Input />
+		{css`
+			div {
+				color: light-dark(green, lightgreen);
+			}
+		`}
 	</body>;
 </html>;

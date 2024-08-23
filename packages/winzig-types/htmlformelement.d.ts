@@ -1,4 +1,9 @@
 
+/// <reference lib="ESNext" />
+/// <reference lib="DOM" />
+/// <reference lib="DOM.Iterable" />
+/// <reference lib="DOM.AsyncIterable" />
+
 declare namespace WinzigInternals {
 	// manually copy-pasted from lib.dom.d.ts
 	interface FormElementWithoutIndexedAccess extends HTMLElement {

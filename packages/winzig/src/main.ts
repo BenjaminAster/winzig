@@ -106,7 +106,6 @@ export const init = async ({
 		});
 	}
 
-
 	const nameHashSeparatorString = "$$";
 
 	const winzigRuntimeDirectory = Path.resolve(import.meta.dirname, "../runtime/"); // note that import.meta is relative to `dist`, not `src`.
@@ -212,6 +211,7 @@ export const init = async ({
 	const prerenderWorker = prerender ? new Worker(Path.resolve(import.meta.dirname, "./prerender-worker.js"), {
 		workerData: {
 			logLevel,
+			pretty: !minify,
 		},
 	}) : null;
 
@@ -229,7 +229,7 @@ export const init = async ({
 				if (lineMatch) configObject[lineMatch.groups.key] = lineMatch.groups.value;
 			}
 			var outputFolderPath = originalOutputFolderPath || Path.posix.join("./src/", configObject.output || "../");
-			var appfilesFolderPath = originalAppfilesFolderPath || Path.posix.join("./src/", configObject.appfiles || "../appfiles/");
+			var appfilesFolderPath = originalAppfilesFolderPath || configObject.appfiles || "appfiles";
 			var cssEntryPath = configObject.css && Path.posix.join("./src/", configObject.css);
 		}
 
@@ -374,7 +374,8 @@ export const init = async ({
 		if (debug) console.timeEnd("Compile and generate files");
 
 		if (debug) console.time("Build CSS");
-		let cssFilePaths: string[] = [];
+		let globalCSSFilePath: string;
+		let mainCSSFilePath: string;
 		{
 			const cssFiles = (await ESBuild.build({
 				stdin: {
@@ -409,20 +410,22 @@ export const init = async ({
 					if (isStdin) sourceMap.sourceRoot = "//winzig-virtual-fs/css/";
 					await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, `./${fileName}`), JSON.stringify(sourceMap, null, "\t"));
 				} else {
-					cssFilePaths.push("./" + Path.posix.join(appfilesFolderPath, fileName));
+					const browserRelativePath = "./" + Path.posix.join(appfilesFolderPath, fileName);
+					if (isStdin) mainCSSFilePath = browserRelativePath;
+					else globalCSSFilePath = browserRelativePath;
 					await FS.writeFile(
 						Path.resolve(absoluteAppfilesFolderPath, fileName),
 						file.text + `/*# sourceMappingURL=./${global.encodeURI(fileName)}.map */`,
 					);
 				}
 			}
-			cssFilePaths.reverse();
 		}
 		if (debug) console.timeEnd("Build CSS");
 
 		{
 			const buildData = {
-				cssFilePaths,
+				globalCSSFilePath,
+				mainCSSFilePath,
 				modulePreloadPaths,
 				entryFilePath,
 				importMap,

@@ -10,19 +10,21 @@ import {
 	f as liveFragment,
 } from "$appfiles/winzig-original-runtime.js";
 
-import { parentPort } from "node:worker_threads";
+import { parentPort, workerData } from "node:worker_threads";
 import addWinzigHTML from "./add-winzig-html.ts";
 
 let buildData: any;
 
 export const setBuildData = (data: any) => buildData = data;
 
-const jsx = (originalType: any, params: any, ...children: any[]) => {
-	let type = originalType;
-	const element = originalJsx(type, params, ...children);
-	if (originalType === document.body) {
+const jsx = (type: any, params: any, ...children: any[]) => {
+	const element = originalJsx(type, params, ...((workerData.pretty && type === document.head) ? children.flatMap(child => [child, "\n"]) : children));
+	if (type === document.body) {
 		setTimeout(() => {
-			addWinzigHTML({ document, Text }, buildData);
+			addWinzigHTML({ document, Text }, {
+				...buildData,
+				pretty: workerData.pretty,
+			});
 			parentPort.postMessage({
 				type: "send-html",
 				html: `<!DOCTYPE html>\n${document.documentElement.outerHTML}`,

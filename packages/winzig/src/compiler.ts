@@ -89,13 +89,18 @@ export const compileAST = (ast: ESTree.Program) => {
 			// #endregion
 			// #region ArrowFunctionExpression
 			case "ArrowFunctionExpression": {
+				dependencyStack.push(null);
 				if (node.expression) {
 					visitExpression(node.body as ESTree.Expression);
-					break;
+				} else {
+					visitStatementOrProgram(node.body as ESTree.BlockStatement);
 				}
+				dependencyStack.pop();
+				break;
 				// #endregion
 				// #region FunctionExpression
-			} case "FunctionExpression": {
+			}
+			case "FunctionExpression": {
 				visitStatementOrProgram(node.body as ESTree.BlockStatement);
 				break;
 			}
@@ -143,7 +148,7 @@ export const compileAST = (ast: ESTree.Program) => {
 							&& lastArg.tag.type === "Identifier"
 							&& cssRegExp.test(lastArg.tag.name)
 						) {
-							if (lastArg.quasi.expressions.length > 0) throw new Error("CSS dynamic Template string insertions not supported.");
+							if (lastArg.quasi.expressions.length > 0) throw new Error("CSS dynamic template string insertions not supported.");
 							cssId = createUniqueId();
 
 							let cssString = lastArg.quasi.quasis[0].value.cooked.trim();
@@ -785,18 +790,27 @@ export const compileAST = (ast: ESTree.Program) => {
 			// #region LabeledStatement
 			case "LabeledStatement": {
 				if (node.label.name === "$") {
-					dependencyStack.push(new Set());
-					visitStatementOrProgram(node.body);
-					if (dependencyStack.at(-1).size) {
-						const returnStatement = (node.body.type === "ExpressionStatement" && node.body.expression.type === "ArrowFunctionExpression")
-							? {
+					if (node.body.type === "ExpressionStatement" && node.body.expression.type === "ArrowFunctionExpression") {
+						dependencyStack.push(new Set());
+						if (node.body.expression.expression) {
+							visitExpression(node.body.expression.body as ESTree.Expression);
+						} else {
+							visitStatementOrProgram(node.body.expression.body as ESTree.BlockStatement);
+						}
+						if (dependencyStack.at(-1).size) {
+							const returnStatement = {
 								type: "ExpressionStatement",
 								expression: {
 									type: "CallExpression",
 									optional: false,
 									loc: node.loc,
 									arguments: [
-										node.body.expression,
+										{
+											type: "ArrowFunctionExpression",
+											body: node.body.expression.body,
+											expression: node.body.expression.expression,
+											params: [] as any[],
+										} satisfies ESTree.ArrowFunctionExpression,
 										...[...dependencyStack.at(-1)].map((dependency) => ({
 											type: "Identifier",
 											name: dependency,
@@ -809,8 +823,16 @@ export const compileAST = (ast: ESTree.Program) => {
 										loc: node.loc,
 									} satisfies ESTree.Identifier,
 								} satisfies ESTree.CallExpression,
-							} satisfies ESTree.ExpressionStatement
-							: {
+							} satisfies ESTree.ExpressionStatement;
+							dependencyStack.pop();
+							return returnStatement;
+						}
+						dependencyStack.pop();
+					} else {
+						dependencyStack.push(new Set());
+						visitStatementOrProgram(node.body);
+						if (dependencyStack.at(-1).size) {
+							const returnStatement = {
 								type: "BlockStatement",
 								loc: node.loc,
 								body: [
@@ -880,8 +902,9 @@ export const compileAST = (ast: ESTree.Program) => {
 									} satisfies ESTree.ExpressionStatement,
 								],
 							} satisfies ESTree.BlockStatement;
-						dependencyStack.pop();
-						return returnStatement;
+							dependencyStack.pop();
+							return returnStatement;
+						}
 					}
 					dependencyStack.pop();
 				} else if (node.label.name === "winzigConfig") {

@@ -4,45 +4,63 @@ export default (
 		document: Document,
 		Text: typeof globalThis.Text,
 	},
-	buildData: any,
+	data: any,
 ) => {
 	document.documentElement.prepend(new Text("\n"));
 	document.documentElement.insertBefore(new Text("\n"), document.body);
 	document.documentElement.append(new Text("\n"));
+
+	console.log(data.pretty);
+	if (data.pretty) document.head.prepend(new Text("\n"));
+	for (const path of data.modulePreloadPaths) {
+		const linkElement = document.createElement("link");
+		linkElement.setAttribute("rel", "modulepreload");
+		linkElement.setAttribute("href", path);
+		document.head.prepend(linkElement);
+		if (data.pretty) document.head.prepend(new Text("\n"));
+	}
+	{
+		const scriptElement = document.createElement("script");
+		scriptElement.setAttribute("type", "module");
+		scriptElement.setAttribute("src", data.entryFilePath);
+		document.head.prepend(scriptElement);
+		if (data.pretty) document.head.prepend(new Text("\n"));
+	}
+	{
+		const importMapElement = document.createElement("script");
+		importMapElement.setAttribute("type", "importmap");
+		const stringifiedImportMap =
+			(data.pretty ? "\n" : "")
+			+ JSON.stringify({ imports: Object.fromEntries(data.importMap) }, null, data.pretty ? "\t" : undefined)
+			+ (data.pretty ? "\n" : "");
+		importMapElement.append(new Text(stringifiedImportMap));
+		document.head.prepend(importMapElement);
+		if (data.pretty) document.head.prepend(new Text("\n"));
+	}
+	{
+		const styleElement = document.createElement("style");
+		const text = [
+			``,
+			`@layer global, main;`,
+			`@import url("${data.globalCSSFilePath}") layer(global);`,
+			`@import url("${data.mainCSSFilePath}") layer(main);`,
+			``,
+		].join(data.pretty ? "\n" : "");
+		styleElement.append(new Text(text));
+		document.head.prepend(styleElement);
+		if (data.pretty) document.head.prepend(new Text("\n"));
+	}
 	if (![...document.head.childNodes].some((node: Element) => node.localName === "meta" && node.getAttribute("name") === "viewport")) {
 		const meta = document.createElement("meta");
 		meta.setAttribute("name", "viewport");
 		meta.setAttribute("content", "width=device-width, initial-scale=1, interactive-widget=resizes-content, viewport-fit=cover");
 		document.head.prepend(meta);
+		if (data.pretty) document.head.prepend(new Text("\n"));
 	}
-	if (![...document.head.childNodes].some((node: Element) => node.localName === "meta" && node.hasAttribute("charset"))) {
+	{
 		const meta = document.createElement("meta");
 		meta.setAttribute("charset", "UTF-8");
 		document.head.prepend(meta);
-	}
-	for (const cssFilePath of buildData.cssFilePaths) {
-		const stylesheetLink = document.createElement("link");
-		stylesheetLink.setAttribute("rel", "stylesheet");
-		stylesheetLink.setAttribute("href", cssFilePath);
-		document.head.append(stylesheetLink);
-	}
-	{
-		const importMapElement = document.createElement("script");
-		importMapElement.setAttribute("type", "importmap");
-		const stringifiedImportMap = JSON.stringify({ imports: Object.fromEntries(buildData.importMap) });
-		importMapElement.append(new Text(stringifiedImportMap));
-		document.head.append(importMapElement);
-	}
-	{
-		const scriptElement = document.createElement("script");
-		scriptElement.setAttribute("type", "module");
-		scriptElement.setAttribute("src", buildData.entryFilePath);
-		document.head.append(scriptElement);
-	}
-	for (const path of buildData.modulePreloadPaths) {
-		const linkElement = document.createElement("link");
-		linkElement.setAttribute("rel", "modulepreload");
-		linkElement.setAttribute("href", path);
-		document.head.append(linkElement);
+		if (data.pretty) document.head.prepend(new Text("\n"));
 	}
 };

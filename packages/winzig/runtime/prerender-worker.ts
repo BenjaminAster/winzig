@@ -6,7 +6,8 @@ import * as NodeURL from "node:url";
 
 import { JSDOM } from "jsdom";
 
-import { indexedDB } from "fake-indexeddb";
+// import { indexedDB } from "fake-indexeddb";
+import "fake-indexeddb/auto";
 
 import * as FS from "node:fs/promises";
 
@@ -96,12 +97,12 @@ parentPort.on("message", async (data) => {
 				writable: true,
 			});
 
-			Object.defineProperty(globalThis, "indexedDB", {
-				value: indexedDB,
-				configurable: true,
-				enumerable: true,
-				writable: true,
-			});
+			// Object.defineProperty(globalThis, "indexedDB", {
+			// 	value: indexedDB,
+			// 	configurable: true,
+			// 	enumerable: true,
+			// 	writable: true,
+			// });
 		}
 
 		for (let key of patchedGlobalPropertyKeys) {

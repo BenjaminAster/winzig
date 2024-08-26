@@ -1,7 +1,13 @@
 
 import { toDos } from "./imported/test.ts";
 
-import { css, type GenericElement } from "winzig";
+import { css, type Config as WinzigConfig } from "winzig";
+
+winzigConfig: ({
+	appfiles: "appfiles",
+	output: "../",
+	css: "./global.css",
+}) satisfies WinzigConfig;
 
 const ToDo = () => {
 	let toDoList$ = structuredClone(toDos);
@@ -53,9 +59,9 @@ const ToDo = () => {
 	<head>
 		<title>Winzig ToDo App</title>
 	</head>
-	<body id="test">
+	<body>
 		<main>
-			<h1>{document.title}</h1>
+			<h1>Winzig ToDo App</h1>
 
 			<div>This is a <code>&lt;div&gt;</code> outside of <code>&lt;ToDo /&gt;</code>.</div>
 

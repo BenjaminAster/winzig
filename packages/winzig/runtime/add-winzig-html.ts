@@ -10,7 +10,6 @@ export default (
 	document.documentElement.insertBefore(new Text("\n"), document.body);
 	document.documentElement.append(new Text("\n"));
 
-	console.log(data.pretty);
 	if (data.pretty) document.head.prepend(new Text("\n"));
 	for (const path of data.modulePreloadPaths) {
 		const linkElement = document.createElement("link");
@@ -41,9 +40,9 @@ export default (
 		const styleElement = document.createElement("style");
 		const text = [
 			``,
-			`@layer global, main;`,
-			`@import url("${data.globalCSSFilePath}") layer(global);`,
-			`@import url("${data.mainCSSFilePath}") layer(main);`,
+			`@layer ${data.globalCSSFilePath ? "global, " : ""}main;`,
+			...(data.globalCSSFilePath ? [`@import ${JSON.stringify(data.globalCSSFilePath)} layer(global);`] : []),
+			`@import ${JSON.stringify(data.mainCSSFilePath)} layer(main);`,
 			``,
 		].join(data.pretty ? "\n" : "");
 		styleElement.append(new Text(text));

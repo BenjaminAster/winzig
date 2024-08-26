@@ -25,7 +25,6 @@ const terserMinify = Terser.minify as (
 import type { EncodedSourceMap } from "@jridgewell/gen-mapping";
 
 import { compileAST, reset as resetCompilationData } from "./compiler.ts";
-import { initialCSS } from "./constants.ts";
 
 let refreshPage: () => void;
 let webSocketPort: number;
@@ -264,7 +263,13 @@ export const init = async ({
 		if (debug) console.timeEnd("Bundle JavaScript");
 
 		let cssSnippets: string[] = [
-			initialCSS,
+			[
+				``,
+				`wz-frag {`,
+				`\tdisplay: contents;`,
+				`}`,
+				``,
+			].join("\n"),
 		];
 
 		if (debug) console.time("Compile and generate files");
@@ -346,10 +351,10 @@ export const init = async ({
 							);
 							if (debug) console.timeEnd("Print code");
 						}
-						const sourceMapComment = `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`;
-						code = (code + (name === "winzig-runtime" ? "" : "\n") + sourceMapComment);
+						// code = (code + (name === "winzig-runtime" ? "" : "\n") + sourceMapComment);
 						if (name !== "index") importMap.set(`$appfiles/${name}.js`, browserRelativePath);
 					}
+					const sourceMapComment = `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`;
 
 					if (prerender) {
 						const prerenderingCode = (name === "winzig-runtime") ? code : code.replace(`}from"$appfiles/`, `}from"./`);
@@ -362,7 +367,9 @@ export const init = async ({
 					}
 					if (name !== "winzig-prerender-runtime") {
 						if (name === "index" && prerender) {
-							code = code.split('"__$WZ_SEPARATOR__",').toSpliced(1, 1).join("");
+							code = code.split('"__$WZ_SEPARATOR__";')[0] + "\n" + sourceMapComment;
+						} else {
+							code += sourceMapComment;
 						}
 						await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, relativePath), code);
 					}
@@ -452,7 +459,11 @@ export const init = async ({
 				if (debug) console.timeEnd("Prerender");
 			} else {
 				const document = new FakeDOM.Document();
-				addWinzigHTML({ document, Text: FakeDOM.Text }, buildData);
+				addWinzigHTML({ document, Text: FakeDOM.Text }, {
+					...buildData,
+					pretty: !minify,
+					logLevel,
+				});
 				const html = `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
 				await FS.writeFile(Path.resolve(workingDirectory, outputFolderPath, "./index.html"), html);
 			}

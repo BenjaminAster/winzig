@@ -50,8 +50,8 @@ export class Element extends Node {
 			+ ">"
 			+ (voidElements.has(this.localName) ? "" :
 				// TODO: maybe care about HTML sanitization?
-				// Currently, it really doesn't matter since the only element that gets text content
-				// is the importmap <script>, which is a raw text element anyway.
+				// Currently, it really doesn't matter since the only elements that get text content
+				// are <style> and the importmap <script>, which are raw text elements anyway.
 				this.childNodes.map((childNode) => childNode instanceof Element ? childNode.outerHTML : childNode.textContent).join("")
 				+ `</${this.localName}>`
 			)

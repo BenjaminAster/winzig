@@ -38,11 +38,6 @@ const jsx = (elementTypeOrFunction: any, namedArgs: any, ...children: any[]): El
 			}
 		}
 
-		// if (elementTypeOrFunction === "template") {
-		// 	for (const child of children) {
-		// 		element.content.append(child);
-		// 	}
-		// } else
 		for (const child of children) {
 			if (child instanceof LiveVariable) {
 				const textNode = new Text(child._);

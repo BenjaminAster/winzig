@@ -18,7 +18,7 @@ declare namespace WinzigInternals {
 		Omit<T, keyof GlobalEventHandlers | keyof WindowEventHandlers | "onfullscreenchange" | "onfullscreenerror" | "children">
 	> & WinzigInternals.ElementBase<T>;
 
-	interface WinzigUsingExpressionPatch {
+	interface WinzigUsingDeclarationsPatch {
 		[Symbol.dispose](): void;
 	}
 }
@@ -39,12 +39,12 @@ declare module "winzig" {
 	export interface GenericElement extends WinzigInternals.WinzigGenericElement { }
 
 	global {
-		interface Number extends WinzigInternals.WinzigUsingExpressionPatch { }
-		interface String extends WinzigInternals.WinzigUsingExpressionPatch { }
-		interface BigInt extends WinzigInternals.WinzigUsingExpressionPatch { }
-		interface Object extends WinzigInternals.WinzigUsingExpressionPatch { }
-		interface Boolean extends WinzigInternals.WinzigUsingExpressionPatch { }
-		interface Symbol extends WinzigInternals.WinzigUsingExpressionPatch { }
+		interface Number extends WinzigInternals.WinzigUsingDeclarationsPatch { }
+		interface String extends WinzigInternals.WinzigUsingDeclarationsPatch { }
+		interface BigInt extends WinzigInternals.WinzigUsingDeclarationsPatch { }
+		interface Object extends WinzigInternals.WinzigUsingDeclarationsPatch { }
+		interface Boolean extends WinzigInternals.WinzigUsingDeclarationsPatch { }
+		interface Symbol extends WinzigInternals.WinzigUsingDeclarationsPatch { }
 	}
 }
 

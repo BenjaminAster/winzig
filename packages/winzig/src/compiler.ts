@@ -19,6 +19,8 @@ export const compileAST = (ast: ESTree.Program) => {
 	let cssSnippets: string[] = [];
 	let dependencyStack: (Set<string> | null)[] = [];
 
+	let headCall: ESTree.CallExpression;
+
 	const transformToLiveExpression = (node: ESTree.Expression, dependencies: string[]) => {
 		return {
 			type: "CallExpression",
@@ -410,7 +412,8 @@ export const compileAST = (ast: ESTree.Program) => {
 					if (isStandardElement) {
 						if ((firstArg as ESTree.Literal).value === "html") {
 							const expressions: ESTree.Expression[] = [];
-							const [headCall, bodyCall] = node.arguments.splice(2) as ESTree.CallExpression[];
+							let bodyCall: ESTree.CallExpression;
+							[headCall, bodyCall] = node.arguments.splice(2) as ESTree.CallExpression[];
 							node.arguments[0] = {
 								type: "MemberExpression",
 								computed: false,
@@ -433,13 +436,13 @@ export const compileAST = (ast: ESTree.Program) => {
 							// 	type: "Identifier",
 							// 	name: "__$WZ_SEPARATOR__"
 							// };
-							const separatorIdentifier: ESTree.SimpleLiteral = {
-								type: "Literal",
-								value: "__$WZ_SEPARATOR__",
-							};
-							expressions.push(separatorIdentifier);
-							expressions.push(headCall);
-							expressions.push(structuredClone(separatorIdentifier));
+							// const separatorIdentifier: ESTree.SimpleLiteral = {
+							// 	type: "Literal",
+							// 	value: "__$WZ_SEPARATOR__",
+							// };
+							// expressions.push(separatorIdentifier);
+							// expressions.push(headCall);
+							// expressions.push(structuredClone(separatorIdentifier));
 							expressions.push({
 								type: "AssignmentExpression",
 								operator: "=",
@@ -1014,6 +1017,19 @@ export const compileAST = (ast: ESTree.Program) => {
 	// #endregion
 
 	visitStatementOrProgram(ast);
+	ast.body.push(
+		{
+			type: "ExpressionStatement",
+			expression: {
+				type: "Literal",
+				value: "__$WZ_SEPARATOR__",
+			} satisfies ESTree.SimpleLiteral,
+		} satisfies ESTree.ExpressionStatement,
+		{
+			type: "ExpressionStatement",
+			expression: headCall,
+		} satisfies ESTree.ExpressionStatement,
+	);
 
 	return {
 		cssSnippets,

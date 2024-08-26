@@ -1,6 +1,6 @@
 {
 	"name": "winzig",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Yet another reactive JavaScript frontend framework—but different.",
 	"type": "module",
 	"bin": {

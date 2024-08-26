@@ -2,9 +2,9 @@
 import { css, type Config as WinzigConfig } from "winzig";
 
 winzigConfig: ({
-	appfiles: "../appfiles/",
+	appfiles: "appfiles",
 	output: "../",
-	css: "./test.css",
+	css: "./global.css",
 }) satisfies WinzigConfig;
 
 let count$ = 5;
@@ -22,7 +22,7 @@ const SomethingSomething = () => {
 
 let Input = <input type="text" value="hello" />;
 
-console.log(Input, Input.value);
+// console.log(Input, Input.value);
 
 <html lang="en">
 	<head>
@@ -50,3 +50,11 @@ console.log(Input, Input.value);
 		`}
 	</body>;
 </html>;
+
+console.log(1);
+console.log(2);
+console.log(3);
+console.log(4);
+console.log(5);
+console.log(6);
+console.log(7);

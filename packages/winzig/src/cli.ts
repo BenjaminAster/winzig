@@ -4,9 +4,12 @@ import { init } from "./main.ts";
 
 import { parseArgs, styleText } from "node:util";
 
+import * as Path from "node:path";
+import * as FS from "node:fs/promises";
+
 try {
-	var { values: cmdArgs } = parseArgs({
-		allowPositionals: false,
+	var { values: cmdArgs, positionals } = parseArgs({
+		allowPositionals: true,
 		args: process.argv.slice(2),
 		options: {
 			watch: {
@@ -75,6 +78,9 @@ if (cmdArgs.help) {
 		+ styleText(["green", "underline"], "https://github.com/BenjaminAster/winzig#cli-options")
 		+ styleText(["green"], " for help.")
 	);
+} else if (positionals[0] === "create") {
+	const templateDir = Path.resolve(import.meta.dirname, "../templates/default/");
+	await FS.cp(templateDir, process.cwd(), { recursive: true });
 } else {
 	init({
 		appfilesFolderPath,

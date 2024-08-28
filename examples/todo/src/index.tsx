@@ -7,10 +7,11 @@ winzigConfig: ({
 	appfiles: "appfiles",
 	output: "../",
 	css: "./global.css",
+	// noCSSScopeRules: true,
 }) satisfies WinzigConfig;
 
 const ToDo = () => {
-	let toDoList$ = structuredClone(toDos);
+	let toDoList$ = [...toDos];
 	let input: HTMLInputElement;
 
 	return <>
@@ -18,11 +19,11 @@ const ToDo = () => {
 		<br />
 
 		<form on:submit_preventDefault={() => {
-			toDoList$ = [...toDoList$, input.value];
+			toDoList$.push(input.value);
 			input.value = "";
 		}}>
 			New ToDo item: { }
-			{input = <input type="text" name="todo-item" ariaLabel="new ToDo item" /> as HTMLInputElement} { }
+			{input = <input type="text" name="todo-item" autocomplete="off" spellcheck={false} ariaLabel="new ToDo item" /> as HTMLInputElement} { }
 			<button>✓</button>
 
 			{css`
@@ -30,7 +31,7 @@ const ToDo = () => {
 					font-style: italic;
 				}
 
-				button {
+				& button {
 					border: 4px solid aqua;
 					background: #8886;
 				}
@@ -38,17 +39,17 @@ const ToDo = () => {
 		</form>
 
 		<ul>
-			{...toDoList$.map((todo, i) =>
+			{...toDoList$.map((todo, i$) =>
 				<li>
-					{todo} <button on:click={() => { toDoList$ = toDoList$.toSpliced(i, 1); }}>✗</button>
-					{css`
-					`}
+					{todo} <button on:click={() => { toDoList$.splice(i$, 1); }}>✗</button>
 				</li>
 			)}
 		</ul>
 
 		{css`
 			& {
+				display: block;
+				border: 1px solid red;
 				font-family: monospace;
 			}
 		`}
@@ -73,12 +74,12 @@ const ToDo = () => {
 					padding-inline: 1rem;
 				}
 
-				div {
+				& div {
 					border: 1px solid red;
 					padding-inline: .3em;
 				}
 
-				code {
+				& code {
 					background-color: #8884;
 					padding-inline: .2em;
 				}

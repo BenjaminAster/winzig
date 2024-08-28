@@ -3,11 +3,12 @@
 
 import {
 	j as originalJsx,
-	s as jsxSlot,
+	// s as jsxSlot,
 	V as LiveVariable,
 	e as liveExpression,
 	l as addListeners,
-	f as liveFragment,
+	A as liveArray,
+	c as createElement,
 } from "$appfiles/winzig-original-runtime.js";
 
 import { parentPort, workerData } from "node:worker_threads";
@@ -18,7 +19,13 @@ let buildData: any;
 export const setBuildData = (data: any) => buildData = data;
 
 const jsx = (type: any, params: any, ...children: any[]) => {
-	const element = originalJsx(type, params, ...((workerData.pretty && type === document.head) ? children.flatMap(child => [child, "\n"]) : children));
+	if (workerData.pretty && type === document.head) children = children.flatMap(child => [child, "\n"]);
+
+	for (let i = 0; i < children.length; ++i) {
+		let child = children[i]
+		if (typeof child === "number" || typeof child === "boolean") children[i] = children[i].toString();
+	}
+	const element = originalJsx(type, params, ...children);
 	if (type === document.body) {
 		setTimeout(() => {
 			addWinzigHTML({ document, Text }, {
@@ -36,9 +43,10 @@ const jsx = (type: any, params: any, ...children: any[]) => {
 
 export {
 	jsx as j,
-	jsxSlot as s,
+	// jsxSlot as s,
 	LiveVariable as V,
 	liveExpression as e,
 	addListeners as l,
-	liveFragment as f,
+	liveArray as A,
+	createElement as c,
 };

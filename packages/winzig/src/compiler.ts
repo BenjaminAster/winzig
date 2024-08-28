@@ -4,14 +4,51 @@ import type * as ESTree from "estree";
 // import * as FS from "node:fs/promises";
 // import * as FSSync from "node:fs";
 
+const DEBUG = false;
+if (DEBUG) {
+	var FSSync = await import("node:fs");
+}
+
 let currentUniqueId: number = 0;
 const createUniqueId = () => ++currentUniqueId;
 
 const reactiveVarRegExp = /^\w+\$\d?$/;
 const cssRegExp = /^css\d?$/;
+let noCSSScopeRules: boolean;
+let minify: boolean;
+
+const arrayModifyingMethodsSingleLetterMappings: Record<string, string> = Object.assign(Object.create(null), {
+	copyWithin: "c",
+	fill: "f",
+	pop: "o",
+	push: "p",
+	reverse: "r",
+	shift: "h",
+	sort: "t",
+	splice: "s",
+	unshift: "u",
+});
+
+const AssignmentOperatorMappings = {
+	"+=": { type: "BinaryExpression", operator: "+" },
+	"-=": { type: "BinaryExpression", operator: "-" },
+	"*=": { type: "BinaryExpression", operator: "*" },
+	"/=": { type: "BinaryExpression", operator: "/" },
+	"%=": { type: "BinaryExpression", operator: "%" },
+	"**=": { type: "BinaryExpression", operator: "**" },
+	"<<=": { type: "BinaryExpression", operator: "<<" },
+	">>=": { type: "BinaryExpression", operator: ">>" },
+	">>>=": { type: "BinaryExpression", operator: ">>>" },
+	"|=": { type: "BinaryExpression", operator: "|" },
+	"^=": { type: "BinaryExpression", operator: "^" },
+	"&=": { type: "BinaryExpression", operator: "&" },
+	"||=": { type: "LogicalExpression", operator: "||" },
+	"&&=": { type: "LogicalExpression", operator: "&&" },
+	"??=": { type: "LogicalExpression", operator: "??" },
+} as const;
 
 export const compileAST = (ast: ESTree.Program) => {
-	// FSSync.writeFileSync(`./ast.json`, JSON.stringify(ast, null, "\t"));
+	if (DEBUG) FSSync.writeFileSync(`./ast-before.json`, JSON.stringify(ast, (key, value) => typeof value === "bigint" ? Number(value) : value, "\t"));
 
 	let tempExpression: ESTree.Expression;
 	let tempStatement: ESTree.Statement;
@@ -20,6 +57,7 @@ export const compileAST = (ast: ESTree.Program) => {
 	let dependencyStack: (Set<string> | null)[] = [];
 
 	let headCall: ESTree.CallExpression;
+	let addTempVarStatement = false;
 
 	const transformToLiveExpression = (node: ESTree.Expression, dependencies: string[]) => {
 		return {
@@ -48,17 +86,77 @@ export const compileAST = (ast: ESTree.Program) => {
 		} satisfies ESTree.CallExpression;
 	};
 
-	const wrapIntoLiveVariable = (expression: ESTree.Expression) => {
+	const wrapIntoLiveVariableOrArray = (expression: ESTree.Expression) => {
 		return {
 			type: "NewExpression",
 			loc: expression.loc,
 			callee: {
 				type: "Identifier",
 				loc: expression.loc,
-				name: "__winzig__LiveVariable",
+				name: expression.type === "ArrayExpression" ? "__winzig__LiveArray" : "__winzig__LiveVariable",
 			} satisfies ESTree.Identifier,
 			arguments: [expression],
 		} satisfies ESTree.NewExpression;
+	};
+
+	const liveArrayToTempVarIndexed = (array: ESTree.Expression) => {
+		return {
+			type: "MemberExpression",
+			loc: array.loc,
+			computed: true,
+			optional: false,
+			object: {
+				type: "MemberExpression",
+				loc: array.loc,
+				computed: false,
+				optional: false,
+				object: array,
+				property: {
+					type: "Identifier",
+					name: "v",
+				} satisfies ESTree.Identifier
+			} satisfies ESTree.MemberExpression,
+			property: {
+				type: "Identifier",
+				loc: array.loc,
+				name: "__winzig__tempVariable",
+			} satisfies ESTree.Identifier,
+		} satisfies ESTree.MemberExpression;
+	};
+
+	const wrapIntoTempVarAssignment = (node: ESTree.Expression) => {
+		addTempVarStatement = true;
+		return {
+			type: "AssignmentExpression",
+			loc: node.loc,
+			operator: "=",
+			left: {
+				type: "Identifier",
+				loc: node.loc,
+				name: "__winzig__tempVariable",
+			} satisfies ESTree.Identifier,
+			right: node,
+		} satisfies ESTree.AssignmentExpression;
+	};
+
+	const wrapIntoLiveArrayIndexedAssignment = (array: ESTree.Expression, firstArg: ESTree.Expression, secondArg: ESTree.Expression) => {
+		return {
+			type: "CallExpression",
+			loc: array.loc,
+			optional: false,
+			callee: {
+				type: "MemberExpression",
+				loc: array.loc,
+				computed: false,
+				optional: false,
+				object: array,
+				property: {
+					type: "Identifier",
+					name: "i",
+				} satisfies ESTree.Identifier,
+			} satisfies ESTree.MemberExpression,
+			arguments: [firstArg, secondArg],
+		} satisfies ESTree.CallExpression;
 	};
 
 	// #region VISIT CLASS BODY
@@ -72,7 +170,7 @@ export const compileAST = (ast: ESTree.Program) => {
 	// #region VISIT EXPRESSION
 
 
-	const visitExpression = (node: ESTree.Expression | ESTree.Pattern | ESTree.SpreadElement, leaveLiveVars: boolean = false) => {
+	const visitExpression = (node: ESTree.Expression | ESTree.Pattern | ESTree.SpreadElement, leaveLiveVars: boolean = false): ESTree.Expression => {
 		if (!node) return;
 		switch (node.type) {
 			// #region ArrayExpression
@@ -93,7 +191,7 @@ export const compileAST = (ast: ESTree.Program) => {
 			case "ArrowFunctionExpression": {
 				dependencyStack.push(null);
 				if (node.expression) {
-					visitExpression(node.body as ESTree.Expression);
+					if (tempExpression = visitExpression(node.body as ESTree.Expression)) node.body = tempExpression;
 				} else {
 					visitStatementOrProgram(node.body as ESTree.BlockStatement);
 				}
@@ -109,8 +207,54 @@ export const compileAST = (ast: ESTree.Program) => {
 			// #endregion
 			// #region AssignmentExpression
 			case "AssignmentExpression": {
-				if (tempExpression = visitExpression(node.left)) node.left = tempExpression as ESTree.Pattern;
 				if (tempExpression = visitExpression(node.right)) node.right = tempExpression;
+
+				if (
+					node.left.type === "Identifier"
+					&& reactiveVarRegExp.test(node.left.name)
+				) {
+					node.left = {
+						type: "MemberExpression",
+						computed: false,
+						loc: node.loc,
+						object: node.left,
+						optional: false,
+						property: {
+							type: "Identifier",
+							name: "_",
+							loc: node.loc,
+						} satisfies ESTree.Identifier,
+					} satisfies ESTree.MemberExpression;
+				} else {
+					if (
+						node.left.type === "MemberExpression"
+						&& node.left.computed
+						&& node.left.object.type === "Identifier"
+						&& reactiveVarRegExp.test(node.left.object.name)
+					) {
+						if (tempExpression = visitExpression(node.left.property as ESTree.Expression)) node.left.property = tempExpression;
+						if (node.operator === "=") {
+							return wrapIntoLiveArrayIndexedAssignment(
+								node.left.object,
+								node.left.property as ESTree.Expression,
+								node.right,
+							);
+						} else {
+							return wrapIntoLiveArrayIndexedAssignment(
+								node.left.object,
+								wrapIntoTempVarAssignment(node.left.property as ESTree.Expression),
+								{
+									...(AssignmentOperatorMappings[node.operator] || console.error("Unknown assignment operator:", node.operator) as never),
+									left: liveArrayToTempVarIndexed(structuredClone(node.left.object)),
+									right: node.right,
+								} satisfies (ESTree.LogicalExpression | ESTree.BinaryExpression),
+							);
+						}
+					} else {
+						if (tempExpression = visitExpression(node.left)) node.left = tempExpression as ESTree.Pattern;
+					}
+				}
+
 				break;
 			}
 			// #endregion
@@ -136,16 +280,23 @@ export const compileAST = (ast: ESTree.Program) => {
 			// #region CallExpression
 			case "CallExpression": {
 				if (node.callee.type === "Identifier" && node.callee.name === "__winzig__jsx") {
-					const firstArg = node.arguments[0];
-					const isStandardElement = firstArg.type === "Literal";
-					const isFragment = firstArg.type === "Identifier" && firstArg.name === "__winzig__Fragment";
 					let arg: ESTree.Expression | ESTree.SpreadElement;
 					let cssId: number;
+
+					let firstArg = node.arguments[0] as ESTree.Expression;
+					if (firstArg.type === "Identifier" && firstArg.name === "__winzig__Fragment") {
+						node.arguments[0] = firstArg = {
+							type: "Literal",
+							value: "wz-frag",
+							loc: node.arguments[0].loc,
+						} satisfies ESTree.SimpleLiteral;
+					}
+					const elementTypeIsString = firstArg.type === "Literal";
 
 					if (node.arguments.length >= 3) {
 						const lastArg = node.arguments.at(-1);
 						if (
-							(isStandardElement || isFragment)
+							(elementTypeIsString)
 							&& lastArg.type === "TaggedTemplateExpression"
 							&& lastArg.tag.type === "Identifier"
 							&& cssRegExp.test(lastArg.tag.name)
@@ -157,40 +308,42 @@ export const compileAST = (ast: ESTree.Program) => {
 							const [firstLine, ...otherLines] = cssString.split("\n");
 							const leadingWhitespace = otherLines.at(-1)?.match(/^(\s*)/)[0].length ?? 0;
 							cssString = [firstLine, ...otherLines.map(line => line.slice(leadingWhitespace - 1))].join("\n");
-							cssSnippets.push(`@scope ([data-wz-id="${cssId.toString(36)}"]) to ([data-wz-new-scope]) {\n\t${cssString}\n}\n`);
+							cssSnippets.push(
+								noCSSScopeRules
+									? `[data-wz-id="${cssId.toString(36)}"] {\n\t${minify
+										// Chromium v128 has a weird bug where nested selectors
+										// don't get parsed if they start with a tag name and
+										// are immediately preceded by a closing brace (i.e. with no whitespace in between).
+										// This hack adds an empty `z{}` rule before those selectors
+										// that then gets replaced by whitespace afterwards.
+										? cssString.replaceAll(
+											/}\n(?:[ \t]*\n)*(?<indentation>[ \t]+)(?<firstChar>\w)/g,
+											"}\n\n$<indentation>z{}\n$<indentation>$<firstChar>",
+										)
+										: cssString
+									}\n}\n`
+									: `@scope ([data-wz-id="${cssId.toString(36)}"]) to ([data-wz-new-scope]) {\n\t${cssString}\n}\n`
+							);
 							node.arguments.pop();
 						}
-					}
-
-					if (isFragment) {
-						node.arguments[0] = {
-							type: "Literal",
-							value: "wz-frag",
-							loc: node.arguments[0].loc,
-						} satisfies ESTree.SimpleLiteral;
 					}
 
 					for (let i = 2; i < node.arguments.length; ++i) {
 						arg = node.arguments[i];
 						if (arg.type === "SpreadElement") {
-							let spreadItem = arg.argument;
-							dependencyStack.push(new Set());
-							if (tempExpression = visitExpression(spreadItem)) spreadItem = tempExpression;
-							if (dependencyStack.at(-1).size) {
-								node.arguments[i] = {
-									type: "CallExpression",
-									callee: {
-										type: "Identifier",
-										name: "__winzig__liveFragment",
-										loc: arg.loc,
-									} satisfies ESTree.Identifier,
-									optional: false,
-									arguments: [
-										transformToLiveExpression(spreadItem, [...dependencyStack.at(-1)]),
-									],
-								} satisfies ESTree.CallExpression;
+							if (
+								arg.argument.type === "CallExpression"
+								&& arg.argument.callee.type === "MemberExpression"
+								&& arg.argument.callee.property.type === "Identifier"
+								&& arg.argument.callee.property.name === "map"
+								&& arg.argument.callee.object.type === "Identifier"
+								&& reactiveVarRegExp.test(arg.argument.callee.object.name)
+							) {
+								arg.argument.callee.property.name = "m";
+								visitExpression(arg.argument.arguments[0]);
+							} else {
+								if (tempExpression = visitExpression(arg.argument)) arg.argument = tempExpression;
 							}
-							dependencyStack.pop();
 						} else {
 							dependencyStack.push(new Set());
 							visitExpression(arg, true);
@@ -212,6 +365,7 @@ export const compileAST = (ast: ESTree.Program) => {
 								if (property.type === "Property") {
 									if (property.key.type === "Literal" && (property.key.value as string).startsWith?.("on:")) {
 										dependencyStack.push(null);
+										// if (tempExpression = visitExpression(property.value)) property.value = tempExpression;
 										visitExpression(property.value);
 										const [eventName, ...modifiers] = (property.key.value as string).slice(3).split("_");
 										listeners.push({
@@ -409,7 +563,7 @@ export const compileAST = (ast: ESTree.Program) => {
 						}
 					}
 
-					if (isStandardElement) {
+					if (elementTypeIsString) {
 						if ((firstArg as ESTree.Literal).value === "html") {
 							const expressions: ESTree.Expression[] = [];
 							let bodyCall: ESTree.CallExpression;
@@ -493,26 +647,49 @@ export const compileAST = (ast: ESTree.Program) => {
 								} satisfies ESTree.Identifier,
 								property: {
 									type: "Identifier",
-									name: firstArg.value as string,
+									name: (firstArg as ESTree.Literal).value as string,
 									loc: firstArg.loc,
 								} satisfies ESTree.Identifier,
 							} satisfies ESTree.MemberExpression;
-						} else if ((firstArg as ESTree.Literal).value === "slot") {
-							// node.arguments[0] = {
-							// 	type: "Identifier",
-							// 	name: "__winzig__Slot",
-							// 	loc: firstArg.loc,
-							// } satisfies ESTree.Identifier;
-							node.arguments = [];
-							node.callee.name = "__winzig__jsxSlot";
+						} else {
+							node.arguments[0] = {
+								type: "CallExpression",
+								loc: node.loc,
+								optional: false,
+								arguments: [node.arguments[0]],
+								callee: {
+									type: "Identifier",
+									name: "__winzig__createElement",
+								} satisfies ESTree.Identifier,
+							} satisfies ESTree.CallExpression;
 						}
+						// else if ((firstArg as ESTree.Literal).value === "slot") {
+						// 	// node.arguments[0] = {
+						// 	// 	type: "Identifier",
+						// 	// 	name: "__winzig__Slot",
+						// 	// 	loc: firstArg.loc,
+						// 	// } satisfies ESTree.Identifier;
+						// 	node.arguments = [];
+						// 	node.callee.name = "__winzig__jsxSlot";
+						// }
 					}
 				} else {
-					if (tempExpression = visitExpression(node.callee as ESTree.Expression)) node.callee = tempExpression;
+					if (
+						node.callee.type === "MemberExpression"
+						&& node.callee.object.type === "Identifier"
+						&& reactiveVarRegExp.test(node.callee.object.name)
+						&& node.callee.property.type === "Identifier"
+						&& (node.callee.property.name in arrayModifyingMethodsSingleLetterMappings)
+					) {
+						node.callee.property.name = arrayModifyingMethodsSingleLetterMappings[node.callee.property.name];
+					} else {
+						if (tempExpression = visitExpression(node.callee as ESTree.Expression)) node.callee = tempExpression;
+					}
 					for (let i = 0; i < node.arguments.length; ++i) {
 						if (tempExpression = visitExpression(node.arguments[i])) node.arguments[i] = tempExpression;
 					}
 				}
+
 				break;
 			}
 			// #endregion
@@ -549,7 +726,7 @@ export const compileAST = (ast: ESTree.Program) => {
 						optional: false,
 						property: {
 							type: "Identifier",
-							name: "_",
+							name: "v",
 							loc: node.loc,
 						} satisfies ESTree.Identifier,
 					} satisfies ESTree.MemberExpression;
@@ -596,7 +773,7 @@ export const compileAST = (ast: ESTree.Program) => {
 				for (const prop of node.properties) {
 					if (prop.type === "Property") {
 						if (prop.key.type === "Identifier" && reactiveVarRegExp.test((prop.key as ESTree.Identifier).name)) {
-							prop.value = wrapIntoLiveVariable(visitExpression(prop.value as ESTree.Expression, true) ?? prop.value as ESTree.Expression);
+							prop.value = wrapIntoLiveVariableOrArray(visitExpression(prop.value as ESTree.Expression, true) ?? prop.value as ESTree.Expression);
 						} else if (tempExpression = visitExpression(prop.value)) prop.value = tempExpression;
 					}
 				}
@@ -648,13 +825,75 @@ export const compileAST = (ast: ESTree.Program) => {
 				break;
 			}
 			// #endregion
-			// #region YieldExpression
-			case "UnaryExpression": case "UpdateExpression": case "YieldExpression": {
+			// #region {Unary/Yield}Expression
+			case "UnaryExpression": case "YieldExpression": {
 				if (tempExpression = visitExpression(node.argument)) node.argument = tempExpression;
 				break;
 			}
 			// #endregion
-			// case "UpdateExpression": see case "UnaryExpression"
+			// #region UpdateExpression
+			case "UpdateExpression": {
+				if (
+					node.argument.type === "Identifier"
+					&& reactiveVarRegExp.test(node.argument.name)
+				) {
+					node.argument = {
+						type: "MemberExpression",
+						computed: false,
+						loc: node.loc,
+						object: node.argument,
+						optional: false,
+						property: {
+							type: "Identifier",
+							name: "_",
+							loc: node.loc,
+						} satisfies ESTree.Identifier,
+					} satisfies ESTree.MemberExpression;
+				} else {
+					if (
+						node.argument.type === "MemberExpression"
+						&& node.argument.computed
+						&& node.argument.object.type === "Identifier"
+						&& reactiveVarRegExp.test(node.argument.object.name)
+					) {
+						if (tempExpression = visitExpression(node.argument.property as ESTree.Expression)) node.argument.property = tempExpression;
+						const tempVarIndexedExpression = liveArrayToTempVarIndexed(structuredClone(node.argument.object));
+						const mainExpression = wrapIntoLiveArrayIndexedAssignment(
+							node.argument.object,
+							wrapIntoTempVarAssignment(node.argument.property as ESTree.Expression),
+							{
+								type: "BinaryExpression",
+								operator: node.operator[0] as ESTree.BinaryOperator,
+								left: node.prefix
+									? tempVarIndexedExpression
+									: wrapIntoTempVarAssignment(tempVarIndexedExpression),
+								right: {
+									type: "Literal",
+									value: 1,
+									loc: node.argument.property.loc,
+								} satisfies ESTree.SimpleLiteral,
+							} satisfies ESTree.BinaryExpression,
+						);
+						return node.prefix
+							? mainExpression
+							: {
+								type: "SequenceExpression",
+								expressions: [
+									mainExpression,
+									{
+										type: "Identifier",
+										loc: node.loc,
+										name: "__winzig__tempVariable",
+									} satisfies ESTree.Identifier,
+								],
+							} satisfies ESTree.SequenceExpression;
+					} else {
+						if (tempExpression = visitExpression(node.argument)) node.argument = tempExpression;
+					}
+				}
+				break;
+			};
+			// #endregion
 			// case "YieldExpression": see case "UnaryExpression"
 			default: {
 				console.error(`Unknown expression type: ${(node as any).type}`);
@@ -976,7 +1215,7 @@ export const compileAST = (ast: ESTree.Program) => {
 								// 	arguments: [visitExpression(declarator.init) ?? declarator.init],
 								// };
 								// declarator.init = newNode;
-								declarator.init = wrapIntoLiveVariable(visitExpression(declarator.init) ?? declarator.init);
+								declarator.init = wrapIntoLiveVariableOrArray(visitExpression(declarator.init) ?? declarator.init);
 							} else {
 								node.kind = "let";
 								dependencyStack.push(new Set());
@@ -1030,12 +1269,29 @@ export const compileAST = (ast: ESTree.Program) => {
 			expression: headCall,
 		} satisfies ESTree.ExpressionStatement,
 	);
+	if (addTempVarStatement) {
+		ast.body.splice(1, 0, {
+			type: "VariableDeclaration",
+			kind: "var",
+			declarations: [{
+				type: "VariableDeclarator",
+				id: {
+					type: "Identifier",
+					name: "__winzig__tempVariable",
+				} satisfies ESTree.Identifier,
+			} satisfies ESTree.VariableDeclarator],
+		} satisfies ESTree.VariableDeclaration);
+	}
+
+	if (DEBUG) FSSync.writeFileSync(`./ast-after.json`, JSON.stringify(ast, (key, value) => typeof value === "bigint" ? Number(value) : value, "\t"));
 
 	return {
 		cssSnippets,
 	};
 };
 
-export const reset = () => {
+export const init = (options: { noCSSScopeRules: boolean, minify: boolean; }) => {
 	currentUniqueId = 0;
+	noCSSScopeRules = options.noCSSScopeRules;
+	minify = options.minify;
 };

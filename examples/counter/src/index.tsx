@@ -22,7 +22,7 @@ $: console.log(`Count is now ${count$}.`);
 		Double count: {count$ * 2}<br />
 		Triple count: {tripleCount$}<br />
 		<button on:click={() => ++count$}>+</button> { }
-		<button on:click={() => --count$}>-</button>
+		<button on:click={() => count$ = count$ - 1}>-</button>
 
 		{css`
 			& {

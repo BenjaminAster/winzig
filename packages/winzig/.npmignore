@@ -4,4 +4,6 @@
 /runtime/internal-types.d.ts
 /runtime/prerender-worker.ts
 /runtime/tsconfig.json
+/templates/*/appfiles/
+/templates/*/index.html
 /tsconfig.json

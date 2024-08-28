@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// -*- typescript -*-
 
 import { init } from "./main.ts";
 
@@ -16,13 +17,6 @@ try {
 				type: "boolean",
 				default: false,
 				short: "w",
-			},
-			output: {
-				type: "string",
-				short: "o",
-			},
-			appfiles: {
-				type: "string",
 			},
 			pretty: {
 				type: "boolean",
@@ -62,8 +56,6 @@ try {
 	throw error;
 }
 
-const appfilesFolderPath = cmdArgs.appfiles;
-const outputFolderPath = cmdArgs.output;
 const devMode = cmdArgs.dev;
 const minify = !devMode && !cmdArgs.pretty;
 const watch = devMode || cmdArgs.watch;
@@ -81,12 +73,11 @@ if (cmdArgs.help) {
 } else if (positionals[0] === "create") {
 	const templateDir = Path.resolve(import.meta.dirname, "../templates/default/");
 	await FS.cp(templateDir, process.cwd(), { recursive: true });
+	console.info("Default template copied into current directory.");
 } else {
 	init({
-		appfilesFolderPath,
 		liveReload,
 		minify,
-		outputFolderPath,
 		watch,
 		keepPrerenderFolder,
 		prerender,

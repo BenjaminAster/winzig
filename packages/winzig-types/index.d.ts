@@ -23,6 +23,11 @@ declare namespace WinzigInternals {
 	}
 }
 
+// TODO: Maybe make awync/await components work (might not be possible with TypeScript)
+// interface CallableFunction extends Function {
+// 	await<T, R = WinzigInternals.WinzigGenericElement>(this: (props: T) => R, props?: T): Awaited<R>;
+// }
+
 declare module "winzig" {
 	export function css(templateArray: TemplateStringsArray, ...args: any[]): WinzigInternals.OpaqueCSSReference;
 	// export declare class Variable<T> {
@@ -34,6 +39,7 @@ declare module "winzig" {
 		appfiles?: string;
 		output?: string;
 		css?: string;
+		noCSSScopeRules?: boolean;
 	}
 
 	export interface GenericElement extends WinzigInternals.WinzigGenericElement { }

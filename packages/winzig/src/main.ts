@@ -3,14 +3,18 @@ import * as FS from "node:fs/promises";
 import * as Path from "node:path";
 import * as HTTP from "node:http";
 import * as NodeCrypto from "node:crypto";
+import { Worker } from "node:worker_threads";
+import { styleText } from "node:util";
+
 import type * as Net from "node:net";
 import type * as Stream from "node:stream";
+import type * as NodeWebStreams from "node:stream/web";
+// CompressionStream isn't a global type in @types/node for some reason
+declare var CompressionStream: typeof NodeWebStreams.CompressionStream;
 
 import * as ESBuild from "esbuild";
 
 import * as BabelParser from "@babel/parser";
-
-import { Worker } from "node:worker_threads";
 
 import type * as ESTree from "estree";
 import * as Terser from "terser";
@@ -24,12 +28,11 @@ const terserMinify = Terser.minify as (
 
 import type { EncodedSourceMap } from "@jridgewell/gen-mapping";
 
-import { compileAST, reset as resetCompilationData } from "./compiler.ts";
+import { compileAST, init as initCompiler } from "./compiler.ts";
+import type { WinzigOptions } from "../types/main.d.ts";
 
 let refreshPage: () => void;
 let webSocketPort: number;
-
-import type { WinzigOptions } from "../types/main.d.ts";
 
 let FakeDOM: typeof import("./minimal-fake-dom.ts");
 let addWinzigHTML: typeof import("../runtime/add-winzig-html.ts").default;
@@ -113,7 +116,6 @@ export const init = async ({
 	const esBuildCommonOptions: ESBuild.BuildOptions = {
 		splitting: false,
 		format: "esm",
-		// outdir: absoluteAppfilesFolderPath,
 		outdir: winzigVirtualDirectory,
 		sourcemap: "external",
 		bundle: true,
@@ -131,6 +133,7 @@ export const init = async ({
 			"winzig": "$appfiles/winzig-runtime.js",
 		},
 		pure: [],
+		dropLabels: logLevel === "verbose" ? [] : ["DEBUG"],
 	};
 
 	const esBuildChunksOptions: ESBuild.BuildOptions = {
@@ -145,11 +148,11 @@ export const init = async ({
 			js: [
 				`import {`,
 				`\tj as __winzig__jsx,`,
-				`\ts as __winzig__jsxSlot,`,
 				`\tV as __winzig__LiveVariable,`,
 				`\tl as __winzig__addListeners,`,
 				`\te as __winzig__liveExpression,`,
-				`\tf as __winzig__liveFragment,`,
+				`\tA as __winzig__LiveArray,`,
+				`\tc as __winzig__createElement,`,
 				`} from "$appfiles/winzig-runtime.js";`,
 			].join("\n"),
 		},
@@ -224,12 +227,17 @@ export const init = async ({
 			for (let line of match?.groups.config?.split("\n") ?? []) {
 				line = line.trim();
 				if (line.startsWith("//")) continue;
-				const lineMatch = line.match(/^(?<key>\w+): ?(?<quoteType>['"])(?<value>[^'"]+)\k<quoteType>/);
-				if (lineMatch) configObject[lineMatch.groups.key] = lineMatch.groups.value;
+				const lineMatch = line.match(/^(?<key>\w+): ?(?:(?<quoteType>['"])(?<value>[^'"]+)\k<quoteType>|(?<boolean>true|false))/);
+				if (lineMatch) {
+					configObject[lineMatch.groups.key] = lineMatch.groups.boolean
+						? JSON.parse(lineMatch.groups.boolean)
+						: lineMatch.groups.value;
+				}
 			}
 			var outputFolderPath = originalOutputFolderPath || Path.posix.join("./src/", configObject.output || "../");
 			var appfilesFolderPath = originalAppfilesFolderPath || configObject.appfiles || "appfiles";
 			var cssEntryPath = configObject.css && Path.posix.join("./src/", configObject.css);
+			var noCSSScopeRules = Boolean(configObject.noCSSScopeRules);
 		}
 
 		const absoluteAppfilesFolderPath = Path.resolve(workingDirectory, outputFolderPath, appfilesFolderPath);
@@ -250,7 +258,7 @@ export const init = async ({
 
 		const outputFiles: ESBuild.OutputFile[] = [];
 
-		resetCompilationData();
+		initCompiler({ noCSSScopeRules, minify });
 		const chunksBuild = await chunksBuildContext.rebuild();
 		outputFiles.push(...chunksBuild.outputFiles, ...winzigRuntimeBuild.outputFiles, ...(winzigPrerenderingRuntimeBuild?.outputFiles ?? []));
 
@@ -262,15 +270,8 @@ export const init = async ({
 
 		if (debug) console.timeEnd("Bundle JavaScript");
 
-		let cssSnippets: string[] = [
-			[
-				``,
-				`wz-frag {`,
-				`\tdisplay: contents;`,
-				`}`,
-				``,
-			].join("\n"),
-		];
+		let cssSnippets: string[] = [];
+		let fileSizesInfo: any = {};
 
 		if (debug) console.time("Compile and generate files");
 		for (const file of outputFiles) {
@@ -354,7 +355,7 @@ export const init = async ({
 						// code = (code + (name === "winzig-runtime" ? "" : "\n") + sourceMapComment);
 						if (name !== "index") importMap.set(`$appfiles/${name}.js`, browserRelativePath);
 					}
-					const sourceMapComment = `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`;
+					const sourceMapComment = ((name === "winzig-runtime") ? "" : "\n") + `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`;
 
 					if (prerender) {
 						const prerenderingCode = (name === "winzig-runtime") ? code : code.replace(`}from"$appfiles/`, `}from"./`);
@@ -367,10 +368,30 @@ export const init = async ({
 					}
 					if (name !== "winzig-prerender-runtime") {
 						if (name === "index" && prerender) {
-							code = code.split('"__$WZ_SEPARATOR__";')[0] + "\n" + sourceMapComment;
-						} else {
-							code += sourceMapComment;
+							code = code.split('"__$WZ_SEPARATOR__";')[0];
 						}
+						if (debug) {
+							const stream = new CompressionStream("gzip");
+							const writer = stream.writable.getWriter();
+							const utf8Code = new TextEncoder().encode(code);
+							writer.write(utf8Code);
+							writer.close();
+							let compressedSize = 0;
+							const reader = stream.readable.getReader();
+							let result: NodeWebStreams.ReadableStreamDefaultReadResult<any>;
+							while (!(result = await reader.read()).done) {
+								compressedSize += result.value.byteLength;
+							}
+							fileSizesInfo[[
+								styleText(["yellow"], name),
+								styleText(["gray"], "-" + hash),
+								styleText(["yellow"], extension),
+							].join("")] = {
+								"byte size (raw)": code.length,
+								"byte size (gzip compressed)": compressedSize,
+							};
+						}
+						code += sourceMapComment;
 						await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, relativePath), code);
 					}
 				} else {
@@ -378,18 +399,22 @@ export const init = async ({
 				}
 			}
 		}
-		if (debug) console.timeEnd("Compile and generate files");
+		if (debug) {
+			console.timeEnd("Compile and generate files");
+			console.info(styleText(["blue"], "File sizes (excluding source map comment):"));
+			console.table(fileSizesInfo);
+			console.time("Build CSS");
+		}
 
-		if (debug) console.time("Build CSS");
 		let globalCSSFilePath: string;
 		let mainCSSFilePath: string;
 		{
 			const cssFiles = (await ESBuild.build({
-				stdin: {
+				stdin: cssSnippets.length ? {
 					contents: cssSnippets.join("\n"),
 					loader: "css",
 					sourcefile: "main.css",
-				},
+				} : undefined,
 				entryPoints: cssEntryPath ? [
 					{
 						in: Path.resolve(workingDirectory, cssEntryPath),
@@ -408,21 +433,35 @@ export const init = async ({
 				},
 				external: ["*.otf"],
 			})).outputFiles;
-			for (const file of cssFiles) {
+			for (let file of cssFiles) {
 				let fileName = file.path.replaceAll("\\", "/").split("/").at(-1).toLowerCase();
 				const isStdin = fileName.startsWith("stdin-");
-				if (isStdin) fileName = "main-" + fileName.slice(6);
+				if (isStdin) {
+					fileName = "main-" + fileName.slice(6);
+				}
+				const circumventChromiumBug = isStdin && minify && noCSSScopeRules;
 				if (fileName.endsWith(".map")) {
 					const sourceMap = JSON.parse(file.text);
 					if (isStdin) sourceMap.sourceRoot = "//winzig-virtual-fs/css/";
+					if (circumventChromiumBug) sourceMap.sourcesContent = sourceMap.sourcesContent.map(
+						(content: string) => content && content.replaceAll(/\bz{}\n/g, "   \n")
+					)
 					await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, `./${fileName}`), JSON.stringify(sourceMap, null, "\t"));
 				} else {
+					let cssText = file.text;
+					if (circumventChromiumBug) {
+						// Hack to circumvent Chromium bug; see comment in compiler.ts
+						// Three spaces instead of just one are intentionally inserted
+						// in order to not mess with source maps.
+						// (Compression will eat most of these bytes again anyway.)
+						cssText = cssText.replaceAll("}z{}", "}   ");
+					}
 					const browserRelativePath = "./" + Path.posix.join(appfilesFolderPath, fileName);
 					if (isStdin) mainCSSFilePath = browserRelativePath;
 					else globalCSSFilePath = browserRelativePath;
 					await FS.writeFile(
 						Path.resolve(absoluteAppfilesFolderPath, fileName),
-						file.text + `/*# sourceMappingURL=./${global.encodeURI(fileName)}.map */`,
+						cssText + `/*# sourceMappingURL=./${global.encodeURI(fileName)}.map */`,
 					);
 				}
 			}

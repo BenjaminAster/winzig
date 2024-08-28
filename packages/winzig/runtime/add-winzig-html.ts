@@ -40,9 +40,18 @@ export default (
 		const styleElement = document.createElement("style");
 		const text = [
 			``,
-			`@layer ${data.globalCSSFilePath ? "global, " : ""}main;`,
+			`@layer ${[
+				...(data.globalCSSFilePath ? ["global"] : []),
+				...(data.mainCSSFilePath ? ["main"] : []),
+				"overrides",
+			].join(data.pretty ? ", " : ",")};`,
 			...(data.globalCSSFilePath ? [`@import ${JSON.stringify(data.globalCSSFilePath)} layer(global);`] : []),
-			`@import ${JSON.stringify(data.mainCSSFilePath)} layer(main);`,
+			...(data.mainCSSFilePath ? [`@import ${JSON.stringify(data.mainCSSFilePath)} layer(main);`] : []),
+			`@layer overrides{`,
+			(data.pretty ? "\t" : "") + `wz-frag{`,
+			(data.pretty ? "\t\t" : "") + `display:contents;`,
+			(data.pretty ? "\t" : "") + `}`,
+			`}`,
 			``,
 		].join(data.pretty ? "\n" : "");
 		styleElement.append(new Text(text));

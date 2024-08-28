@@ -3,17 +3,30 @@
 
 Yet another reactive JavaScript (+CSS) frontend framework—but different.
 
-> [!NOTE]
-> 🚧 This project is still very much under construction. Apart from a few select examples, what you are trying to build will probably not work yet. Also, note that winzig apps currently do not work in Firefox due to it not supporting the CSS [`@scope`](https://developer.mozilla.org/en-US/docs/Web/CSS/@scope) rule. To still test your winzig apps in Firefox, please enable `layout.css.at-scope.enabled` in `about:config`.
+<p align="center">
+	<a href="https://www.npmjs.com/package/winzig">
+		<!-- TODO: Make a better logo -->
+		<img alt="winzig logo" src="./assets/logo.svg" width="120" />
+	</a>
+</p>
 
-Winzig tries to keep things minimalistic while still being powerful and extensible. It tries to combine the nice DX of the compiled nature of frameworks like Svelte with the JSX/TSX syntax and flexibility of frameworks like React. For example, here is a simple counter app implemented with winzig. Note that this one file (index.tsx), is (apart from a recommended `tsconfig.json` file) the only file that you need to get started.
+<p align="center">
+	<a href="https://www.npmjs.com/package/winzig">
+		<img alt="npm package version" src="https://img.shields.io/npm/v/winzig?style=for-the-badge&logo=npm&label=npm:%20winzig&logoColor=f44&labelColor=2d3137&color=06f" />
+	</a>
+</p>
+
+> [!NOTE]
+> 🚧 This project is still very much under construction. Apart from a few select examples, what you are trying to build will probably not work yet.
+
+Winzig (pronounced _'vintsigg'_ [[ˈvɪnt͡sɪç]](https://de.wiktionary.org/wiki/winzig)) tries to keep things minimalistic while still being powerful and extensible. It tries to combine the nice DX that comes from the compiled nature of frameworks like [Svelte](https://svelte.dev/) with the [JSX/TSX](https://en.wikipedia.org/wiki/JSX_(JavaScript)) syntax and flexibility of frameworks like [React](https://react.dev/) or [SolidJS](https://www.solidjs.com/). For example, here is a simple counter app implemented with winzig (note that this one file (index.tsx), is&mdash;apart from a recommended `tsconfig.json` file&mdash;the only file that you need to get started):
 
 ```tsx
 // src/index.tsx
 
 import { css } from "winzig";
 
-let count$ = 0; // the "$" after the variable name makes it reactive
+let count$ = 0; // the "$" suffix makes variables reactive
 
 <html lang="en">
 	<head>
@@ -39,7 +52,24 @@ let count$ = 0; // the "$" after the variable name makes it reactive
 </html>;
 ```
 
-## Getting started
+## Table of Contents
+
+- [Introduction](#winzig)
+- [Table of Contents](#table-of-contents)
+- [Getting Started](#getting-started)
+- [Documentation](#documentation)
+	* [File & Code Structure](#file--code-structure)
+	* [Live Variables](#live-variables)
+	* [CSS](#css)
+	* [Components](#components)
+	* [Live & Side Effect Expressions](#live--side-effect-expressions)
+	* [Event Listeners](#event-listeners)
+	* [Elements](#elements)
+	* [Live Arrays](#live-arrays)
+- [Config Options](#config-options)
+- [CLI Options](#cli-options)
+
+## Getting Started
 
 To get started, install the winzig CLI globally:
 
@@ -82,7 +112,9 @@ winzig
 > [!TIP]
 > Also check out the [examples](./examples/).
 
-The entry file of any winzig app must be called `index.tsx` and located in a subdirectory called `src`. It must contain a JSX `<html>` element at the root level of indentation with exactly two children; `<head>` and `<body>`. The following is an example of a very minimalistic but valid winzig app:
+### File & Code Structure
+
+The entry file of any winzig app must be called `index.tsx` and located in a subdirectory called `src`. It must contain a JSX `<html>` element with exactly two children; `<head>` and `<body>`. The following is an example of a minimalistic and admittedly not very exciting but valid and fully complete (!) winzig app:
 
 ```tsx
 // src/index.tsx
@@ -97,9 +129,11 @@ The entry file of any winzig app must be called `index.tsx` and located in a sub
 </html>;
 ```
 
-Putting anonymous JSX tags in your code like that might seem weird if you're used to other frameworks, but note that winzig is a compiler and therefore can do pretty much anything it wants.
+Putting anonymous top-level JSX tags in your code like that might seem weird if you're used to other frameworks, but note that winzig is a compiler and therefore does not have to play by any rules.
 
-If you postfix a variable name with a dollar sign (`$`), it gets compiled to a reactive "live variable":
+### Live Variables
+
+If you suffix a variable name with a dollar sign (`$`), it gets compiled to a reactive "live variable":
 
 ```tsx
 // src/index.tsx
@@ -118,63 +152,13 @@ setInterval(() => count$++, 1000);
 </html>;
 ```
 
-Components work just like you'd expect from other JSX-based frameworks:
-
-```tsx
-// src/index.tsx
-
-const Counter = () => {
-	let count$ = 0;
-
-	setInterval(() => count$++, 1000);
-
-	return <div>
-		Count: {count$}
-	</div>;
-};
-
-<html lang="en">
-	<head>
-		<title>My Awesome Winzig App</title>
-	</head>
-	<body>
-		<Counter />
-	</body>
-</html>;
-```
-
-### Event listeners
-
-Event listeners can be added with `on:`-prefixed attributes:
-
-```tsx
-const Counter = () => {
-	let count$ = 0;
-
-	return <div>
-		Count: {count$}
-		<br />
-		<button on:click={() => ++count$}>increase</button> { }
-		<button on:click={() => --count$}>decrease</button>
-	</div>;
-};
-```
-
-You can add a `_preventDefault` modifier to implicitly call `event.preventDefault()` before executing the callback function:
-
-```tsx
-<form on:submit_preventDefault={() => /* ... */}>
-	<input type="text" />
-	<button>Submit</button>
-</form>
-```
-
 ### CSS
 
 Elements can be styled by inserting a `` {css`...`} `` call as the **last child** of an element:
 
 ```tsx
 import { css } from "winzig";
+
 const Counter = () => {
 	let count$ = 0;
 
@@ -183,6 +167,7 @@ const Counter = () => {
 		<br />
 		<button on:click={() => ++count$}>increase</button> { }
 		<button on:click={() => --count$}>decrease</button>
+
 		{css`
 			& {
 				/* applies to the <div> element */
@@ -204,7 +189,7 @@ const Counter = () => {
 };
 ```
 
-**Technical info**: This `css` function does not actually exist; it's solely a way to put CSS into valid TSX syntax. `css` calls get removed and compiled into an external CSS file, with unique ids for the elements automatically being generated, so these CSS stylings have (almost) no runtime cost.
+**Technical info**: This `css` function does not actually exist; it's solely a way to put CSS into valid JSX/TSX syntax. `css` calls get removed in the compilation step and all CSS snippets get extracted into an external CSS file, with unique ids for the elements automatically being generated, so these CSS stylings have (almost) no runtime cost.
 
 > [!TIP]
 > In order to not manually type out the `` {css`...`} `` each time, you can add custom code snippets in most code editors.
@@ -230,7 +215,7 @@ const Counter = () => {
 >
 > Additionally, to get syntax highlighting for the embedded CSS code, install a suitable extension like [Inline HTML](https://marketplace.visualstudio.com/items?itemName=pushqrdx.inline-html) for VSCode.
 
-Embedded CSS is always scoped to the current element an does not propagate to child components:
+Embedded CSS is scoped to the current element and does not propagate to child components:
 
 ```tsx
 const DivComponent = () => <div>
@@ -250,7 +235,83 @@ return <>
 </>;
 ```
 
-### Live variables and expressions
+> [!NOTE]
+> Internally, this is achieved via CSS' native [`@scope`](https://developer.mozilla.org/en-US/docs/Web/CSS/@scope) rule, which is currently not supported in Firefox. If you want your winzig app to work in Firefox, you can fall back to scoping via simple CSS selectors with the [`noCSSScopeRules`](#nocssscoperules) option in [winzig's configuration options](#config-options). Note however that this means that styles will leak into child components!
+
+### Components
+
+Components work just like you'd expect, and like you're used to from other JSX-based frameworks:
+
+```tsx
+// src/index.tsx
+
+const Counter = () => {
+	let count$ = 0;
+
+	setInterval(() => count$++, 1000);
+
+	return <div>
+		Count: {count$}
+	</div>;
+};
+
+<html lang="en">
+	<head>
+		<title>My Awesome Winzig App</title>
+	</head>
+	<body>
+		<Counter />
+	</body>
+</html>;
+```
+
+Note that component functions are only called once at instanciation and not every time anything updates (like in React), so things like `setInterval()` are entirely possible (just like it is the case in e.g. SolidJS or Svelte).
+
+Components can also accept props:
+
+```tsx
+const Counter = ({ initialCount = 0 }) => {
+	let count$ = initialCount;
+	// ...
+};
+
+// Somewhere else:
+<Counter initialCount={42} />
+```
+
+Children are passed to components as the function's second parameter:
+
+```tsx
+const FancyButton = ({ }, children: any[]) => {
+	return <button>
+		{...children}
+		{css`
+			& {
+				background: linear-gradient(to right, violet, deeppink);
+				color: black;
+				border: none;
+			}
+
+			.super-fancy {
+				font-weight: bold;
+				text-transform: uppercase;
+			}
+		`}
+	</button>;
+};
+
+// Somewhere else:
+<FancyButton>
+	I am super <span className="super-fancy">✨fancy✨</span>
+</FancyButton>
+```
+
+In the above example, the component doesn't accept any props but needs the children (which it gets from the second argument), so the first argument is simply left as an empty object destructuring expression.
+
+> [!IMPORTANT]
+> Make sure you always use the `{...spread}` syntax when inserting arrays into JSX elements! If you're coming from e.g. React, this is something you'll have to get used to.
+
+### Live & Side Effect Expressions
 
 Embedding live variables in complicated expressions in JSX elements will _just work_ like you'd expect:
 
@@ -275,9 +336,9 @@ return <div>
 </div>;
 ```
 
-Note that this is essentially a hack hijacking an already existing JavaScript/TypeScript keyword and using it for a different purpose. These declarations get converted to live variable `let` declarations in the compilation step. If you do want to use the original `using` keyword for [Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management), simply leave out the dollar sign.
+Note that this is essentially a hack hijacking an already existing JavaScript/TypeScript keyword and using it for a different purpose. These declarations get converted to live variable `let` declarations in the compilation step. If you _do_ actually want to use the original `using` keyword for [Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management), simply leave out the dollar sign.
 
-You can create a side effect expression that automatically subscribes to changes of live variables by prefixing it with a `$:` label, similarly to how it works in Svelte:
+You can create a side effect expression that automatically subscribes to changes of live variables by prefixing it with a `$:` label, similarly to how it works in Svelte (or rather used to work before Svelte 5):
 
 ```tsx
 // This will get executed once and every time `count$` changes
@@ -295,7 +356,7 @@ For example, here is a simple counter component that persists the count across s
 
 ```tsx
 const Counter = () => {
-	let count$ = +(localStorage.getItem("count") || 0);
+	let count$ = +localStorage.getItem("count") || 0;
 	$: () => localStorage.setItem("count", count$.toString());
 
 	return <div>
@@ -307,49 +368,144 @@ const Counter = () => {
 };
 ```
 
-### Components
+### Event Listeners
 
-Components can accept props:
+Event listeners can be added with `on:`-prefixed attributes:
 
 ```tsx
-const Counter = ({ initialCount = 0 }) => {
-	let count$ = initialCount;
+const Counter = () => {
+	let count$ = 0;
+
+	return <div>
+		Count: {count$}
+		<br />
+		<button on:click={() => ++count$}>increase</button> { }
+		<button on:click={() => --count$}>decrease</button>
+	</div>;
+};
+```
+
+This works even for components that return elements:
+
+```tsx
+const FancyButton = ({ }, children: any[]) => <button>
+	{...children}
 	// ...
-};
+</button>;
 
-// Somewhere else:
-<Counter initialCount={42} />
+// Somewhre else:
+<FancyButton on:click={doSomethingMagical}>Click me!</FancyButton>
 ```
 
-If you want to pass children to a component, use the `<slot />` element in the component:
+You can add a `_preventDefault` modifier to implicitly call `event.preventDefault()` before executing the callback function:
 
 ```tsx
-const FancyButton = () => {
-	return <button>
-		<slot />
-		{css`
-			/* make the button fancy */
-		`}
-	</button>;
-};
-
-// Somewhere else:
-<FancyButton>I am super ✨fancy✨</FancyButton>
+<form on:submit_preventDefault={() => /* ... */}>
+	<input type="text" />
+	<button>Submit</button>
+</form>
 ```
 
-You have to make sure by yourself that the `<slot />` element is used **at most once** per component.
+### Elements
 
-### Arrays
+In winzig, JSX elements are actual DOM nodes and not some opaque internal abstraction, which means you can do all sorts of things with them:
 
-TODO: Implement and document live arrays.
+```tsx
+const canvas = <canvas width={width} height={height} />;
+const context = canvas.getContext("2d");
 
-## CLI options
+// Somewhere else:
+<div className="canvas-container-or-whatever">
+	{canvas}
+</div>
+```
+
+This is very convenient as it easily lets you get a reference to any element:
+
+```tsx
+let input: HTMLInputElement;
+
+// Somewhere else:
+<form on:submit_preventDefault={() => alert(input.value)}>
+	{input = <input type="text" /> as HTMLInputElement}
+	<button>Submit</button>
+</form>
+```
+
+If you start your variable name with an uppercase letter, you can even use JSX elements as if they were components, although you may only use them once:
+
+```tsx
+const Canvas = <canvas />;
+const context = Canvas.getContext("2d");
+
+// Somewhere else:
+<div className="canvas-container-or-whatever">
+	<Canvas width={width} height={height} />
+</div>
+```
+
+### Live Arrays
+
+Live variables can also be arrays:
+
+```tsx
+let numbers$ = [1, 5, 20];
+
+// Somewhere else:
+<ul>
+	{...numbers$.map((number) => <li>{number} is a cool number!</li>)}
+</ul>
+```
+
+If you then modify the array, the list items in the example above would be automatically updated live.
+
+```tsx
+numbers$.push(Math.floor(Math.random() * 100));
+// the <ul> now contains four child <li> elements
+```
+
+**Technical info**: Under the hood, when a live array is modified via one of the nine self-modifying array methods (`.copyWithin()`, `.fill()`, `.pop()`, `.push()`, `.reverse()`, `shift()`, `.sort()`, `.splice()` and `.unshift()`) or via indexed access (`array$[index] = whatever`), winzig tracks exactly what in the array is being changed and only updates the DOM nodes that need to be changed.
+
+Since the index of an array item may change over time, the second parameter (`index`) in a live array's `.map()` method must be declared to the compiler as a live variable by suffixing it with a `$`. It will always hold the item's current position in the array and update everything accordingly, even if values are e.g. prepended to the array.
+
+```tsx
+<ul>
+	{...numbers$.map((number, index$) => 
+		<li>Item {index$}: {number} is a cool number!</li>
+	)}
+</ul>
+```
+
+## Config Options
+
+Winzig can be configured by positioning an anonymous parenthesized object expression with a `winzigConfig` label somewhere in your index.tsx file:
+
+```tsx
+// src/index.tsx
+import { type Config as WinzigConfig } from "winzig";
+
+winzigConfig: ({
+	// ...options go here
+}) satisfies WinzigConfig;
+```
+
+Note that this config object is parsed beforehand via simple regular expressions and therefore must specifiy only string literals and booleans. (i.e. no variables!)
+
+The possible options are:
+
+- `output`: The path to the root folder where the project is saved to. (default: `./`)
+- `appfiles`: The path to the folder where the compiled JavaScript files will be saved. (default: `./appfiles/`)
+- `css`: The path to a global CSS file.
+- <span id="nocssscoperules">`noCSSScopeRules`</span>: Do not use CSS [@scope](https://developer.mozilla.org/en-US/docs/Web/CSS/@scope) rules in the generated CSS files and fall back to simple selectors [in order to support Firefox](https://caniuse.com/mdn-css_at-rules_scope). Note that this means that styles will leak to child components!
+
+## CLI Options
 - `-w`, `--watch`: Watch for file changes in the `src` folder and rebuild the project.
-- `-o`, `--output`: The path to the root folder where the project is saved to. (default: `./`)
-- `--appfiles`: The path to the folder where the compiled JavaScript files will be saved. (default: `./appfiles/`)
 - `--pretty`: Do not minify JavaScript output files.
 - `--live-reload`: Enable live reloading. Requires `--watch` to be enabled.
 - `-d`, `--dev`: Shortcut for `--watch`, `--pretty`, `--no-prerender` and `--live-reload`.
 - `--no-prerender`: Disable prerendering
 - `--keep-prerender-folder`: Keep winzig's internal `.winzig-prerender` folder after building.
 - `--log-level`: Log level. Set to `verbose` for verbose logging.
+
+## Known Issues
+- [BigInts](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) are currently not supported. (Blocked by https://github.com/terser/terser/pull/1555)

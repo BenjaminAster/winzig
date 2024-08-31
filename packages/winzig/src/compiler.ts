@@ -749,7 +749,27 @@ export const compileAST = (ast: ESTree.Program) => {
 			// #region MemberExpression
 			case "MemberExpression": {
 				if (tempExpression = visitExpression(node.object as ESTree.Expression)) node.object = tempExpression;
-				if (tempExpression = visitExpression(node.property as ESTree.Expression)) node.property = tempExpression;
+
+				if (
+					// !leaveLiveVars
+					// &&
+					node.property.type === "Identifier"
+					&& reactiveVarRegExp.test(node.property.name)
+				) {
+					return {
+						type: "MemberExpression",
+						loc: node.loc,
+						computed: false,
+						optional: false,
+						object: node,
+						property: {
+							type: "Identifier",
+							name: "_",
+						} satisfies ESTree.Identifier,
+					} satisfies ESTree.MemberExpression;
+				} else {
+					if (tempExpression = visitExpression(node.property as ESTree.Expression)) node.property = tempExpression;
+				}
 				break;
 			}
 			// #endregion

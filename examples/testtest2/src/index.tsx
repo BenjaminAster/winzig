@@ -2,8 +2,8 @@
 import { css, type Config as WinzigConfig } from "winzig";
 
 winzigConfig: ({
-	output: "../",
 	appfiles: "appfiles",
+	output: "../",
 	css: "./global.css",
 	// Temporarily uncomment this if you want to support Firefox until it ships the CSS @scope rule.
 	// Note that this will make styles leak to child components and selectors must not start with an element type!
@@ -26,13 +26,19 @@ const Counter = () => {
 	</>;
 };
 
+let a$ = 5;
+using b$ = a$ * 2;
+console.log(b$); // prints 10
+a$ = 20;
+console.log(b$); // prints 40
+
 const title = "Winzig Template";
 
 ;
 <html lang="en">
 	<head>
 		<title>{title}</title>
-		<meta name="description" content={`${title} - An app built with winzig.`} />
+		<meta name="description" content={`${title} - An app build with winzig.`} />
 	</head>
 	<body>
 		<main>

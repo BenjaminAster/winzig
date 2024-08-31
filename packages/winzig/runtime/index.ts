@@ -1,6 +1,14 @@
 
 var createElement = document.createElement.bind(document);
 
+var setTextNodeDataToEventDotDetail = function (this: Text, event: CustomEvent) {
+	this.data = event.detail;
+};
+
+var setElementPropertyToEventDotDetail = function (this: any, key: string, event: CustomEvent) {
+	this[key] = event.detail;
+};
+
 var jsx = (elementOrFunction: any, namedArgs: any, ...children: any[]): Element => {
 	var element: any;
 	var dataset: any;
@@ -28,14 +36,14 @@ var jsx = (elementOrFunction: any, namedArgs: any, ...children: any[]): Element 
 			}
 			if (_r) for ([key, value] of _r) {
 				elementOrFunction[key] = value.v;
-				value.addEventListener("", (event: CustomEvent) => elementOrFunction[key] = event.detail);
+				// value.addEventListener("", (event: CustomEvent) => elementOrFunction[key] = event.detail);
+				value.addEventListener("", setElementPropertyToEventDotDetail.bind(elementOrFunction, key));
 			}
 		}
 
 		for (element of children) {
 			elementOrFunction.append(element instanceof LiveVariable
-				? (textNode = new Text(element.v),
-					element.addEventListener("", (event: CustomEvent) => textNode.data = event.detail),
+				? (element.addEventListener("", setTextNodeDataToEventDotDetail.bind(textNode = new Text(element.v))),
 					textNode)
 				: element
 			);
@@ -112,8 +120,9 @@ var LiveArray = class <T> extends LiveVariable<T[]> {
 				? (item, index) => callback(item, liveVars[index] = new LiveVariable(index))
 				: callback as any
 		);
-		var secondComment = (array.push(new Comment()), new Comment());
 		var arrayCallbackTriple: StoredTriple<T> = [array, callback, liveVars];
+		var secondComment = new Comment();
+		array.push(new Comment());
 
 		this.#finalizationRegistry.register(secondComment, arrayCallbackTriple);
 		this.#mappedArrays.add(arrayCallbackTriple);
@@ -122,6 +131,7 @@ var LiveArray = class <T> extends LiveVariable<T[]> {
 
 	set _(value: T[]) {
 		this.#canonicalSplice(0, this.v.length, value);
+		this.v = value;
 	};
 
 	// setter (replaces `array[index] = item` expressions)

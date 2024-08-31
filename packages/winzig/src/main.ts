@@ -445,7 +445,7 @@ export const init = async ({
 					if (isStdin) sourceMap.sourceRoot = "//winzig-virtual-fs/css/";
 					if (circumventChromiumBug) sourceMap.sourcesContent = sourceMap.sourcesContent.map(
 						(content: string) => content && content.replaceAll(/\bz{}\n/g, "   \n")
-					)
+					);
 					await FS.writeFile(Path.resolve(absoluteAppfilesFolderPath, `./${fileName}`), JSON.stringify(sourceMap, null, "\t"));
 				} else {
 					let cssText = file.text;

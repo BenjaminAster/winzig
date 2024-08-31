@@ -40,6 +40,7 @@ let count$ = 0; // the "$" suffix makes variables reactive
 
 		{css`
 			& {
+				font-family: system-ui, sans-serif;
 				padding-inline: 1rem;
 			}
 

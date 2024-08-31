@@ -1,0 +1,22 @@
+{
+	"name": "js-framework-benchmark-winzig",
+	"version": "0.0.1",
+	"type": "module",
+	"js-framework-benchmark": {
+		"frameworkVersionFromPackage": "winzig",
+		"frameworkHomeURL": "https://github.com/BenjaminAster/winzig"
+	},
+	"homepage": "https://github.com/krausest/js-framework-benchmark",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/krausest/js-framework-benchmark.git"
+	},
+	"scripts": {
+		"dev": "winzig --dev",
+		"build-prod": "winzig"
+	},
+	"devDependencies": {
+		"winzig": "^0.0.4",
+		"winzig-types": "^0.0.3"
+	}
+}

@@ -1,6 +1,6 @@
 {
 	"type": "module",
-	"dependencies": {
-		"winzig-types": "file:../../packages/winzig-types"
+	"devDependencies": {
+		"winzig-types": "^0.0.3"
 	}
 }

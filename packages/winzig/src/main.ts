@@ -47,8 +47,9 @@ export const init = async ({
 	prerender = true,
 	workingDirectory = process.cwd(),
 	logLevel = "normal",
+	debug,
 }: WinzigOptions) => {
-	const debug = logLevel === "verbose";
+	const verboseLogging = logLevel === "verbose";
 
 	const startTime = performance.now();
 
@@ -127,23 +128,23 @@ export const init = async ({
 		entryNames: `[name]${nameHashSeparatorString}[hash]`,
 		write: false,
 		tsconfigRaw: {},
-		external: ["$appfiles/winzig-runtime.js"],
+		external: ["$appfiles/*"],
 		legalComments: "inline",
 		alias: {
 			"winzig": "$appfiles/winzig-runtime.js",
 		},
 		pure: [],
-		dropLabels: logLevel === "verbose" ? [] : ["DEBUG"],
+		dropLabels: debug ? [] : ["DEBUG"],
 	};
 
 	const esBuildChunksOptions: ESBuild.BuildOptions = {
 		...esBuildCommonOptions,
-		entryPoints: [
-			{
-				in: Path.resolve(workingDirectory, "./src/index.tsx"),
-				out: "index",
-			},
-		],
+		// entryPoints: [
+		// 	{
+		// 		in: Path.resolve(workingDirectory, "./src/index.tsx"),
+		// 		out: "index",
+		// 	},
+		// ],
 		banner: {
 			js: [
 				`import {`,
@@ -210,34 +211,58 @@ export const init = async ({
 		prerender ? ESBuild.build(esBuildWinzigPrerenderingRuntimeOptions) : null,
 	] as const);
 
-	const prerenderWorker = prerender ? new Worker(Path.resolve(import.meta.dirname, "./prerender-worker.js"), {
+	const newPrerenderWorker = () => new Worker(Path.resolve(import.meta.dirname, "./prerender-worker.js"), {
 		workerData: {
 			logLevel,
 			pretty: !minify,
 		},
-	}) : null;
+	});
+
+	let prerenderWorker = prerender ? newPrerenderWorker() : null;
 
 	const buildProject = async () => {
-		if (debug) console.time("Bundle JavaScript");
+		if (verboseLogging) console.time("Bundle JavaScript");
 
 		{
 			const IndexTSX = await FS.readFile(Path.resolve(workingDirectory, "./src/index.tsx"), { encoding: "utf8" });
 			const match = IndexTSX.match(/^winzigConfig: \({(?<config>.+)^}\)/ms);
 			const configObject: any = {};
+			const nestedObjectStack: any[] = [configObject];
 			for (let line of match?.groups.config?.split("\n") ?? []) {
 				line = line.trim();
 				if (line.startsWith("//")) continue;
-				const lineMatch = line.match(/^(?<key>\w+): ?(?:(?<quoteType>['"])(?<value>[^'"]+)\k<quoteType>|(?<boolean>true|false))/);
+				else if (line.startsWith("}")) {
+					nestedObjectStack.pop();
+				}
+				const lineMatch = line.match(
+					// Hey TC39, please add multiline regexes to ECMAScript! 🫠
+					/^(?<keyQuoteType>['"])?(?<key>[\w-_$]+)\k<keyQuoteType>?: ?(?:(?<quoteType>['"])(?<value>[^'"]+)\k<quoteType>|(?<boolean>true|false)|(?<openingBrace>{))/
+				);
 				if (lineMatch) {
-					configObject[lineMatch.groups.key] = lineMatch.groups.boolean
-						? JSON.parse(lineMatch.groups.boolean)
-						: lineMatch.groups.value;
+					if (lineMatch.groups.openingBrace) {
+						nestedObjectStack.push(nestedObjectStack.at(-1)[lineMatch.groups.key] = {});
+					} else {
+						nestedObjectStack.at(-1)[lineMatch.groups.key] =
+							lineMatch.groups.boolean
+								? JSON.parse(lineMatch.groups.boolean)
+								: lineMatch.groups.value;
+					}
 				}
 			}
 			var outputFolderPath = originalOutputFolderPath || Path.posix.join("./src/", configObject.output || "../");
 			var appfilesFolderPath = originalAppfilesFolderPath || configObject.appfiles || "appfiles";
 			var cssEntryPath = configObject.css && Path.posix.join("./src/", configObject.css);
 			var noCSSScopeRules = Boolean(configObject.noCSSScopeRules);
+			var jsEntries: Record<string, {
+				src: string;
+				preload: boolean,
+			}> = {
+				...configObject.entries,
+				index: {
+					src: "./index.tsx",
+					preload: "none",
+				},
+			};
 		}
 
 		const absoluteAppfilesFolderPath = Path.resolve(workingDirectory, outputFolderPath, appfilesFolderPath);
@@ -246,7 +271,7 @@ export const init = async ({
 			await FS.rm(Path.join(absoluteAppfilesFolderPath, entry.name), { force: true, recursive: true });
 		}));
 
-		const prerenderFolder = Path.resolve(absoluteAppfilesFolderPath, "./.winzig-prerender/");
+		const prerenderFolder = Path.resolve(absoluteAppfilesFolderPath, `./.winzig-prerender/`);
 
 		if (prerender) {
 			await FS.mkdir(prerenderFolder, { recursive: true });
@@ -258,8 +283,14 @@ export const init = async ({
 
 		const outputFiles: ESBuild.OutputFile[] = [];
 
-		initCompiler({ noCSSScopeRules, minify });
-		const chunksBuild = await chunksBuildContext.rebuild();
+		await initCompiler({ noCSSScopeRules, minify, debug });
+		const chunksBuild = await ESBuild.build({
+			...esBuildChunksOptions,
+			entryPoints: Object.entries(jsEntries).map(([name, options]) => ({
+				in: Path.resolve(workingDirectory, "./src/", options.src),
+				out: name,
+			})),
+		});
 		outputFiles.push(...chunksBuild.outputFiles, ...winzigRuntimeBuild.outputFiles, ...(winzigPrerenderingRuntimeBuild?.outputFiles ?? []));
 
 		const importMap = new Map<string, string>();
@@ -268,12 +299,12 @@ export const init = async ({
 
 		let previousSourceMap: any;
 
-		if (debug) console.timeEnd("Bundle JavaScript");
+		if (verboseLogging) console.timeEnd("Bundle JavaScript");
 
 		let cssSnippets: string[] = [];
 		let fileSizesInfo: any = {};
 
-		if (debug) console.time("Compile and generate files");
+		if (verboseLogging) console.time("Compile and generate files");
 		for (const file of outputFiles) {
 			const originalRelativePath = Path.relative(winzigVirtualDirectory, file.path).replaceAll("\\", "/");
 
@@ -305,26 +336,28 @@ export const init = async ({
 					if (name === "index") {
 						entryFilePath = browserRelativePath;
 					} else if (name !== "winzig-prerender-runtime") {
-						modulePreloadPaths.push(browserRelativePath);
+						if (jsEntries[name]?.preload !== false) {
+							modulePreloadPaths.push(browserRelativePath);
+						}
 					}
 
 					let code = file.text;
 					if (name !== "winzig-prerender-runtime") {
 						if (name !== "winzig-runtime") {
-							if (debug) console.time("Parse code");
+							if (verboseLogging) console.time("Parse code");
 							const ast = BabelParser.parse(code, {
 								plugins: [["estree", { classFeatures: true }], "explicitResourceManagement"],
 								sourceType: "module",
 								attachComment: false,
 							}).program as unknown as ESTree.Program;
-							if (debug) console.timeEnd("Parse code");
+							if (verboseLogging) console.timeEnd("Parse code");
 
-							if (debug) console.time("Modify AST");
-							const { cssSnippets: newCSSSnippets } = compileAST(ast);
+							if (verboseLogging) console.time("Modify AST");
+							const { cssSnippets: newCSSSnippets } = compileAST(ast, { name });
 							cssSnippets.push(...newCSSSnippets);
-							if (debug) console.timeEnd("Modify AST");
+							if (verboseLogging) console.timeEnd("Modify AST");
 
-							if (debug) console.time("Print code");
+							if (verboseLogging) console.time("Print code");
 							let terserResult = await terserMinify([ast], {
 								parse: {
 									spidermonkey: true,
@@ -350,15 +383,21 @@ export const init = async ({
 								Path.resolve(absoluteAppfilesFolderPath, relativePath) + ".map",
 								JSON.stringify(map, null, "\t"),
 							);
-							if (debug) console.timeEnd("Print code");
+							if (verboseLogging) console.timeEnd("Print code");
 						}
 						// code = (code + (name === "winzig-runtime" ? "" : "\n") + sourceMapComment);
-						if (name !== "index") importMap.set(`$appfiles/${name}.js`, browserRelativePath);
+						importMap.set(`$appfiles/${name}.js`, browserRelativePath);
 					}
 					const sourceMapComment = ((name === "winzig-runtime") ? "" : "\n") + `//# sourceMappingURL=./${global.encodeURI(relativePath)}.map`;
 
 					if (prerender) {
-						const prerenderingCode = (name === "winzig-runtime") ? code : code.replace(`}from"$appfiles/`, `}from"./`);
+						let prerenderingCode = [
+							`let __winzig__originalImportMetaResolve = import.meta.resolve;`,
+							`import.meta.resolve = (path) => __winzig__originalImportMetaResolve(`,
+							`\tpath.replace(/^\\$appfiles\\//, "./")`,
+							`);`,
+							``,
+						].join("\n") + ((name === "winzig-runtime") ? code : code.replaceAll(`}from"$appfiles/`, `}from"./`));
 						const newName = name === "winzig-prerender-runtime"
 							? "winzig-runtime"
 							: name === "winzig-runtime"
@@ -370,7 +409,7 @@ export const init = async ({
 						if (name === "index" && prerender) {
 							code = code.split('"__$WZ_SEPARATOR__";')[0];
 						}
-						if (debug) {
+						if (verboseLogging) {
 							const stream = new CompressionStream("gzip");
 							const writer = stream.writable.getWriter();
 							const utf8Code = new TextEncoder().encode(code);
@@ -399,7 +438,7 @@ export const init = async ({
 				}
 			}
 		}
-		if (debug) {
+		if (verboseLogging) {
 			console.timeEnd("Compile and generate files");
 			console.info(styleText(["blue"], "File sizes (excluding source map comment):"));
 			console.table(fileSizesInfo);
@@ -466,7 +505,7 @@ export const init = async ({
 				}
 			}
 		}
-		if (debug) console.timeEnd("Build CSS");
+		if (verboseLogging) console.timeEnd("Build CSS");
 
 		{
 			const buildData = {
@@ -480,7 +519,7 @@ export const init = async ({
 			};
 
 			if (prerender) {
-				if (debug) console.time("Prerender");
+				if (verboseLogging) console.time("Prerender");
 				const html: string = await new Promise((resolve) => {
 					const listener = (data: any) => {
 						if (data.type === "send-html") {
@@ -495,7 +534,7 @@ export const init = async ({
 					});
 				});
 				await FS.writeFile(Path.resolve(workingDirectory, outputFolderPath, "./index.html"), html);
-				if (debug) console.timeEnd("Prerender");
+				if (verboseLogging) console.timeEnd("Prerender");
 			} else {
 				const document = new FakeDOM.Document();
 				addWinzigHTML({ document, Text: FakeDOM.Text }, {
@@ -508,8 +547,14 @@ export const init = async ({
 			}
 		}
 
-		if (prerender && !keepPrerenderFolder) {
-			await FS.rm(prerenderFolder, { recursive: true });
+		if (prerender) {
+			if (verboseLogging) console.time("Prerender: Remove folder & terminate worker");
+			if (!keepPrerenderFolder) {
+				await FS.rm(prerenderFolder, { recursive: true });
+			}
+			// prerenderWorker.unref();
+			await prerenderWorker.terminate();
+			if (verboseLogging) console.timeEnd("Prerender: Remove folder & terminate worker");
 		}
 	};
 
@@ -517,6 +562,7 @@ export const init = async ({
 	console.info(`Built in ${(performance.now() - startTime).toFixed(1)} ms.`);
 
 	if (watch) {
+		if (prerender) prerenderWorker = newPrerenderWorker();
 		const watchingForFileChangesText = `Watching for file changes in ${Path.resolve(workingDirectory, "./src/").replaceAll("\\", "/")}...`;
 		console.info(watchingForFileChangesText);
 		(async () => {
@@ -527,6 +573,7 @@ export const init = async ({
 				console.clear();
 				console.info(`File ${eventType} detected (src/${filename.replaceAll("\\", "/")}), rebuilding...`);
 				await buildProject();
+				if (prerender) prerenderWorker = newPrerenderWorker();
 				console.info(`Rebuilt in ${(performance.now() - lastChangeTime).toFixed(1)} ms.`);
 				console.info(watchingForFileChangesText);
 				if (liveReload) refreshPage?.();
@@ -534,6 +581,5 @@ export const init = async ({
 		})();
 	} else {
 		chunksBuildContext.dispose();
-		prerenderWorker?.unref();
 	}
 };

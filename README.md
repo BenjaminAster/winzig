@@ -30,22 +30,18 @@ let count$ = 0; // the "$" suffix makes variables reactive
 
 <html lang="en">
 	<head>
-		<title>Winzig Counter App</title>
+		<title>Winzig Counter</title>
 	</head>
 	<body>
-		<h1>Winzig Counter</h1>
-		Count: {count$}<br />
-		<button on:click={() => ++count$}>+</button> { }
-		<button on:click={() => --count$}>-</button>
+		<button on:click={() => ++count$}>This button</button> { }
+		has been clicked {count$} {count$ === 1 ? "time" : "times"}.
 
 		{css`
 			& {
 				font-family: system-ui, sans-serif;
-				padding-inline: 1rem;
 			}
 
 			button {
-				font: bold 1.2em monospace;
 				cursor: pointer;
 			}
 		`}
@@ -61,8 +57,8 @@ let count$ = 0; // the "$" suffix makes variables reactive
 - [Documentation](#documentation)
 	* [File & Code Structure](#file--code-structure)
 	* [Live Variables](#live-variables)
-	* [CSS](#css)
 	* [Components](#components)
+	* [CSS](#css)
 	* [Live & Side Effect Expressions](#live--side-effect-expressions)
 	* [Event Listeners](#event-listeners)
 	* [Elements](#elements)
@@ -141,7 +137,7 @@ If you suffix a variable name with a dollar sign (`$`), it gets compiled to a re
 
 let count$ = 0;
 
-setInterval(() => count$++, 1000);
+setInterval(() => ++count$, 1000);
 
 <html lang="en">
 	<head>
@@ -152,6 +148,70 @@ setInterval(() => count$++, 1000);
 	</body>
 </html>;
 ```
+
+In the example above, the `{count$}` expression in the document will automatically update every second.
+
+### Components
+
+Components work just like you'd expect, and like you're used to from other JSX-based frameworks:
+
+```tsx
+// src/index.tsx
+
+const Counter = () => {
+	let count$ = 0;
+
+	setInterval(() => ++count$, 1000);
+
+	return <div>
+		Count: {count$}
+	</div>;
+};
+
+<html lang="en">
+	<head>
+		<title>My Awesome Winzig App</title>
+	</head>
+	<body>
+		<Counter />
+	</body>
+</html>;
+```
+
+Note that component functions are only called once at instanciation and not every time anything updates (like in React), so things like `setInterval()` are entirely possible (just like it is the case in e.g. SolidJS or Svelte).
+
+Components can also accept props:
+
+```tsx
+const Counter = ({ initialCount = 0 }) => {
+	let count$ = initialCount;
+	// ...
+};
+
+// Somewhere else:
+<Counter initialCount={42} />
+```
+
+Children are passed to components as the function's second parameter:
+
+```tsx
+const FancyButton = ({ }, children: any[]) => {
+	return <button>
+		{...children}
+		{/* Make the button fancy somehow - See next section ("CSS") */}
+	</button>;
+};
+
+// Somewhere else:
+<FancyButton>
+	I am super <span className="super-fancy">✨fancy✨</span>
+</FancyButton>
+```
+
+In the above example, the component doesn't accept any props but needs the children (which it gets from the second argument), so the first argument is simply left as an empty object destructuring expression.
+
+> [!IMPORTANT]
+> Make sure you always use the `{...spread}` syntax when inserting arrays into JSX elements! If you're coming from e.g. React, this is something you'll have to get used to!
 
 ### CSS
 
@@ -239,80 +299,7 @@ return <>
 > [!NOTE]
 > Internally, this is achieved via CSS' native [`@scope`](https://developer.mozilla.org/en-US/docs/Web/CSS/@scope) rule, which is currently not supported in Firefox. If you want your winzig app to work in Firefox, you can fall back to scoping via simple CSS selectors with the [`noCSSScopeRules`](#nocssscoperules) option in [winzig's configuration options](#config-options). Note however that this means that styles will leak into child components!
 
-### Components
-
-Components work just like you'd expect, and like you're used to from other JSX-based frameworks:
-
-```tsx
-// src/index.tsx
-
-const Counter = () => {
-	let count$ = 0;
-
-	setInterval(() => count$++, 1000);
-
-	return <div>
-		Count: {count$}
-	</div>;
-};
-
-<html lang="en">
-	<head>
-		<title>My Awesome Winzig App</title>
-	</head>
-	<body>
-		<Counter />
-	</body>
-</html>;
-```
-
-Note that component functions are only called once at instanciation and not every time anything updates (like in React), so things like `setInterval()` are entirely possible (just like it is the case in e.g. SolidJS or Svelte).
-
-Components can also accept props:
-
-```tsx
-const Counter = ({ initialCount = 0 }) => {
-	let count$ = initialCount;
-	// ...
-};
-
-// Somewhere else:
-<Counter initialCount={42} />
-```
-
-Children are passed to components as the function's second parameter:
-
-```tsx
-const FancyButton = ({ }, children: any[]) => {
-	return <button>
-		{...children}
-		{css`
-			& {
-				background: linear-gradient(to right, violet, deeppink);
-				color: black;
-				border: none;
-			}
-
-			.super-fancy {
-				font-weight: bold;
-				text-transform: uppercase;
-			}
-		`}
-	</button>;
-};
-
-// Somewhere else:
-<FancyButton>
-	I am super <span className="super-fancy">✨fancy✨</span>
-</FancyButton>
-```
-
-In the above example, the component doesn't accept any props but needs the children (which it gets from the second argument), so the first argument is simply left as an empty object destructuring expression.
-
-> [!IMPORTANT]
-> Make sure you always use the `{...spread}` syntax when inserting arrays into JSX elements! If you're coming from e.g. React, this is something you'll have to get used to.
-
-### Live & Side Effect Expressions
+### Live Expressions
 
 Embedding live variables in complicated expressions in JSX elements will _just work_ like you'd expect:
 
@@ -320,11 +307,14 @@ Embedding live variables in complicated expressions in JSX elements will _just w
 return <div>
 	Count: {count$}<br />
 	Double count: {count$ * 2}
+	Count is larger than ten? {count$ > 10 ? "yes" : "no"}
 	...
 </div>;
 ```
 
-You can also create live variables that are dependent on other live variables with the [`using` keyword](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html#using-declarations-and-explicit-resource-management):
+### Derived Values
+
+You can create live variables that are dependent on other live variables (a.k.a. "derived values" a.k.a. "the [destiny operator](https://dev.to/this-is-learning/the-quest-for-reactivescript-3ka3#the-destiny-operator)") with the [`using` keyword](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html#using-declarations-and-explicit-resource-management):
 
 ```tsx
 let count$ = 0;
@@ -337,7 +327,18 @@ return <div>
 </div>;
 ```
 
-Note that this is essentially a hack hijacking an already existing JavaScript/TypeScript keyword and using it for a different purpose. These declarations get converted to live variable `let` declarations in the compilation step. If you _do_ actually want to use the original `using` keyword for [Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management), simply leave out the dollar sign.
+Such `using`-declared variables are _truly_ live in real time:
+
+```tsx
+let a$ = 5;
+using b$ = a$ * 2;
+console.log(b$); // logs 10
+a$ = 20;
+console.log(b$); // logs 40
+```
+
+> [!NOTE]
+> This is essentially a hack hijacking an already existing JavaScript/TypeScript keyword and using it for a different purpose. These declarations get converted to live variable `let` declarations in the compilation step. Very conveniently, `using` declarations in JavaScript/TypeScript also forbid reassignments, just like it should be the case for derived values. If you _do_ actually want to use the original `using` keyword for [Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management), simply leave out the dollar sign.
 
 You can create a side effect expression that automatically subscribes to changes of live variables by prefixing it with a `$:` label, similarly to how it works in Svelte (or rather used to work before Svelte 5):
 

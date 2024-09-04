@@ -40,6 +40,10 @@ declare module "winzig" {
 		output?: string;
 		css?: string;
 		noCSSScopeRules?: boolean;
+		entries?: Record<string, {
+			src: string,
+			preload?: boolean,
+		}>;
 	}
 
 	export interface GenericElement extends WinzigInternals.WinzigGenericElement { }

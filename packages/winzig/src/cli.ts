@@ -47,6 +47,10 @@ try {
 				type: "string",
 				default: "normal",
 			},
+			"debug": {
+				type: "boolean",
+				default: false,
+			},
 		},
 		strict: true,
 		tokens: true,
@@ -63,6 +67,7 @@ const liveReload = devMode || (watch && cmdArgs["live-reload"]);
 const keepPrerenderFolder = cmdArgs["keep-prerender-folder"];
 const prerender = !devMode && !cmdArgs["no-prerender"];
 const logLevel = cmdArgs["log-level"];
+const debug = cmdArgs.debug;
 
 if (cmdArgs.help) {
 	console.info(
@@ -83,5 +88,6 @@ if (cmdArgs.help) {
 		prerender,
 		workingDirectory: process.cwd(),
 		logLevel,
+		debug,
 	});
 }

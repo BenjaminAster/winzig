@@ -4,10 +4,7 @@ import type * as ESTree from "estree";
 // import * as FS from "node:fs/promises";
 // import * as FSSync from "node:fs";
 
-const DEBUG = false;
-if (DEBUG) {
-	var FSSync = await import("node:fs");
-}
+let FSSync: typeof import("node:fs");
 
 let currentUniqueId: number = 0;
 const createUniqueId = () => ++currentUniqueId;
@@ -16,6 +13,7 @@ const reactiveVarRegExp = /^\w+\$\d?$/;
 const cssRegExp = /^css\d?$/;
 let noCSSScopeRules: boolean;
 let minify: boolean;
+let debug: boolean;
 
 const arrayModifyingMethodsSingleLetterMappings: Record<string, string> = Object.assign(Object.create(null), {
 	copyWithin: "c",
@@ -47,8 +45,8 @@ const AssignmentOperatorMappings = {
 	"??=": { type: "LogicalExpression", operator: "??" },
 } as const;
 
-export const compileAST = (ast: ESTree.Program) => {
-	if (DEBUG) FSSync.writeFileSync(`./ast-before.json`, JSON.stringify(ast, (key, value) => typeof value === "bigint" ? Number(value) : value, "\t"));
+export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
+	if (debug) FSSync.writeFileSync(`./ast-${info.name}-before.json`, JSON.stringify(ast, (key, value) => typeof value === "bigint" ? Number(value) : value, "\t"));
 
 	let tempExpression: ESTree.Expression;
 	let tempStatement: ESTree.Statement;
@@ -775,7 +773,6 @@ export const compileAST = (ast: ESTree.Program) => {
 			// #endregion
 			// #region MetaProperty
 			case "MetaProperty": {
-				console.warn(`TODO: implement expression: ${node.type}`);
 				break;
 			}
 			// #endregion
@@ -802,7 +799,7 @@ export const compileAST = (ast: ESTree.Program) => {
 			// #endregion
 			// #region ObjectPattern
 			case "ObjectPattern": {
-				console.warn(`TODO: implement expression: ${node.type}`);
+				// TODO: Maybe handle edge cases like `let { a: a$ } = whatever()`? (Or throw warnings)
 				break;
 			}
 			// #endregion
@@ -976,28 +973,23 @@ export const compileAST = (ast: ESTree.Program) => {
 			// #endregion
 			// #region ExportAllDeclaration
 			case "ExportAllDeclaration": {
-				console.warn("TODO: implement statement: ExportAllDeclaration");
-				node.type;
+				break;
+			}
+			// #endregion
+			// #region ExportDefaultDeclaration
+			case "ExportDefaultDeclaration": {
+				break;
+			}
+			// #endregion
+			// #region ExportNamedDeclaration
+			case "ExportNamedDeclaration": {
+				// TODO: Handle edge cases like `export { $a as a }`? (Or throw warnings)
 				break;
 			}
 			// #endregion
 			// #region ExpressionStatement
 			case "ExpressionStatement": {
 				if (tempExpression = visitExpression(node.expression)) node.expression = tempExpression;
-				break;
-			}
-			// #endregion
-			// #region ExportDefaultDeclaration
-			case "ExportDefaultDeclaration": {
-				console.warn("TODO: implement statement: ExportDefaultDeclaration");
-				node.type;
-				break;
-			}
-			// #endregion
-			// #region ExportNamedDeclaration
-			case "ExportNamedDeclaration": {
-				console.warn("TODO: implement statement: ExportNamedDeclaration");
-				node.type;
 				break;
 			}
 			// #endregion
@@ -1235,7 +1227,14 @@ export const compileAST = (ast: ESTree.Program) => {
 								// 	arguments: [visitExpression(declarator.init) ?? declarator.init],
 								// };
 								// declarator.init = newNode;
-								declarator.init = wrapIntoLiveVariableOrArray(visitExpression(declarator.init) ?? declarator.init);
+								declarator.init = wrapIntoLiveVariableOrArray(
+									visitExpression(declarator.init)
+									?? declarator.init
+									?? {
+										type: "Identifier",
+										name: "undefined",
+									} satisfies ESTree.Identifier
+								);
 							} else {
 								node.kind = "let";
 								dependencyStack.push(new Set());
@@ -1276,7 +1275,7 @@ export const compileAST = (ast: ESTree.Program) => {
 	// #endregion
 
 	visitStatementOrProgram(ast);
-	ast.body.push(
+	if (headCall) ast.body.push(
 		{
 			type: "ExpressionStatement",
 			expression: {
@@ -1287,7 +1286,7 @@ export const compileAST = (ast: ESTree.Program) => {
 		{
 			type: "ExpressionStatement",
 			expression: headCall,
-		} satisfies ESTree.ExpressionStatement,
+		} satisfies ESTree.ExpressionStatement
 	);
 	if (addTempVarStatement) {
 		ast.body.splice(1, 0, {
@@ -1303,15 +1302,19 @@ export const compileAST = (ast: ESTree.Program) => {
 		} satisfies ESTree.VariableDeclaration);
 	}
 
-	if (DEBUG) FSSync.writeFileSync(`./ast-after.json`, JSON.stringify(ast, (key, value) => typeof value === "bigint" ? Number(value) : value, "\t"));
+	if (debug) FSSync.writeFileSync(`./ast-${info.name}-after.json`, JSON.stringify(ast, (key, value) => typeof value === "bigint" ? Number(value) : value, "\t"));
 
 	return {
 		cssSnippets,
 	};
 };
 
-export const init = (options: { noCSSScopeRules: boolean, minify: boolean; }) => {
+export const init = async (options: { noCSSScopeRules: boolean, minify: boolean, debug: boolean; }) => {
 	currentUniqueId = 0;
 	noCSSScopeRules = options.noCSSScopeRules;
 	minify = options.minify;
+	debug = options.debug;
+	if (debug) {
+		FSSync ??= await import("node:fs");
+	}
 };

@@ -122,6 +122,8 @@ const result = [
 		createJSDocLine(info),
 		`\t\t${[...info.overloads].join(";\n\t\t")};`,
 	].join("\n")).join("\n"),
+	`\t\t[name: number]: HTMLOptionElement | HTMLOptGroupElement;`,
+	`\t\t[Symbol.iterator](): IterableIterator<HTMLOptionElement>;`,
 	`\t}`,
 	`}`,
 	``,

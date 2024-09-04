@@ -597,5 +597,7 @@ declare namespace WinzigInternals {
 		toString(): string;
 		/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
 		transferControlToOffscreen(): OffscreenCanvas;
+		[name: number]: HTMLOptionElement | HTMLOptGroupElement;
+		[Symbol.iterator](): IterableIterator<HTMLOptionElement>;
 	}
 }

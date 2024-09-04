@@ -3,7 +3,6 @@
 
 import {
 	j as originalJsx,
-	// s as jsxSlot,
 	V as LiveVariable,
 	e as liveExpression,
 	l as addListeners,
@@ -18,15 +17,21 @@ let buildData: any;
 
 export const setBuildData = (data: any) => buildData = data;
 
-const jsx = (type: any, params: any, ...children: any[]) => {
-	if (workerData.pretty && type === document.head) children = children.flatMap(child => [child, "\n"]);
+const elementsThatNeedSpecialAttributeHandling = new Set(["meta", "link"]);
+
+const jsx = (elementOrFunction: any, params: any, ...children: any[]) => {
+	if (workerData.pretty && elementOrFunction === document.head) children = children.flatMap(child => [child, "\n"]);
 
 	for (let i = 0; i < children.length; ++i) {
-		let child = children[i]
+		let child = children[i];
 		if (typeof child === "number" || typeof child === "boolean") children[i] = children[i].toString();
 	}
-	const element = originalJsx(type, params, ...children);
-	if (type === document.body) {
+	const element = originalJsx(elementOrFunction, params, ...children);
+	if (typeof elementOrFunction.localName === "string" && elementsThatNeedSpecialAttributeHandling.has(elementOrFunction.localName)) {
+		if (params.sizes) element.setAttribute("sizes", params.sizes);
+		if (params.property) element.setAttribute("property", params.property);
+	}
+	if (elementOrFunction === document.body) {
 		setTimeout(() => {
 			addWinzigHTML({ document, Text }, {
 				...buildData,
@@ -43,7 +48,6 @@ const jsx = (type: any, params: any, ...children: any[]) => {
 
 export {
 	jsx as j,
-	// jsxSlot as s,
 	LiveVariable as V,
 	liveExpression as e,
 	addListeners as l,

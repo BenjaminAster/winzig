@@ -1,66 +1,32 @@
 
-import { css, type Config as WinzigConfig } from "winzig";
-
-winzigConfig: ({
-	appfiles: "appfiles",
-	output: "../",
-	css: "./global.css",
-	// Temporarily uncomment this if you want to support Firefox until it ships the CSS @scope rule.
-	// Note that this will make styles leak to child components and selectors must not start with an element type!
-	// noCSSScopeRules: true,
-}) satisfies WinzigConfig;
-
-const Counter = () => {
-	let count$ = 0;
-	return <>
-		Count: {count$}<br />
-		<button on:click={() => ++count$}>+</button> { }
-		<button on:click={() => --count$}>-</button>
-
-		{css`
-			button {
-				font: bold 1.2em monospace;
-				cursor: pointer;
-			}
-		`}
-	</>;
-};
+import { css } from "winzig";
 
 let a$ = 5;
 using b$ = a$ * 2;
-console.log(b$); // prints 10
+console.log(b$); // logs 10
 a$ = 20;
-console.log(b$); // prints 40
+console.log(b$); // logs 40
 
-const title = "Winzig Template";
+let count$ = 0; // the "$" suffix makes variables reactive
 
-;
+let wordCount$ = 0;
+
 <html lang="en">
 	<head>
-		<title>{title}</title>
-		<meta name="description" content={`${title} - An app build with winzig.`} />
+		<title>Winzig Counter</title>
 	</head>
 	<body>
-		<main>
-			<h1>{title}</h1>
-			<p>Run <code>winzig --dev</code> and edit <span className="link">src/index.tsx</span> to get started.</p>
-			<Counter />
+		<button on:click={() => ++count$}>This button</button> { }
+		has been clicked {count$} {count$ === 1 ? "time" : "times"}.
 
-			{css`
-				& {
-					padding-inline: 1rem;
-				}
+		{css`
+			& {
+				font-family: system-ui, sans-serif;
+			}
 
-				.link {
-					color: light-dark(brown, sandybrown);
-					text-decoration-line: underline;
-				}
-
-				code {
-					background-color: #9993;
-					padding-inline: .3em;
-				}
-			`}
-		</main>
+			button {
+				cursor: pointer;
+			}
+		`}
 	</body>
 </html>;

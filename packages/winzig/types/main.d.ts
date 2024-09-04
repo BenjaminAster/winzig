@@ -9,6 +9,7 @@ export interface WinzigOptions {
 	prerender?: boolean;
 	workingDirectory?: string;
 	logLevel?: string;
+	debug?: boolean;
 }
 
 export declare function init(options: WinzigOptions): Promise<void>;

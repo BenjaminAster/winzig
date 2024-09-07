@@ -1,0 +1,63 @@
+
+:root {
+	color-scheme: dark light;
+	color: light-dark(black, white);
+	font-family: system-ui, sans-serif;
+	font-size-adjust: cap-height from-font;
+	overflow-wrap: break-word;
+	line-height: 1.5;
+	background-color: light-dark(white, #121314);
+	scrollbar-color: light-dark(#ccc, #333) transparent;
+	scrollbar-width: thin;
+	-webkit-text-size-adjust: none;
+	text-size-adjust: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+body {
+	display: flow-root;
+	box-sizing: border-box;
+	min-block-size: 100dvb;
+	margin: 0;
+	padding-top: env(safe-area-inset-top, 0px);
+	padding-right: env(safe-area-inset-right, 0px);
+	padding-bottom: env(safe-area-inset-bottom, 0px);
+	padding-left: env(safe-area-inset-left, 0px);
+}
+
+ul, ol {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+input {
+	all: unset;
+	outline: revert;
+}
+
+button {
+	all: unset;
+	cursor: pointer;
+	outline: revert;
+}
+
+textarea {
+	all: unset;
+}
+
+h1, h2, h3 {
+	margin-block: 1em .4em;
+}
+
+h1 {
+	font-size: 1.5rem;
+}
+
+summary {
+	cursor: pointer;
+}
+
+p {
+	margin-block: .2em .4em;
+}

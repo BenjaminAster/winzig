@@ -208,7 +208,7 @@ export const init = async ({
 	] = await Promise.all([
 		ESBuild.context(esBuildChunksOptions),
 		ESBuild.build(esBuildWinzigRuntimeOptions),
-		prerender ? ESBuild.build(esBuildWinzigPrerenderingRuntimeOptions) : null,
+		prerender ? ESBuild.build(esBuildWinzigPrerenderingRuntimeOptions) : undefined,
 	] as const);
 
 	const newPrerenderWorker = () => new Worker(Path.resolve(import.meta.dirname, "./prerender-worker.js"), {
@@ -218,14 +218,15 @@ export const init = async ({
 		},
 	});
 
-	let prerenderWorker = prerender ? newPrerenderWorker() : null;
+	let prerenderWorker = prerender ? newPrerenderWorker() : undefined;
 
 	const buildProject = async () => {
 		if (verboseLogging) console.time("Bundle JavaScript");
 
 		{
 			const IndexTSX = await FS.readFile(Path.resolve(workingDirectory, "./src/index.tsx"), { encoding: "utf8" });
-			const match = IndexTSX.match(/^winzigConfig: \({(?<config>.+)^}\)/ms);
+			const match = IndexTSX.match(/^winzigConfig: \({.*\n(?<config>(?:\s.+\n)+)}\)/m);
+			// console.log(match);
 			const configObject: any = {};
 			const nestedObjectStack: any[] = [configObject];
 			for (let line of match?.groups.config?.split("\n") ?? []) {
@@ -450,7 +451,7 @@ export const init = async ({
 		{
 			const cssFiles = (await ESBuild.build({
 				stdin: cssSnippets.length ? {
-					contents: cssSnippets.join("\n"),
+					contents: cssSnippets.join(""),
 					loader: "css",
 					sourcefile: "main.css",
 				} : undefined,
@@ -540,7 +541,6 @@ export const init = async ({
 				addWinzigHTML({ document, Text: FakeDOM.Text }, {
 					...buildData,
 					pretty: !minify,
-					logLevel,
 				});
 				const html = `<!DOCTYPE html>\n${document.documentElement.outerHTML}`;
 				await FS.writeFile(Path.resolve(workingDirectory, outputFolderPath, "./index.html"), html);

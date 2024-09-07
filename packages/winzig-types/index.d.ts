@@ -4,26 +4,72 @@
 /// <reference lib="DOM.Iterable" />
 /// <reference lib="DOM.AsyncIterable" />
 
-/// <reference path="./generic-element.d.ts" />
-/// <reference path="./htmlformelement.d.ts" />
+/// <reference path="./generated.d.ts" />
 
 declare namespace WinzigInternals {
 	interface OpaqueCSSReference { }
 
-	type ElementBase<T> = Partial<{
-		[key in keyof GlobalEventHandlersEventMap as `on:${key}${"_preventDefault" | ""}`]: (this: T, event: GlobalEventHandlersEventMap[key]) => any;
+	type EventHandlerModifier = "" | "_preventDefault";
+
+	interface HTMLMediaElementEventMap {
+		"encrypted": MediaEncryptedEvent;
+		"waitingforkey": Event;
+	}
+
+	interface HTMLVideoElementEventMap {
+		"enterpictureinpicture": Event;
+		"leavepictureinpicture": Event;
+	}
+
+	type GlobalEventHandlers = Partial<{
+		[key in keyof GlobalEventHandlersEventMap as `on:${key}${WinzigInternals.EventHandlerModifier}`]:
+		(this: HTMLElement, event: GlobalEventHandlersEventMap[key]) => any;
 	}>;
 
-	type WinzigElement<T extends globalThis.Element = globalThis.Element> = Partial<
-		Omit<T, keyof GlobalEventHandlers | keyof WindowEventHandlers | "onfullscreenchange" | "onfullscreenerror" | "children">
-	> & WinzigInternals.ElementBase<T>;
+	type HTMLMediaElementEventHandlers = Partial<{
+		[key in keyof WinzigInternals.HTMLMediaElementEventMap as `on:${key}${WinzigInternals.EventHandlerModifier}`]:
+		(this: HTMLElement, event: WinzigInternals.HTMLMediaElementEventMap[key]) => any;
+	}>;
+
+	type HTMLVideoElementEventHandlers = Partial<{
+		[key in keyof WinzigInternals.HTMLVideoElementEventMap as `on:${key}${WinzigInternals.EventHandlerModifier}`]:
+		(this: HTMLElement, event: WinzigInternals.HTMLVideoElementEventMap[key]) => any;
+	}>;
+
+	namespace ElementAttributes {
+		interface HTMLElementAttributes extends Partial<ARIAMixin>, WinzigInternals.GlobalEventHandlers {
+			accessKey?: string;
+			autocapitalize?: "off" | "none" | "on" | "sentences" | "words" | "characters";
+			autocorrect?: boolean;
+			autofocus?: boolean;
+			className?: string;
+			contentEditable?: "true" | "false" | "plaintext-only" | "inherit";
+			dir?: "ltr" | "rtl" | "auto";
+			draggable?: boolean;
+			enterKeyHint?: "enter" | "done" | "go" | "next" | "previous" | "search" | "send";
+			hidden?: boolean;
+			id?: string;
+			inert?: boolean;
+			inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
+			lang?: string;
+			nonce?: string;
+			outerText?: string;
+			popover?: "auto" | "manual";
+			spellcheck?: boolean;
+			style?: string;
+			tabIndex?: number;
+			title?: string;
+			translate?: boolean;
+			writingSuggestions?: "true" | "false";
+		}
+	}
 
 	interface WinzigUsingDeclarationsPatch {
 		[Symbol.dispose](): void;
 	}
 }
 
-// TODO: Maybe make awync/await components work (might not be possible with TypeScript)
+// TODO: Maybe make async/await components work (might not be possible with TypeScript)
 // interface CallableFunction extends Function {
 // 	await<T, R = WinzigInternals.WinzigGenericElement>(this: (props: T) => R, props?: T): Awaited<R>;
 // }
@@ -62,27 +108,15 @@ declare module "winzig/jsx-runtime" {
 	export namespace JSX {
 		export interface Element extends WinzigInternals.WinzigGenericElement { }
 
-		type asdf = keyof HTMLElementTagNameMap;
+		interface IntrinsicElements extends WinzigInternals.TagNameMap { }
 
-		type IntrinsicElements = {
-			[key in Exclude<keyof HTMLElementTagNameMap, "form">]: WinzigInternals.WinzigElement<HTMLElementTagNameMap[key]>;
-		} & {
-			// This special case for <form> is necessary due to lib.dom.d.ts' HTMLFormElement interface having a
-			// `[name: string]: any` property, which would mean that any attribute on <form> elements is valid.
-			form: WinzigInternals.WinzigElement<WinzigInternals.FormElementWithoutIndexedAccess>;
-		};
-
-		interface ElementClass {
-			render: any;
-		}
+		// interface ElementClass { }
 
 		interface ElementAttributesProperty {
-			__props: any;
+			__props: {};
 		}
 
-		interface IntrinsicAttributes extends WinzigInternals.ElementBase<HTMLElement> {
-		}
-
+		interface IntrinsicAttributes extends WinzigInternals.GlobalEventHandlers { }
 	}
 
 	global {

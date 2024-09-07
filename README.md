@@ -57,9 +57,12 @@ let count$ = 0; // the "$" suffix makes variables reactive
 - [Documentation](#documentation)
 	* [File & Code Structure](#file--code-structure)
 	* [Live Variables](#live-variables)
+	* [Live Properties](#live-properties)
 	* [Components](#components)
 	* [CSS](#css)
-	* [Live & Side Effect Expressions](#live--side-effect-expressions)
+	* [Live Expressions](#live-expressions)
+	* [Derived Values](#derived-values)
+	* [Side Effect Expressions](#side-effect-expressions)
 	* [Event Listeners](#event-listeners)
 	* [Elements](#elements)
 	* [Live Arrays](#live-arrays)
@@ -151,9 +154,31 @@ setInterval(() => ++count$, 1000);
 
 In the example above, the `{count$}` expression in the document will automatically update every second.
 
+### Live Properties
+
+Properties can also be made live and behave very similar to live variables:
+
+```tsx
+let stateOrWhatever = {
+	count$ = 0,
+};
+
+// Somewhere else:
+<div>{stateOrWhatever.count$}</div>
+```
+
+Reactive live properties can also be destructured:
+
+```tsx
+let { count$ } = stateOrWhatever;
+
+// Somewhere else:
+<div>{count$}</div>
+```
+
 ### Components
 
-Components work just like you'd expect, and like you're used to from other JSX-based frameworks:
+Components work just like you'd expect:
 
 ```tsx
 // src/index.tsx
@@ -178,7 +203,7 @@ const Counter = () => {
 </html>;
 ```
 
-Note that component functions are only called once at instanciation and not every time anything updates (like in React), so things like `setInterval()` are entirely possible (just like it is the case in e.g. SolidJS or Svelte).
+Note that component functions are only called once at instanciation and not every time anything updates (like in React), so things like `setInterval()` are entirely possible (just like it is the case in e.g. SolidJS or Svelte). Also, components are really just functions and have nothing to do with reactivity behavior, just like in SolidJS.
 
 Components can also accept props:
 
@@ -215,7 +240,7 @@ In the above example, the component doesn't accept any props but needs the child
 
 ### CSS
 
-Elements can be styled by inserting a `` {css`...`} `` call as the **last child** of an element:
+Elements can be styled by inserting a `` {css` ... `} `` call as the **last child** of an element:
 
 ```tsx
 import { css } from "winzig";
@@ -253,7 +278,7 @@ const Counter = () => {
 **Technical info**: This `css` function does not actually exist; it's solely a way to put CSS into valid JSX/TSX syntax. `css` calls get removed in the compilation step and all CSS snippets get extracted into an external CSS file, with unique ids for the elements automatically being generated, so these CSS stylings have (almost) no runtime cost.
 
 > [!TIP]
-> In order to not manually type out the `` {css`...`} `` each time, you can add custom code snippets in most code editors.
+> In order to not manually type out the `` {css` ... `} `` each time, you can add custom code snippets in most code editors.
 > <details>
 > <summary><strong><i>[Expand Me]</i></strong>: How to add a code snippet in Visual Studio Code</summary>
 > <ul>
@@ -340,6 +365,8 @@ console.log(b$); // logs 40
 > [!NOTE]
 > This is essentially a hack hijacking an already existing JavaScript/TypeScript keyword and using it for a different purpose. These declarations get converted to live variable `let` declarations in the compilation step. Very conveniently, `using` declarations in JavaScript/TypeScript also forbid reassignments, just like it should be the case for derived values. If you _do_ actually want to use the original `using` keyword for [Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management), simply leave out the dollar sign.
 
+### Side effect expressions
+
 You can create a side effect expression that automatically subscribes to changes of live variables by prefixing it with a `$:` label, similarly to how it works in Svelte (or rather used to work before Svelte 5):
 
 ```tsx
@@ -392,7 +419,7 @@ This works even for components that return elements:
 ```tsx
 const FancyButton = ({ }, children: any[]) => <button>
 	{...children}
-	// ...
+	{css` ... `}
 </button>;
 
 // Somewhre else:
@@ -499,13 +526,43 @@ The possible options are:
 - `appfiles`: The path to the folder where the compiled JavaScript files will be saved. (default: `./appfiles/`)
 - `css`: The path to a global CSS file.
 - <span id="nocssscoperules">`noCSSScopeRules`</span>: Do not use CSS [@scope](https://developer.mozilla.org/en-US/docs/Web/CSS/@scope) rules in the generated CSS files and fall back to simple selectors [in order to support Firefox](https://caniuse.com/mdn-css_at-rules_scope). Note that this means that styles will leak to child components!
+- `entries`: Additional JavaScript entry files, useful for web workers or conditional dynamic `import()`s. To utilize an such a JavaScript file in your code, use `import.meta.resolve("$appfiles/ENTRY_NAME.js")` to get the URL of the generated file. (Winzig auto-generates an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) mapping these special specifiers to the actual file.)
+	```tsx
+	winzigConfig: ({
+		// ...
+		entries: {
+			worker: {
+				src: "./worker.ts",
+			},
+		},
+	}) satisfies WinzigConfig;
+
+	// ...
+	const worker = new Worker(import.meta.resolve("$appfiles/worker.js"), { type: "module" });
+	```
+
+	```tsx
+	winzigConfig: ({
+		// ...
+		entries: {
+			"some-polyfill-or-whatever": {
+				src: "./some-polyfill-or-whatever.ts",
+				preload: false,
+			},
+		},
+	}) satisfies WinzigConfig;
+
+	// ...
+	if (needsSomePolyfillOrWhatever()) 
+		await import(import.meta.resolve("$appfiles/some-polyfill-or-whatever.js"));
+	```
 
 ## CLI Options
 - `-w`, `--watch`: Watch for file changes in the `src` folder and rebuild the project.
 - `--pretty`: Do not minify JavaScript output files.
 - `--live-reload`: Enable live reloading. Requires `--watch` to be enabled.
 - `-d`, `--dev`: Shortcut for `--watch`, `--pretty`, `--no-prerender` and `--live-reload`.
-- `--no-prerender`: Disable prerendering
+- `--no-prerender`: Disable prerendering.
 - `--keep-prerender-folder`: Keep winzig's internal `.winzig-prerender` folder after building.
 - `--log-level`: Log level. Set to `verbose` for verbose logging.
 

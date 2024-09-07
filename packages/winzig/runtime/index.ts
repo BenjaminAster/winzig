@@ -56,17 +56,22 @@ var LiveVariable = class <T> extends EventTarget {
 	v: T;
 	constructor(value?: T) {
 		if (Array.isArray(value)) {
+			// Super hacky, but it works!
 			return new LiveArray(value) as any;
 		}
 		super();
 		this.v = value;
+	};
+	// notify
+	n() {
+		this.dispatchEvent(new CustomEvent("", { detail: this.v }));
 	};
 	get _() {
 		return this.v;
 	};
 	set _(value: T) {
 		this.v = value;
-		this.dispatchEvent(new CustomEvent("", { detail: value }));
+		this.n();
 	};
 };
 
@@ -109,6 +114,7 @@ var LiveArray = class <T> extends LiveVariable<T[]> {
 				}
 			}
 		}
+		this.n();
 	};
 
 	// .map()
@@ -130,35 +136,40 @@ var LiveArray = class <T> extends LiveVariable<T[]> {
 	};
 
 	set _(value: T[]) {
-		this.#canonicalSplice(0, this.v.length, value);
 		this.v = value;
+		this.#canonicalSplice(0, this.v.length, value);
 	};
 
 	// setter (replaces `array[index] = item` expressions)
 	i(index: number, item: T) {
+		this.v[index] = item;
 		this.#canonicalSplice(index, 1, [item]);
-		return this.v[index] = item;
+		return item;
 	};
 
 	// .copyWithin()
 	c(target: number, start: number, end: number) {
+		this.v.copyWithin(target, start, end);
 		this.#canonicalSplice(target, end - start, this.v.slice(start, end));
-		return this.v.copyWithin(target, start, end);
+		return this.v;
 	};
 	// .fill()
 	f(value: T, start: number = 0, end: number = this.v.length) {
+		this.v.fill(value, start, end);
 		this.#canonicalSplice(start, end - start, Array(end - start).fill(value));
-		return this.v.fill(value, start, end);
+		return this.v;
 	};
 	// .pop()
 	o() {
-		this.#canonicalSplice(this.v.length - 1, 1);
-		return this.v.pop();
+		var originalLastItem = this.v.pop();
+		this.#canonicalSplice(this.v.length, 1);
+		return originalLastItem;
 	};
 	// .push()
 	p(...items: T[]) {
-		this.#canonicalSplice(this.v.length, 0, items);
-		return this.v.push(...items);
+		this.v.push(...items);
+		this.#canonicalSplice(this.v.length - 1, 0, items);
+		return this.v.length;
 	};
 	// .reverse()
 	r() {
@@ -166,8 +177,9 @@ var LiveArray = class <T> extends LiveVariable<T[]> {
 	};
 	// .shift()
 	h() {
+		var originalFirstItem = this.v.shift();
 		this.#canonicalSplice(0, 1);
-		return this.v.shift();
+		return originalFirstItem;
 	};
 	// .sort()
 	t(compareFn: any) {
@@ -175,13 +187,15 @@ var LiveArray = class <T> extends LiveVariable<T[]> {
 	};
 	// .splice() {
 	s(start: number, deleteCount: number, ...items: T[]) {
+		var deletedItems = this.v.splice(start, deleteCount, ...items);
 		this.#canonicalSplice(start, deleteCount, items);
-		return this.v.splice(start, deleteCount, ...items);
+		return deletedItems;
 	};
 	// .unshift() {
 	u(...items: T[]) {
+		this.v.unshift(...items);
 		this.#canonicalSplice(0, 0, items);
-		return this.v.push(...items);
+		return this.v.length;
 	};
 };
 

@@ -1,0 +1,4 @@
+{
+	"extends": "winzig-types/tsconfig/tsconfig.base.json",
+	"exclude": ["./appfiles/"],
+}

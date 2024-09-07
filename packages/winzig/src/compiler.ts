@@ -264,7 +264,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 			// #endregion
 			// #region AwaitExpression
 			case "AwaitExpression": {
-				visitExpression(node.argument);
+				if (tempExpression = visitExpression(node.argument)) node.argument = tempExpression;
 				break;
 			}
 			// #endregion
@@ -308,7 +308,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 							cssString = [firstLine, ...otherLines.map(line => line.slice(leadingWhitespace - 1))].join("\n");
 							cssSnippets.push(
 								noCSSScopeRules
-									? `[data-wz-id="${cssId.toString(36)}"] {\n\t${minify
+									? `\n[data-wz-id="${cssId.toString(36)}"] {\n\t${minify
 										// Chromium v128 has a weird bug where nested selectors
 										// don't get parsed if they start with a tag name and
 										// are immediately preceded by a closing brace (i.e. with no whitespace in between).
@@ -320,7 +320,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 										)
 										: cssString
 									}\n}\n`
-									: `@scope ([data-wz-id="${cssId.toString(36)}"]) to ([data-wz-new-scope]) {\n\t${cssString}\n}\n`
+									: `\n@scope ([data-wz-id="${cssId.toString(36)}"]) to ([data-wz-new-scope]) {\n\t${cssString}\n}\n`
 							);
 							node.arguments.pop();
 						}
@@ -734,8 +734,19 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 			// #endregion
 			// #region ImportExpression
 			case "ImportExpression": {
-				console.warn(`TODO: implement expression: ${node.type}`);
-				break;
+				if (tempExpression = visitExpression(node.source as ESTree.Expression)) node.source = tempExpression;
+				// Evil hack until terser is fixed to accept ImportExpression objects
+				// https://github.com/terser/terser/issues/1557
+				return {
+					type: "CallExpression",
+					loc: node.loc,
+					optional: false,
+					arguments: [node.source],
+					callee: {
+						type: "Identifier",
+						name: "import",
+					} satisfies ESTree.Identifier,
+				} satisfies ESTree.CallExpression;
 			}
 			// #endregion
 			// #region Literal

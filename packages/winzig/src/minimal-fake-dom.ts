@@ -18,7 +18,7 @@ export class Text extends Node {
 export class Element extends Node {
 	localName: string;
 	childNodes: Node[] = [];
-	attributes = new Map<string, string>();
+	#attributes = new Map<string, string>();
 	constructor(type: string) {
 		super();
 		this.localName = type;
@@ -34,19 +34,19 @@ export class Element extends Node {
 		this.childNodes.splice(index, 0, newNode);
 	};
 	getAttribute(name: string) {
-		this.attributes.get(name);
+		this.#attributes.get(name);
 	};
 	hasAttribute(name: string) {
-		this.attributes.has(name);
+		this.#attributes.has(name);
 	};
 	setAttribute(name: string, value: string) {
-		this.attributes.set(name, value);
+		this.#attributes.set(name, value);
 	};
 	get outerHTML(): string {
 		return (
 			"<"
 			+ this.localName
-			+ [...this.attributes].map(([name, value]) => ` ${name}="${value.replaceAll('"', "&quot;")}"`).join("")
+			+ [...this.#attributes].map(([name, value]) => ` ${name}="${value.replaceAll('"', "&quot;")}"`).join("")
 			+ ">"
 			+ (voidElements.has(this.localName) ? "" :
 				// TODO: maybe care about HTML sanitization?

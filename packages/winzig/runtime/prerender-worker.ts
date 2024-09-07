@@ -24,10 +24,24 @@ const fakeWindow = new HappyDOM.Window({
 	url: "http://localhost/",
 });
 
-let patchedGlobalPropertyKeys = new Set(
-	Object.getOwnPropertyNames(fakeWindow)
-		.filter(key => !(key in globalThis))
-);
+for (let key of Object.getOwnPropertyNames(fakeWindow)) {
+	if (key in globalThis) continue;
+	Object.defineProperty(globalThis, key, {
+		value: (fakeWindow as any)[key],
+		configurable: true,
+		enumerable: true,
+		writable: true,
+	});
+}
+
+for (const globalThisAlias of ["frames", "parent", "self", "top", "window"]) {
+	Object.defineProperty(globalThis, globalThisAlias, {
+		value: globalThis,
+		configurable: true,
+		enumerable: true,
+		writable: true,
+	});
+}
 
 if (workerData.logLevel !== "verbose") {
 	let property: keyof Console;
@@ -36,15 +50,6 @@ if (workerData.logLevel !== "verbose") {
 			console[property] = (() => { }) as any;
 		}
 	}
-}
-
-for (let key of patchedGlobalPropertyKeys) {
-	Object.defineProperty(globalThis, key, {
-		value: (fakeWindow as any)[key],
-		configurable: true,
-		enumerable: true,
-		writable: true,
-	});
 }
 
 Object.defineProperty(globalThis, "navigator", {

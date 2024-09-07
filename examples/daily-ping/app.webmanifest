@@ -1,0 +1,14 @@
+{
+	"name": "Daily Ping",
+	"scope": "./",
+	"start_url": "./",
+	"display": "standalone",
+	"icons": [
+		{
+			"src": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Spiral%20calendar/3D/spiral_calendar_3d.png",
+			"purpose": "any monochrome",
+			"sizes": "256x256",
+			"type": "image/png"
+		}
+	]
+}

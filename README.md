@@ -65,6 +65,7 @@ let count$ = 0; // the "$" suffix makes variables reactive
 	* [Side Effect Expressions](#side-effect-expressions)
 	* [Event Listeners](#event-listeners)
 	* [Elements](#elements)
+	* [SVG & MathML](#svg--mathml)
 	* [Live Arrays](#live-arrays)
 - [Config Options](#config-options)
 - [CLI Options](#cli-options)
@@ -220,7 +221,7 @@ const Counter = ({ initialCount = 0 }) => {
 Children are passed to components as the function's second parameter:
 
 ```tsx
-const FancyButton = ({ }, children: any[]) => {
+const FancyButton = ({ }, children: any[] = []) => {
 	return <button>
 		{...children}
 		{/* Make the button fancy somehow - See next section ("CSS") */}
@@ -233,7 +234,7 @@ const FancyButton = ({ }, children: any[]) => {
 </FancyButton>
 ```
 
-In the above example, the component doesn't accept any props but needs the children (which it gets from the second argument), so the first argument is simply left as an empty object destructuring expression.
+In the above example, the component doesn't accept any props but needs the children (which it gets from the second argument), so the first argument is simply left as an empty object destructuring expression. If the children of your component are optional, use a `= []` default parameter assignment in the function definition.
 
 > [!IMPORTANT]
 > Make sure you always use the `{...spread}` syntax when inserting arrays into JSX elements! If you're coming from e.g. React, this is something you'll have to get used to!
@@ -461,17 +462,21 @@ let input: HTMLInputElement;
 </form>
 ```
 
-If you start your variable name with an uppercase letter, you can even use JSX elements as if they were components, although you may only use them once:
+### SVG & MathML
+
+If the tag name of an element is that of a valid [SVG element](https://svgwg.org/svg2-draft/eltindex.html) or [MathML element](https://w3c.github.io/mathml-core/#mathml-elements-and-attributes), the element gets automatically created with the appropriate namespace.
+
+Due to naming collisions with HTML, the SVG [`<a>`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/a), [`<script>`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/script), [`<style>`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/style) and [`<title>`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/title) elements must be prefixed with an `svg:` namespace indicator.
 
 ```tsx
-const Canvas = <canvas />;
-const context = Canvas.getContext("2d");
+const htmlAnchor = <a></a>;
+console.log(htmlAnchor.namespaceURI); // http://www.w3.org/1999/xhtml
 
-// Somewhere else:
-<div className="canvas-container-or-whatever">
-	<Canvas width={width} height={height} />
-</div>
+const svgAnchor = <svg:a></svg:a>;
+console.log(svgAnchor.namespaceURI); // http://www.w3.org/2000/svg
 ```
+
+TODO: Make attributes work conveniently with SVG & MathML.
 
 ### Live Arrays
 
@@ -526,7 +531,7 @@ The possible options are:
 - `appfiles`: The path to the folder where the compiled JavaScript files will be saved. (default: `./appfiles/`)
 - `css`: The path to a global CSS file.
 - <span id="nocssscoperules">`noCSSScopeRules`</span>: Do not use CSS [@scope](https://developer.mozilla.org/en-US/docs/Web/CSS/@scope) rules in the generated CSS files and fall back to simple selectors [in order to support Firefox](https://caniuse.com/mdn-css_at-rules_scope). Note that this means that styles will leak to child components!
-- `entries`: Additional JavaScript entry files, useful for web workers or conditional dynamic `import()`s. To utilize an such a JavaScript file in your code, use `import.meta.resolve("$appfiles/ENTRY_NAME.js")` to get the URL of the generated file. (Winzig auto-generates an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) mapping these special specifiers to the actual file.)
+- `entries`: Additional JavaScript entry files, useful for web workers or conditional dynamic `import()`s. To utilize such a JavaScript file in your code, use `import.meta.resolve("$appfiles/ENTRY_NAME.js")` to get the URL of the generated file. (Winzig auto-generates an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) mapping these special specifiers to the actual file.)
 	```tsx
 	winzigConfig: ({
 		// ...
@@ -565,6 +570,3 @@ The possible options are:
 - `--no-prerender`: Disable prerendering.
 - `--keep-prerender-folder`: Keep winzig's internal `.winzig-prerender` folder after building.
 - `--log-level`: Log level. Set to `verbose` for verbose logging.
-
-## Known Issues
-- [BigInts](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) are currently not supported. (Blocked by https://github.com/terser/terser/pull/1555)

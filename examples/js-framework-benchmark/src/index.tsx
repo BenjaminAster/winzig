@@ -84,7 +84,7 @@ const App = () => {
 								</td>
 								<td className="col-md-1">
 									<a className="btn" on:click={() => data$.splice(data$.findIndex((d) => d.id === rowId), 1)}>
-										<span className="glyphicon glyphicon-remove" aria-hidden="true" />
+										<span className="glyphicon glyphicon-remove" ariaHidden="true" />
 									</a>
 								</td>
 								<td className="col-md-6" />

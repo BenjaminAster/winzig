@@ -1,56 +1,24 @@
 
-var createElement = document.createElement.bind(document);
+var createHTMLElement = document.createElement.bind(document);
+var createSVGElement = document.createElementNS.bind(document, "http://www.w3.org/2000/svg");
+var createMathMLElement = document.createElementNS.bind(document, "http://www.w3.org/1998/Math/MathML");
 
 var setTextNodeDataToEventDotDetail = function (this: Text, event: CustomEvent) {
 	this.data = event.detail;
 };
 
-var setElementPropertyToEventDotDetail = function (this: any, key: string, event: CustomEvent) {
-	this[key] = event.detail;
-};
+// var setElementPropertyToEventDotDetail = function (this: any, key: string, event: CustomEvent) {
+// 	this[key] = event.detail;
+// };
 
-var jsx = (elementOrFunction: any, namedArgs: any, ...children: any[]): Element => {
-	var element: any;
-	var dataset: any;
-	var _l: any;
-	var _r: any;
-	var params: any;
-	var key: string;
-	var callback: Function;
-	var value: any;
-	var textNode: Text;
-	if (typeof elementOrFunction === "function") {
-		element = elementOrFunction(namedArgs ?? {}, children);
-		if (namedArgs?._l) for ([key, callback] of namedArgs._l) {
-			element.addEventListener(key, callback as any);
-		}
-		element.dataset.wzNewScope = "";
-		return element;
-	} else {
-		if (namedArgs) {
-			({ dataset, _l, _r, ...params } = namedArgs);
-			if (dataset) Object.assign(elementOrFunction.dataset, dataset);
-			Object.assign(elementOrFunction, params);
-			if (_l) for ([key, callback] of _l) {
-				elementOrFunction.addEventListener(key, callback as any);
-			}
-			if (_r) for ([key, value] of _r) {
-				elementOrFunction[key] = value.v;
-				// value.addEventListener("", (event: CustomEvent) => elementOrFunction[key] = event.detail);
-				value.addEventListener("", setElementPropertyToEventDotDetail.bind(elementOrFunction, key));
-			}
-		}
+var tempTextNode: Text;
 
-		for (element of children) {
-			elementOrFunction.append(element instanceof LiveVariable
-				? (element.addEventListener("", setTextNodeDataToEventDotDetail.bind(textNode = new Text(element.v))),
-					textNode)
-				: element
-			);
-		}
-		return elementOrFunction;
-	}
-};
+type LiveVariable<T> = typeof LiveVariable<T>["prototype"];
+
+var createLiveTextNode = (content: LiveVariable<any>) => (
+	content.addEventListener("", setTextNodeDataToEventDotDetail.bind(tempTextNode = new Text(content.v))),
+	tempTextNode
+);
 
 var LiveVariable = class <T> extends EventTarget {
 	v: T;
@@ -75,7 +43,6 @@ var LiveVariable = class <T> extends EventTarget {
 	};
 };
 
-type LiveVariable<T> = typeof LiveVariable<T>["prototype"];
 type MapCallback<T> = (value: T, index?: LiveVariable<number>) => ChildNode;
 type StoredTriple<T> = [ChildNode[], MapCallback<T>, LiveVariable<number>[]?];
 
@@ -136,8 +103,9 @@ var LiveArray = class <T> extends LiveVariable<T[]> {
 	};
 
 	set _(value: T[]) {
+		var originalLength = this.v.length;
 		this.v = value;
-		this.#canonicalSplice(0, this.v.length, value);
+		this.#canonicalSplice(0, originalLength, value);
 	};
 
 	// setter (replaces `array[index] = item` expressions)
@@ -161,14 +129,16 @@ var LiveArray = class <T> extends LiveVariable<T[]> {
 	};
 	// .pop()
 	o() {
+		var originalLength = this.v.length;
 		var originalLastItem = this.v.pop();
-		this.#canonicalSplice(this.v.length, 1);
+		if (originalLength) this.#canonicalSplice(this.v.length, 1);
 		return originalLastItem;
 	};
 	// .push()
 	p(...items: T[]) {
+		var originalLength = this.v.length;
 		this.v.push(...items);
-		this.#canonicalSplice(this.v.length - 1, 0, items);
+		this.#canonicalSplice(originalLength, 0, items);
 		return this.v.length;
 	};
 	// .reverse()
@@ -201,14 +171,24 @@ var LiveArray = class <T> extends LiveVariable<T[]> {
 
 var liveExpression = <T>(func: () => T, ...dependencies: LiveVariable<any>[]) => {
 	var returnVariable = new LiveVariable<T>(func());
-	addListeners(() => returnVariable._ = func(), ...dependencies);
+	addListeners(() => returnVariable._ = func(), false, ...dependencies);
 	return returnVariable;
 };
 
-var addListeners = (func: () => any, ...dependencies: LiveVariable<any>[]) => {
+var addListeners = (func: () => any, immediatelyCallOnce: boolean, ...dependencies: LiveVariable<any>[]) => {
 	for (var dependency of dependencies) {
 		dependency.addEventListener("", func);
 	}
+	if (immediatelyCallOnce) func();
 };
 
-export { jsx as j, LiveVariable as V, addListeners as l, liveExpression as e, LiveArray as A, createElement as c };
+export {
+	LiveVariable as V,
+	addListeners as l,
+	liveExpression as e,
+	LiveArray as A,
+	createHTMLElement as h,
+	createSVGElement as s,
+	createMathMLElement as m,
+	createLiveTextNode as t,
+};

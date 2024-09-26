@@ -41,6 +41,7 @@ const title = "Winzig Arrays Showcase";
 				<button on:click={() => array$[2] = 42}><code>array$[2] = 42</code></button><br />
 				<button on:click={() => array$[2] += 42}><code>array$[2] += 42</code></button><br />
 				<button on:click={() => ++array$[2]}><code>++array$[2]</code></button><br />
+				<button on:click={() => array$ = [1, 2, 3, 4]}><code>array$ = [1, 2, 3, 4]</code></button><br />
 			</div>
 
 			<ul>

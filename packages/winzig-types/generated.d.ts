@@ -7,1210 +7,2533 @@
 /// <reference lib="DOM.Iterable" />
 /// <reference lib="DOM.AsyncIterable" />
 
-/// <reference path="./index.d.ts" />
+/// <reference path="./main.d.ts" />
 
-declare namespace WinzigInternals {
-	interface TagNameMap {
-		a: WinzigInternals.ElementAttributes.HTMLAnchorElementAttributes;
-		abbr: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		address: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		area: WinzigInternals.ElementAttributes.HTMLAreaElementAttributes;
-		article: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		aside: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		audio: WinzigInternals.ElementAttributes.HTMLAudioElementAttributes;
-		b: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		base: WinzigInternals.ElementAttributes.HTMLBaseElementAttributes;
-		bdi: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		bdo: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		blockquote: WinzigInternals.ElementAttributes.HTMLQuoteElementAttributes;
-		body: WinzigInternals.ElementAttributes.HTMLBodyElementAttributes;
-		br: WinzigInternals.ElementAttributes.HTMLBRElementAttributes;
-		button: WinzigInternals.ElementAttributes.HTMLButtonElementAttributes;
-		canvas: WinzigInternals.ElementAttributes.HTMLCanvasElementAttributes;
-		caption: WinzigInternals.ElementAttributes.HTMLTableCaptionElementAttributes;
-		cite: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		code: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		col: WinzigInternals.ElementAttributes.HTMLTableColElementAttributes;
-		colgroup: WinzigInternals.ElementAttributes.HTMLTableColElementAttributes;
-		data: WinzigInternals.ElementAttributes.HTMLDataElementAttributes;
-		datalist: WinzigInternals.ElementAttributes.HTMLDataListElementAttributes;
-		dd: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		del: WinzigInternals.ElementAttributes.HTMLModElementAttributes;
-		details: WinzigInternals.ElementAttributes.HTMLDetailsElementAttributes;
-		dfn: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		dialog: WinzigInternals.ElementAttributes.HTMLDialogElementAttributes;
-		div: WinzigInternals.ElementAttributes.HTMLDivElementAttributes;
-		dl: WinzigInternals.ElementAttributes.HTMLDListElementAttributes;
-		dt: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		em: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		embed: WinzigInternals.ElementAttributes.HTMLEmbedElementAttributes;
-		fieldset: WinzigInternals.ElementAttributes.HTMLFieldSetElementAttributes;
-		figcaption: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		figure: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		footer: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		form: WinzigInternals.ElementAttributes.HTMLFormElementAttributes;
-		h1: WinzigInternals.ElementAttributes.HTMLHeadingElementAttributes;
-		h2: WinzigInternals.ElementAttributes.HTMLHeadingElementAttributes;
-		h3: WinzigInternals.ElementAttributes.HTMLHeadingElementAttributes;
-		h4: WinzigInternals.ElementAttributes.HTMLHeadingElementAttributes;
-		h5: WinzigInternals.ElementAttributes.HTMLHeadingElementAttributes;
-		h6: WinzigInternals.ElementAttributes.HTMLHeadingElementAttributes;
-		head: WinzigInternals.ElementAttributes.HTMLHeadElementAttributes;
-		header: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		hgroup: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		hr: WinzigInternals.ElementAttributes.HTMLHRElementAttributes;
-		html: WinzigInternals.ElementAttributes.HTMLHtmlElementAttributes;
-		i: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		iframe: WinzigInternals.ElementAttributes.HTMLIFrameElementAttributes;
-		img: WinzigInternals.ElementAttributes.HTMLImageElementAttributes;
-		input: WinzigInternals.ElementAttributes.HTMLInputElementAttributes;
-		ins: WinzigInternals.ElementAttributes.HTMLModElementAttributes;
-		kbd: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		label: WinzigInternals.ElementAttributes.HTMLLabelElementAttributes;
-		legend: WinzigInternals.ElementAttributes.HTMLLegendElementAttributes;
-		li: WinzigInternals.ElementAttributes.HTMLLIElementAttributes;
-		link: WinzigInternals.ElementAttributes.HTMLLinkElementAttributes;
-		main: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		map: WinzigInternals.ElementAttributes.HTMLMapElementAttributes;
-		mark: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		menu: WinzigInternals.ElementAttributes.HTMLMenuElementAttributes;
-		meta: WinzigInternals.ElementAttributes.HTMLMetaElementAttributes;
-		meter: WinzigInternals.ElementAttributes.HTMLMeterElementAttributes;
-		nav: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		noscript: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		object: WinzigInternals.ElementAttributes.HTMLObjectElementAttributes;
-		ol: WinzigInternals.ElementAttributes.HTMLOListElementAttributes;
-		optgroup: WinzigInternals.ElementAttributes.HTMLOptGroupElementAttributes;
-		option: WinzigInternals.ElementAttributes.HTMLOptionElementAttributes;
-		output: WinzigInternals.ElementAttributes.HTMLOutputElementAttributes;
-		p: WinzigInternals.ElementAttributes.HTMLParagraphElementAttributes;
-		picture: WinzigInternals.ElementAttributes.HTMLPictureElementAttributes;
-		pre: WinzigInternals.ElementAttributes.HTMLPreElementAttributes;
-		progress: WinzigInternals.ElementAttributes.HTMLProgressElementAttributes;
-		q: WinzigInternals.ElementAttributes.HTMLQuoteElementAttributes;
-		rp: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		rt: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		ruby: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		s: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		samp: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		script: WinzigInternals.ElementAttributes.HTMLScriptElementAttributes;
-		search: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		section: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		select: WinzigInternals.ElementAttributes.HTMLSelectElementAttributes;
-		slot: WinzigInternals.ElementAttributes.HTMLSlotElementAttributes;
-		small: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		source: WinzigInternals.ElementAttributes.HTMLSourceElementAttributes;
-		span: WinzigInternals.ElementAttributes.HTMLSpanElementAttributes;
-		strong: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		style: WinzigInternals.ElementAttributes.HTMLStyleElementAttributes;
-		sub: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		summary: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		sup: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		table: WinzigInternals.ElementAttributes.HTMLTableElementAttributes;
-		tbody: WinzigInternals.ElementAttributes.HTMLTableSectionElementAttributes;
-		td: WinzigInternals.ElementAttributes.HTMLTableCellElementAttributes;
-		template: WinzigInternals.ElementAttributes.HTMLTemplateElementAttributes;
-		textarea: WinzigInternals.ElementAttributes.HTMLTextAreaElementAttributes;
-		tfoot: WinzigInternals.ElementAttributes.HTMLTableSectionElementAttributes;
-		th: WinzigInternals.ElementAttributes.HTMLTableCellElementAttributes;
-		thead: WinzigInternals.ElementAttributes.HTMLTableSectionElementAttributes;
-		time: WinzigInternals.ElementAttributes.HTMLTimeElementAttributes;
-		title: WinzigInternals.ElementAttributes.HTMLTitleElementAttributes;
-		tr: WinzigInternals.ElementAttributes.HTMLTableRowElementAttributes;
-		track: WinzigInternals.ElementAttributes.HTMLTrackElementAttributes;
-		u: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		ul: WinzigInternals.ElementAttributes.HTMLUListElementAttributes;
-		var: WinzigInternals.ElementAttributes.HTMLElementAttributes;
-		video: WinzigInternals.ElementAttributes.HTMLVideoElementAttributes;
-		wbr: WinzigInternals.ElementAttributes.HTMLElementAttributes;
+import type * as WinzigTypes from "./main.d.ts";
+
+interface HTMLTagNameToAttributesMap {
+	a: ElementAttributes.HTMLAnchorElementAttributes;
+	abbr: ElementAttributes.HTMLElementAttributes;
+	address: ElementAttributes.HTMLElementAttributes;
+	area: ElementAttributes.HTMLAreaElementAttributes;
+	article: ElementAttributes.HTMLElementAttributes;
+	aside: ElementAttributes.HTMLElementAttributes;
+	audio: ElementAttributes.HTMLAudioElementAttributes;
+	b: ElementAttributes.HTMLElementAttributes;
+	base: ElementAttributes.HTMLBaseElementAttributes;
+	bdi: ElementAttributes.HTMLElementAttributes;
+	bdo: ElementAttributes.HTMLElementAttributes;
+	blockquote: ElementAttributes.HTMLQuoteElementAttributes;
+	body: ElementAttributes.HTMLBodyElementAttributes;
+	br: ElementAttributes.HTMLBRElementAttributes;
+	button: ElementAttributes.HTMLButtonElementAttributes;
+	canvas: ElementAttributes.HTMLCanvasElementAttributes;
+	caption: ElementAttributes.HTMLTableCaptionElementAttributes;
+	cite: ElementAttributes.HTMLElementAttributes;
+	code: ElementAttributes.HTMLElementAttributes;
+	col: ElementAttributes.HTMLTableColElementAttributes;
+	colgroup: ElementAttributes.HTMLTableColElementAttributes;
+	data: ElementAttributes.HTMLDataElementAttributes;
+	datalist: ElementAttributes.HTMLDataListElementAttributes;
+	dd: ElementAttributes.HTMLElementAttributes;
+	del: ElementAttributes.HTMLModElementAttributes;
+	details: ElementAttributes.HTMLDetailsElementAttributes;
+	dfn: ElementAttributes.HTMLElementAttributes;
+	dialog: ElementAttributes.HTMLDialogElementAttributes;
+	div: ElementAttributes.HTMLDivElementAttributes;
+	dl: ElementAttributes.HTMLDListElementAttributes;
+	dt: ElementAttributes.HTMLElementAttributes;
+	em: ElementAttributes.HTMLElementAttributes;
+	embed: ElementAttributes.HTMLEmbedElementAttributes;
+	fieldset: ElementAttributes.HTMLFieldSetElementAttributes;
+	figcaption: ElementAttributes.HTMLElementAttributes;
+	figure: ElementAttributes.HTMLElementAttributes;
+	footer: ElementAttributes.HTMLElementAttributes;
+	form: ElementAttributes.HTMLFormElementAttributes;
+	h1: ElementAttributes.HTMLHeadingElementAttributes;
+	h2: ElementAttributes.HTMLHeadingElementAttributes;
+	h3: ElementAttributes.HTMLHeadingElementAttributes;
+	h4: ElementAttributes.HTMLHeadingElementAttributes;
+	h5: ElementAttributes.HTMLHeadingElementAttributes;
+	h6: ElementAttributes.HTMLHeadingElementAttributes;
+	head: ElementAttributes.HTMLHeadElementAttributes;
+	header: ElementAttributes.HTMLElementAttributes;
+	hgroup: ElementAttributes.HTMLElementAttributes;
+	hr: ElementAttributes.HTMLHRElementAttributes;
+	html: ElementAttributes.HTMLHtmlElementAttributes;
+	i: ElementAttributes.HTMLElementAttributes;
+	iframe: ElementAttributes.HTMLIFrameElementAttributes;
+	img: ElementAttributes.HTMLImageElementAttributes;
+	input: ElementAttributes.HTMLInputElementAttributes;
+	ins: ElementAttributes.HTMLModElementAttributes;
+	kbd: ElementAttributes.HTMLElementAttributes;
+	label: ElementAttributes.HTMLLabelElementAttributes;
+	legend: ElementAttributes.HTMLLegendElementAttributes;
+	li: ElementAttributes.HTMLLIElementAttributes;
+	link: ElementAttributes.HTMLLinkElementAttributes;
+	main: ElementAttributes.HTMLElementAttributes;
+	map: ElementAttributes.HTMLMapElementAttributes;
+	mark: ElementAttributes.HTMLElementAttributes;
+	menu: ElementAttributes.HTMLMenuElementAttributes;
+	meta: ElementAttributes.HTMLMetaElementAttributes;
+	meter: ElementAttributes.HTMLMeterElementAttributes;
+	nav: ElementAttributes.HTMLElementAttributes;
+	noscript: ElementAttributes.HTMLElementAttributes;
+	object: ElementAttributes.HTMLObjectElementAttributes;
+	ol: ElementAttributes.HTMLOListElementAttributes;
+	optgroup: ElementAttributes.HTMLOptGroupElementAttributes;
+	option: ElementAttributes.HTMLOptionElementAttributes;
+	output: ElementAttributes.HTMLOutputElementAttributes;
+	p: ElementAttributes.HTMLParagraphElementAttributes;
+	picture: ElementAttributes.HTMLPictureElementAttributes;
+	pre: ElementAttributes.HTMLPreElementAttributes;
+	progress: ElementAttributes.HTMLProgressElementAttributes;
+	q: ElementAttributes.HTMLQuoteElementAttributes;
+	rp: ElementAttributes.HTMLElementAttributes;
+	rt: ElementAttributes.HTMLElementAttributes;
+	ruby: ElementAttributes.HTMLElementAttributes;
+	s: ElementAttributes.HTMLElementAttributes;
+	samp: ElementAttributes.HTMLElementAttributes;
+	script: ElementAttributes.HTMLScriptElementAttributes;
+	search: ElementAttributes.HTMLElementAttributes;
+	section: ElementAttributes.HTMLElementAttributes;
+	select: ElementAttributes.HTMLSelectElementAttributes;
+	slot: ElementAttributes.HTMLSlotElementAttributes;
+	small: ElementAttributes.HTMLElementAttributes;
+	source: ElementAttributes.HTMLSourceElementAttributes;
+	span: ElementAttributes.HTMLSpanElementAttributes;
+	strong: ElementAttributes.HTMLElementAttributes;
+	style: ElementAttributes.HTMLStyleElementAttributes;
+	sub: ElementAttributes.HTMLElementAttributes;
+	summary: ElementAttributes.HTMLElementAttributes;
+	sup: ElementAttributes.HTMLElementAttributes;
+	table: ElementAttributes.HTMLTableElementAttributes;
+	tbody: ElementAttributes.HTMLTableSectionElementAttributes;
+	td: ElementAttributes.HTMLTableCellElementAttributes;
+	template: ElementAttributes.HTMLTemplateElementAttributes;
+	textarea: ElementAttributes.HTMLTextAreaElementAttributes;
+	tfoot: ElementAttributes.HTMLTableSectionElementAttributes;
+	th: ElementAttributes.HTMLTableCellElementAttributes;
+	thead: ElementAttributes.HTMLTableSectionElementAttributes;
+	time: ElementAttributes.HTMLTimeElementAttributes;
+	title: ElementAttributes.HTMLTitleElementAttributes;
+	tr: ElementAttributes.HTMLTableRowElementAttributes;
+	track: ElementAttributes.HTMLTrackElementAttributes;
+	u: ElementAttributes.HTMLElementAttributes;
+	ul: ElementAttributes.HTMLUListElementAttributes;
+	var: ElementAttributes.HTMLElementAttributes;
+	video: ElementAttributes.HTMLVideoElementAttributes;
+	wbr: ElementAttributes.HTMLElementAttributes;
+}
+
+interface SVGTagNameToAttributesMap {
+	"svg:a": ElementAttributes.SVGAElementAttributes;
+	animate: ElementAttributes.SVGAnimateElementAttributes;
+	animateMotion: ElementAttributes.SVGAnimateMotionElementAttributes;
+	animateTransform: ElementAttributes.SVGAnimateTransformElementAttributes;
+	circle: ElementAttributes.SVGCircleElementAttributes;
+	clipPath: ElementAttributes.SVGClipPathElementAttributes;
+	defs: ElementAttributes.SVGDefsElementAttributes;
+	desc: ElementAttributes.SVGDescElementAttributes;
+	ellipse: ElementAttributes.SVGEllipseElementAttributes;
+	feBlend: ElementAttributes.SVGFEBlendElementAttributes;
+	feColorMatrix: ElementAttributes.SVGFEColorMatrixElementAttributes;
+	feComponentTransfer: ElementAttributes.SVGFEComponentTransferElementAttributes;
+	feComposite: ElementAttributes.SVGFECompositeElementAttributes;
+	feConvolveMatrix: ElementAttributes.SVGFEConvolveMatrixElementAttributes;
+	feDiffuseLighting: ElementAttributes.SVGFEDiffuseLightingElementAttributes;
+	feDisplacementMap: ElementAttributes.SVGFEDisplacementMapElementAttributes;
+	feDistantLight: ElementAttributes.SVGFEDistantLightElementAttributes;
+	feDropShadow: ElementAttributes.SVGFEDropShadowElementAttributes;
+	feFlood: ElementAttributes.SVGFEFloodElementAttributes;
+	feFuncA: ElementAttributes.SVGFEFuncAElementAttributes;
+	feFuncB: ElementAttributes.SVGFEFuncBElementAttributes;
+	feFuncG: ElementAttributes.SVGFEFuncGElementAttributes;
+	feFuncR: ElementAttributes.SVGFEFuncRElementAttributes;
+	feGaussianBlur: ElementAttributes.SVGFEGaussianBlurElementAttributes;
+	feImage: ElementAttributes.SVGFEImageElementAttributes;
+	feMerge: ElementAttributes.SVGFEMergeElementAttributes;
+	feMergeNode: ElementAttributes.SVGFEMergeNodeElementAttributes;
+	feMorphology: ElementAttributes.SVGFEMorphologyElementAttributes;
+	feOffset: ElementAttributes.SVGFEOffsetElementAttributes;
+	fePointLight: ElementAttributes.SVGFEPointLightElementAttributes;
+	feSpecularLighting: ElementAttributes.SVGFESpecularLightingElementAttributes;
+	feSpotLight: ElementAttributes.SVGFESpotLightElementAttributes;
+	feTile: ElementAttributes.SVGFETileElementAttributes;
+	feTurbulence: ElementAttributes.SVGFETurbulenceElementAttributes;
+	filter: ElementAttributes.SVGFilterElementAttributes;
+	foreignObject: ElementAttributes.SVGForeignObjectElementAttributes;
+	g: ElementAttributes.SVGGElementAttributes;
+	image: ElementAttributes.SVGImageElementAttributes;
+	line: ElementAttributes.SVGLineElementAttributes;
+	linearGradient: ElementAttributes.SVGLinearGradientElementAttributes;
+	marker: ElementAttributes.SVGMarkerElementAttributes;
+	mask: ElementAttributes.SVGMaskElementAttributes;
+	metadata: ElementAttributes.SVGMetadataElementAttributes;
+	mpath: ElementAttributes.SVGMPathElementAttributes;
+	path: ElementAttributes.SVGPathElementAttributes;
+	pattern: ElementAttributes.SVGPatternElementAttributes;
+	polygon: ElementAttributes.SVGPolygonElementAttributes;
+	polyline: ElementAttributes.SVGPolylineElementAttributes;
+	radialGradient: ElementAttributes.SVGRadialGradientElementAttributes;
+	rect: ElementAttributes.SVGRectElementAttributes;
+	"svg:script": ElementAttributes.SVGScriptElementAttributes;
+	set: ElementAttributes.SVGSetElementAttributes;
+	stop: ElementAttributes.SVGStopElementAttributes;
+	"svg:style": ElementAttributes.SVGStyleElementAttributes;
+	svg: ElementAttributes.SVGSVGElementAttributes;
+	switch: ElementAttributes.SVGSwitchElementAttributes;
+	symbol: ElementAttributes.SVGSymbolElementAttributes;
+	text: ElementAttributes.SVGTextElementAttributes;
+	textPath: ElementAttributes.SVGTextPathElementAttributes;
+	"svg:title": ElementAttributes.SVGTitleElementAttributes;
+	tspan: ElementAttributes.SVGTSpanElementAttributes;
+	use: ElementAttributes.SVGUseElementAttributes;
+	view: ElementAttributes.SVGViewElementAttributes;
+}
+
+interface MathMLTagNameToAttributesMap {
+	annotation: ElementAttributes.MathMLElementAttributes;
+	"annotation-xml": ElementAttributes.MathMLElementAttributes;
+	maction: ElementAttributes.MathMLElementAttributes;
+	math: ElementAttributes.MathMLElementAttributes;
+	merror: ElementAttributes.MathMLElementAttributes;
+	mfrac: ElementAttributes.MathMLElementAttributes;
+	mi: ElementAttributes.MathMLElementAttributes;
+	mmultiscripts: ElementAttributes.MathMLElementAttributes;
+	mn: ElementAttributes.MathMLElementAttributes;
+	mo: ElementAttributes.MathMLElementAttributes;
+	mover: ElementAttributes.MathMLElementAttributes;
+	mpadded: ElementAttributes.MathMLElementAttributes;
+	mphantom: ElementAttributes.MathMLElementAttributes;
+	mprescripts: ElementAttributes.MathMLElementAttributes;
+	mroot: ElementAttributes.MathMLElementAttributes;
+	mrow: ElementAttributes.MathMLElementAttributes;
+	ms: ElementAttributes.MathMLElementAttributes;
+	mspace: ElementAttributes.MathMLElementAttributes;
+	msqrt: ElementAttributes.MathMLElementAttributes;
+	mstyle: ElementAttributes.MathMLElementAttributes;
+	msub: ElementAttributes.MathMLElementAttributes;
+	msubsup: ElementAttributes.MathMLElementAttributes;
+	msup: ElementAttributes.MathMLElementAttributes;
+	mtable: ElementAttributes.MathMLElementAttributes;
+	mtd: ElementAttributes.MathMLElementAttributes;
+	mtext: ElementAttributes.MathMLElementAttributes;
+	mtr: ElementAttributes.MathMLElementAttributes;
+	munder: ElementAttributes.MathMLElementAttributes;
+	munderover: ElementAttributes.MathMLElementAttributes;
+	semantics: ElementAttributes.MathMLElementAttributes;
+}
+
+export interface TagNameToAttributesMap extends HTMLTagNameToAttributesMap, SVGTagNameToAttributesMap, MathMLTagNameToAttributesMap { }
+
+export declare namespace ElementAttributes {
+	interface ARIAMixinAttributes {
+		ariaAtomic?: string | null;
+		ariaAutoComplete?: string | null;
+		ariaBrailleLabel?: string | null;
+		ariaBrailleRoleDescription?: string | null;
+		ariaBusy?: string | null;
+		ariaChecked?: string | null;
+		ariaColCount?: string | null;
+		ariaColIndex?: string | null;
+		ariaColSpan?: string | null;
+		ariaCurrent?: string | null;
+		ariaDescription?: string | null;
+		ariaDisabled?: string | null;
+		ariaExpanded?: string | null;
+		ariaHasPopup?: string | null;
+		ariaHidden?: string | null;
+		ariaInvalid?: string | null;
+		ariaKeyShortcuts?: string | null;
+		ariaLabel?: string | null;
+		ariaLevel?: string | null;
+		ariaLive?: string | null;
+		ariaModal?: string | null;
+		ariaMultiLine?: string | null;
+		ariaMultiSelectable?: string | null;
+		ariaOrientation?: string | null;
+		ariaPlaceholder?: string | null;
+		ariaPosInSet?: string | null;
+		ariaPressed?: string | null;
+		ariaReadOnly?: string | null;
+		ariaRequired?: string | null;
+		ariaRoleDescription?: string | null;
+		ariaRowCount?: string | null;
+		ariaRowIndex?: string | null;
+		ariaRowSpan?: string | null;
+		ariaSelected?: string | null;
+		ariaSetSize?: string | null;
+		ariaSort?: string | null;
+		ariaValueMax?: string | null;
+		ariaValueMin?: string | null;
+		ariaValueNow?: string | null;
+		ariaValueText?: string | null;
+		role?: "alert" | "alertdialog" | "application" | "article" | "banner" | "blockquote" | "button" | "caption" | "cell" | "checkbox" | "code" | "columnheader" | "combobox" | "command" | "comment" | "complementary" | "composite" | "contentinfo" | "definition" | "deletion" | "dialog" | "directory" | "document" | "emphasis" | "feed" | "figure" | "form" | "generic" | "grid" | "gridcell" | "group" | "heading" | "image" | "img" | "input" | "insertion" | "landmark" | "link" | "list" | "listbox" | "listitem" | "log" | "main" | "mark" | "marquee" | "math" | "menu" | "menubar" | "menuitem" | "menuitemcheckbox" | "menuitemradio" | "meter" | "navigation" | "none" | "note" | "option" | "paragraph" | "presentation" | "progressbar" | "radio" | "radiogroup" | "range" | "region" | "roletype" | "row" | "rowgroup" | "rowheader" | "scrollbar" | "search" | "searchbox" | "section" | "sectionhead" | "select" | "separator" | "slider" | "spinbutton" | "status" | "strong" | "structure" | "subscript" | "suggestion" | "superscript" | "switch" | "tab" | "table" | "tablist" | "tabpanel" | "term" | "textbox" | "time" | "timer" | "toolbar" | "tooltip" | "tree" | "treegrid" | "treeitem" | "widget" | "window" | (string & {}) | null;
 	}
 
-	namespace ElementAttributes {
-		interface HTMLAnchorElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes, WinzigInternals.ElementAttributes.HTMLHyperlinkElementUtilsAttributes {
-			download?: string;
-			hreflang?: string;
-			ping?: string;
-			referrerPolicy?: ReferrerPolicy;
-			rel?: "alternate" | "canonical" | "author" | "bookmark" | "dns-prefetch" | "expect" | "external" | "help" | "icon" | "manifest" | "modulepreload" | "license" | "next" | "nofollow" | "noopener" | "noreferrer" | "opener" | "pingback" | "preconnect" | "prefetch" | "preload" | "prev" | "privacy-policy" | "search" | "stylesheet" | "tag" | "terms-of-service" | "about" | "archived" | "attachment" | "category" | "code-repository" | "code-license" | "component" | "chrome-webstore-item" | "content-repository" | "content-license" | "disclosure" | "discussion" | "donation" | "edit" | "enclosure" | "sitemap" | (string & {});
-			target?: "_blank" | "_self" | "_parent" | "_top" | (string & {});
-			text?: string;
-			type?: string;
-		}
-
-		interface HTMLAreaElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes, WinzigInternals.ElementAttributes.HTMLHyperlinkElementUtilsAttributes {
-			alt?: string;
-			coords?: string;
-			download?: string;
-			ping?: string;
-			referrerPolicy?: ReferrerPolicy;
-			rel?: "alternate" | "canonical" | "author" | "bookmark" | "dns-prefetch" | "expect" | "external" | "help" | "icon" | "manifest" | "modulepreload" | "license" | "next" | "nofollow" | "noopener" | "noreferrer" | "opener" | "pingback" | "preconnect" | "prefetch" | "preload" | "prev" | "privacy-policy" | "search" | "stylesheet" | "tag" | "terms-of-service" | "about" | "archived" | "attachment" | "category" | "code-repository" | "code-license" | "component" | "chrome-webstore-item" | "content-repository" | "content-license" | "disclosure" | "discussion" | "donation" | "edit" | "enclosure" | "sitemap" | (string & {});
-			shape?: string;
-			target?: "_blank" | "_self" | "_parent" | "_top" | (string & {});
-		}
-
-		interface HTMLAudioElementAttributes extends WinzigInternals.ElementAttributes.HTMLMediaElementAttributes {
-		}
-
-		interface HTMLBRElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLBaseElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			href?: string;
-			target?: string;
-		}
-
-		interface HTMLBodyElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLButtonElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes, WinzigInternals.ElementAttributes.PopoverInvokerElementAttributes {
-			disabled?: boolean;
-			formAction?: string;
-			formEnctype?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
-			formMethod?: "get" | "post" | "dialog";
-			formNoValidate?: boolean;
-			formTarget?: "_blank" | "_self" | "_parent" | "_top" | (string & {});
-			name?: string;
-			type?: "submit" | "reset" | "button";
-			value?: string;
-		}
-
-		interface HTMLCanvasElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			height?: number;
-			width?: number;
-		}
-
-		interface HTMLDListElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLDataElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			value?: string;
-		}
-
-		interface HTMLDataListElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLDetailsElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			name?: string;
-			open?: boolean;
-		}
-
-		interface HTMLDialogElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			open?: boolean;
-			returnValue?: string;
-		}
-
-		interface HTMLDivElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLEmbedElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			height?: string;
-			src?: string;
-			type?: string;
-			width?: string;
-		}
-
-		interface HTMLFieldSetElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			disabled?: boolean;
-			name?: string;
-		}
-
-		interface HTMLFormElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			acceptCharset?: string;
-			action?: string;
-			autocomplete?: AutoFillBase;
-			encoding?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
-			enctype?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
-			method?: "get" | "post" | "dialog";
-			name?: string;
-			noValidate?: boolean;
-			rel?: "alternate" | "canonical" | "author" | "bookmark" | "dns-prefetch" | "expect" | "external" | "help" | "icon" | "manifest" | "modulepreload" | "license" | "next" | "nofollow" | "noopener" | "noreferrer" | "opener" | "pingback" | "preconnect" | "prefetch" | "preload" | "prev" | "privacy-policy" | "search" | "stylesheet" | "tag" | "terms-of-service" | "about" | "archived" | "attachment" | "category" | "code-repository" | "code-license" | "component" | "chrome-webstore-item" | "content-repository" | "content-license" | "disclosure" | "discussion" | "donation" | "edit" | "enclosure" | "sitemap" | (string & {});
-			target?: string;
-		}
-
-		interface HTMLHRElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLHeadElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLHeadingElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLHtmlElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLHyperlinkElementUtilsAttributes {
-			hash?: string;
-			host?: string;
-			hostname?: string;
-			href?: string;
-			password?: string;
-			pathname?: string;
-			port?: string;
-			protocol?: string;
-			search?: string;
-			username?: string;
-		}
-
-		interface HTMLIFrameElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			allow?: string;
-			allowFullscreen?: boolean;
-			height?: string;
-			loading?: string;
-			name?: string;
-			referrerPolicy?: ReferrerPolicy;
-			src?: string;
-			srcdoc?: string;
-			width?: string;
-		}
-
-		interface HTMLImageElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			alt?: string;
-			crossOrigin?: string | null;
-			decoding?: "async" | "sync" | "auto";
-			fetchPriority?: string;
-			height?: number;
-			isMap?: boolean;
-			loading?: "eager" | "lazy";
-			referrerPolicy?: ReferrerPolicy;
-			sizes?: string;
-			src?: string;
-			srcset?: string;
-			useMap?: string;
-			width?: number;
-		}
-
-		interface HTMLInputElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes, WinzigInternals.ElementAttributes.PopoverInvokerElementAttributes {
-			accept?: string;
-			alt?: string;
-			autocomplete?: AutoFill;
-			capture?: string;
-			checked?: boolean;
-			defaultChecked?: boolean;
-			defaultValue?: string;
-			dirName?: string;
-			disabled?: boolean;
-			files?: FileList | null;
-			formAction?: string;
-			formEnctype?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
-			formMethod?: "get" | "post" | "dialog";
-			formNoValidate?: boolean;
-			formTarget?: "_blank" | "_self" | "_parent" | "_top" | (string & {});
-			height?: number;
-			indeterminate?: boolean;
-			max?: string;
-			maxLength?: number;
-			min?: string;
-			minLength?: number;
-			multiple?: boolean;
-			name?: string;
-			pattern?: string;
-			placeholder?: string;
-			readOnly?: boolean;
-			required?: boolean;
-			selectionDirection?: "forward" | "backward" | "none" | null;
-			selectionEnd?: number | null;
-			selectionStart?: number | null;
-			size?: number;
-			src?: string;
-			step?: string;
-			type?: "hidden" | "text" | "search" | "tel" | "url" | "email" | "password" | "date" | "month" | "week" | "time" | "datetime-local" | "number" | "range" | "color" | "checkbox" | "radio" | "file" | "submit" | "image" | "reset" | "button";
-			value?: string;
-			valueAsDate?: Date | null;
-			valueAsNumber?: number;
-			webkitdirectory?: boolean;
-			width?: number;
-		}
-
-		interface HTMLLIElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			value?: number;
-		}
-
-		interface HTMLLabelElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			htmlFor?: string;
-		}
-
-		interface HTMLLegendElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLLinkElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes, WinzigInternals.ElementAttributes.LinkStyleAttributes {
-			as?: string;
-			crossOrigin?: string | null;
-			disabled?: boolean;
-			fetchPriority?: string;
-			href?: string;
-			hreflang?: string;
-			imageSizes?: string;
-			imageSrcset?: string;
-			integrity?: string;
-			media?: string;
-			referrerPolicy?: ReferrerPolicy;
-			rel?: "alternate" | "canonical" | "author" | "bookmark" | "dns-prefetch" | "expect" | "external" | "help" | "icon" | "manifest" | "modulepreload" | "license" | "next" | "nofollow" | "noopener" | "noreferrer" | "opener" | "pingback" | "preconnect" | "prefetch" | "preload" | "prev" | "privacy-policy" | "search" | "stylesheet" | "tag" | "terms-of-service" | "about" | "archived" | "attachment" | "category" | "code-repository" | "code-license" | "component" | "chrome-webstore-item" | "content-repository" | "content-license" | "disclosure" | "discussion" | "donation" | "edit" | "enclosure" | "sitemap" | (string & {});
-			sizes?: string;
-			type?: string;
-		}
-
-		interface HTMLMapElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			name?: string;
-		}
-
-		interface HTMLMediaElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes, WinzigInternals.HTMLMediaElementEventHandlers {
-			autoplay?: boolean;
-			controls?: boolean;
-			crossOrigin?: string | null;
-			currentTime?: number;
-			defaultMuted?: boolean;
-			defaultPlaybackRate?: number;
-			disableRemotePlayback?: boolean;
-			loop?: boolean;
-			muted?: boolean;
-			playbackRate?: number;
-			preload?: "none" | "metadata" | "auto" | "";
-			preservesPitch?: boolean;
-			src?: string;
-			srcObject?: MediaProvider | null;
-			volume?: number;
-		}
-
-		interface HTMLMenuElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLMetaElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			content?: string;
-			httpEquiv?: "content-language" | "content-type" | "default-style" | "refresh" | "set-cookie" | "x-ua-compatible" | "content-security-policy" | "origin-trial" | (string & {});
-			media?: string;
-			name?: "application-name" | "author" | "description" | "generator" | "keywords" | "referrer" | "theme-color" | "color-scheme" | "license" | "robots" | "viewport" | "version" | "twitter:card" | "twitter:site" | "twitter:site:id" | "twitter:creator" | "twitter:creator:id" | "twitter:description" | "twitter:title" | "twitter:image" | "twitter:image:alt" | "twitter:player" | "twitter:player:width" | "twitter:player:height" | "twitter:player:stream" | "twitter:app:name:iphone" | "twitter:app:id:iphone" | "twitter:app:url:iphone" | "twitter:app:name:ipad" | "twitter:app:id:ipad" | "twitter:app:url:ipad" | "twitter:app:name:googleplay" | "twitter:app:id:googleplay" | "twitter:app:url:googleplay" | "app-title" | (string & {});
-			property?: "og:title" | "og:type" | "og:image" | "og:url" | "og:audio" | "og:description" | "og:determiner" | "og:locale" | "og:locale:alternate" | "og:site_name" | "og:video" | "og:image" | "og:image:url" | "og:image" | "og:image:secure_url" | "og:image:type" | "og:image:width" | "og:image:height" | "og:image:alt" | "og:image:alt" | "og:video" | "og:image" | "og:audio" | "og:type" | "og:type" | "og:type" | "og:type" | "og:type" | "og:type" | (string & {});
-		}
-
-		interface HTMLMeterElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			high?: number;
-			low?: number;
-			max?: number;
-			min?: number;
-			optimum?: number;
-			value?: number;
-		}
-
-		interface HTMLModElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			cite?: string;
-			dateTime?: string;
-		}
-
-		interface HTMLOListElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			reversed?: boolean;
-			start?: number;
-			type?: "1" | "a" | "A" | "i" | "I";
-		}
-
-		interface HTMLObjectElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			data?: string;
-			height?: string;
-			name?: string;
-			type?: string;
-			width?: string;
-		}
-
-		interface HTMLOptGroupElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			disabled?: boolean;
-			label?: string;
-		}
-
-		interface HTMLOptionElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			defaultSelected?: boolean;
-			disabled?: boolean;
-			label?: string;
-			selected?: boolean;
-			text?: string;
-			value?: string;
-		}
-
-		interface HTMLOutputElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			defaultValue?: string;
-			name?: string;
-			value?: string;
-		}
-
-		interface HTMLParagraphElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLPictureElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLPreElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLProgressElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			max?: number;
-			value?: number;
-		}
-
-		interface HTMLQuoteElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			cite?: string;
-		}
-
-		interface HTMLScriptElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			async?: boolean;
-			crossOrigin?: string | null;
-			defer?: boolean;
-			fetchPriority?: string;
-			integrity?: string;
-			noModule?: boolean;
-			referrerPolicy?: ReferrerPolicy;
-			src?: string;
-			text?: string;
-			type?: string;
-		}
-
-		interface HTMLSelectElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			autocomplete?: AutoFill;
-			disabled?: boolean;
-			length?: number;
-			multiple?: boolean;
-			name?: string;
-			required?: boolean;
-			selectedIndex?: number;
-			size?: number;
-			value?: string;
-		}
-
-		interface HTMLSlotElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			name?: string;
-		}
-
-		interface HTMLSourceElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			height?: number;
-			media?: string;
-			sizes?: string;
-			src?: string;
-			srcset?: string;
-			type?: string;
-			width?: number;
-		}
-
-		interface HTMLSpanElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLStyleElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes, WinzigInternals.ElementAttributes.LinkStyleAttributes {
-			disabled?: boolean;
-			media?: string;
-		}
-
-		interface HTMLTableCaptionElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLTableCellElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			abbr?: string;
-			colSpan?: number;
-			headers?: string;
-			rowSpan?: number;
-			scope?: string;
-		}
-
-		interface HTMLTableColElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			span?: number;
-		}
-
-		interface HTMLTableDataCellElementAttributes extends WinzigInternals.ElementAttributes.HTMLTableCellElementAttributes {
-		}
-
-		interface HTMLTableElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			caption?: HTMLTableCaptionElement | null;
-			tFoot?: HTMLTableSectionElement | null;
-			tHead?: HTMLTableSectionElement | null;
-		}
-
-		interface HTMLTableHeaderCellElementAttributes extends WinzigInternals.ElementAttributes.HTMLTableCellElementAttributes {
-		}
-
-		interface HTMLTableRowElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLTableSectionElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLTemplateElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			shadowRootClonable?: boolean;
-			shadowRootDelegatesFocus?: boolean;
-			shadowRootMode?: string;
-			shadowRootSerializable?: boolean;
-		}
-
-		interface HTMLTextAreaElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			autocomplete?: AutoFill;
-			cols?: number;
-			defaultValue?: string;
-			dirName?: string;
-			disabled?: boolean;
-			maxLength?: number;
-			minLength?: number;
-			name?: string;
-			placeholder?: string;
-			readOnly?: boolean;
-			required?: boolean;
-			rows?: number;
-			selectionDirection?: "forward" | "backward" | "none";
-			selectionEnd?: number;
-			selectionStart?: number;
-			value?: string;
-			wrap?: string;
-		}
-
-		interface HTMLTimeElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			dateTime?: string;
-		}
-
-		interface HTMLTitleElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			text?: string;
-		}
-
-		interface HTMLTrackElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-			default?: boolean;
-			kind?: string;
-			label?: string;
-			src?: string;
-			srclang?: string;
-		}
-
-		interface HTMLUListElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLUnknownElementAttributes extends WinzigInternals.ElementAttributes.HTMLElementAttributes {
-		}
-
-		interface HTMLVideoElementAttributes extends WinzigInternals.ElementAttributes.HTMLMediaElementAttributes, WinzigInternals.HTMLVideoElementEventHandlers {
-			disablePictureInPicture?: boolean;
-			height?: number;
-			playsInline?: boolean;
-			poster?: string;
-			width?: number;
-		}
-
-		interface LinkStyleAttributes {
-		}
-
-		interface PopoverInvokerElementAttributes {
-			popoverTargetAction?: string;
-			popoverTargetElement?: Element | null;
-		}
+	interface AnimatableAttributes {
 	}
 
-	interface WinzigGenericElement extends HTMLElement {
-		/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		readonly ERROR: 3;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly HAVE_CURRENT_DATA: 2;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly HAVE_ENOUGH_DATA: 4;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly HAVE_FUTURE_DATA: 3;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly HAVE_METADATA: 1;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly HAVE_NOTHING: 0;
-		/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		readonly LOADED: 2;
-		/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		readonly LOADING: 1;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly NETWORK_EMPTY: 0;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly NETWORK_IDLE: 1;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly NETWORK_LOADING: 2;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly NETWORK_NO_SOURCE: 3;
-		/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		readonly NONE: 0;
-		/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}. */
-		aLink: string;
-		/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
-		abbr: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		accept: string;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
-		acceptCharset: string;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
-		action: string;
-		/** @deprecated Valid for {@link HTMLDivElement|`HTMLDivElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLHRElement|`HTMLHRElement`}, {@link HTMLHeadingElement|`HTMLHeadingElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLegendElement|`HTMLLegendElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLParagraphElement|`HTMLParagraphElement`}, {@link HTMLTableCaptionElement|`HTMLTableCaptionElement`}, {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableElement|`HTMLTableElement`}, {@link HTMLTableRowElement|`HTMLTableRowElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
-		align: string;
-		/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
-		allow: string;
-		/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
-		allowFullscreen: boolean;
-		/** Valid for {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
-		alt: string;
-		/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		archive: string;
-		/** Valid for {@link HTMLMapElement|`HTMLMapElement`}. */
-		readonly areas: HTMLCollection;
-		/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}. */
-		as: string;
-		/** Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		async: boolean;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		autocomplete: AutoFillBase | AutoFill;
-		/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
-		autofocus: boolean;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		autoplay: boolean;
-		/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
-		axis: string;
-		/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}. */
-		background: string;
-		/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}, {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableElement|`HTMLTableElement`} and {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
-		bgColor: string;
-		/** @deprecated Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLObjectElement|`HTMLObjectElement`} and {@link HTMLTableElement|`HTMLTableElement`}. */
-		border: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly buffered: TimeRanges;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		caption: HTMLTableCaptionElement | null;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		capture: string;
-		/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
-		readonly cellIndex: number;
-		/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		cellPadding: string;
-		/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		cellSpacing: string;
-		/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
-		readonly cells: HTMLCollectionOf<HTMLTableCellElement>;
-		/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableRowElement|`HTMLTableRowElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
-		ch: string;
-		/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableRowElement|`HTMLTableRowElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
-		chOff: string;
-		/** @deprecated Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		charset: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		checked: boolean;
-		/** Valid for {@link HTMLModElement|`HTMLModElement`} and {@link HTMLQuoteElement|`HTMLQuoteElement`}. */
-		cite: string;
-		/** @deprecated Valid for {@link HTMLBRElement|`HTMLBRElement`}. */
-		clear: string;
-		/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		code: string;
-		/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		codeBase: string;
-		/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		codeType: string;
-		/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
-		colSpan: number;
-		/** @deprecated Valid for {@link HTMLHRElement|`HTMLHRElement`}. */
-		color: string;
-		/** Valid for {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		cols: number;
-		/** @deprecated Valid for {@link HTMLDListElement|`HTMLDListElement`}, {@link HTMLMenuElement|`HTMLMenuElement`}, {@link HTMLOListElement|`HTMLOListElement`} and {@link HTMLUListElement|`HTMLUListElement`}. */
-		compact: boolean;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
-		readonly complete: boolean;
-		/** Valid for {@link HTMLMetaElement|`HTMLMetaElement`} and {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
-		content: DocumentFragment | (string & {});
-		/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		readonly contentDocument: Document | null;
-		/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		readonly contentWindow: WindowProxy | null;
-		/** Valid for {@link HTMLLabelElement|`HTMLLabelElement`}. */
-		readonly control: HTMLElement | null;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		controls: boolean;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLAreaElement|`HTMLAreaElement`}. */
-		coords: string;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLLinkElement|`HTMLLinkElement`}, {@link HTMLMediaElement|`HTMLMediaElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		crossOrigin: null | (string & {});
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly currentSrc: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		currentTime: number;
-		/** Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		data: string;
-		/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
-		readonly dataset: DOMStringMap;
-		/** Valid for {@link HTMLModElement|`HTMLModElement`} and {@link HTMLTimeElement|`HTMLTimeElement`}. */
-		dateTime: string;
-		/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		declare: boolean;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
-		decoding: "async" | "sync" | "auto";
-		/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		default: boolean;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		defaultChecked: boolean;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		defaultMuted: boolean;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		defaultPlaybackRate: number;
-		/** Valid for {@link HTMLOptionElement|`HTMLOptionElement`}. */
-		defaultSelected: boolean;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLOutputElement|`HTMLOutputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		defaultValue: string;
-		/** Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		defer: boolean;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		dirName: string;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		disablePictureInPicture: boolean;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		disableRemotePlayback: boolean;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLinkElement|`HTMLLinkElement`}, {@link HTMLOptGroupElement|`HTMLOptGroupElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLSelectElement|`HTMLSelectElement`}, {@link HTMLStyleElement|`HTMLStyleElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		disabled: boolean;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLAreaElement|`HTMLAreaElement`}. */
-		download: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly duration: number;
-		/** Valid for {@link HTMLFieldSetElement|`HTMLFieldSetElement`} and {@link HTMLFormElement|`HTMLFormElement`}. */
-		readonly elements: HTMLCollection | HTMLFormControlsCollection;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
-		encoding: string;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
-		enctype: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly ended: boolean;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly error: MediaError | null;
-		/** @deprecated Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		event: string;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		fetchPriority: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		files: FileList | null;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLabelElement|`HTMLLabelElement`}, {@link HTMLLegendElement|`HTMLLegendElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		readonly form: HTMLFormElement | null;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
-		formAction: string;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
-		formEnctype: string;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
-		formMethod: string;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
-		formNoValidate: boolean;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
-		formTarget: string;
-		/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		frame: string;
-		/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
-		frameBorder: string;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		hash: string;
-		/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
-		headers: string;
-		/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLSourceElement|`HTMLSourceElement`}, {@link HTMLTableCellElement|`HTMLTableCellElement`} and {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		height: number | string;
-		/** Valid for {@link HTMLMeterElement|`HTMLMeterElement`}. */
-		high: number;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		host: string;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		hostname: string;
-		/** Valid for {@link HTMLBaseElement|`HTMLBaseElement`}, {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`} and {@link HTMLLinkElement|`HTMLLinkElement`}. */
-		href: string;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLLinkElement|`HTMLLinkElement`}. */
-		hreflang: string;
-		/** @deprecated Valid for {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		hspace: number;
-		/** Valid for {@link HTMLLabelElement|`HTMLLabelElement`}, {@link HTMLOutputElement|`HTMLOutputElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		htmlFor: DOMTokenList | (string & {});
-		/** Valid for {@link HTMLMetaElement|`HTMLMetaElement`}. */
-		httpEquiv: string;
-		/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}. */
-		imageSizes: string;
-		/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}. */
-		imageSrcset: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		indeterminate: boolean;
-		/** Valid for {@link HTMLOptionElement|`HTMLOptionElement`}. */
-		readonly index: number;
-		/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		integrity: string;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
-		isMap: boolean;
-		/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		kind: string;
-		/** Valid for {@link HTMLOptGroupElement|`HTMLOptGroupElement`}, {@link HTMLOptionElement|`HTMLOptionElement`} and {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		label: string;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLMeterElement|`HTMLMeterElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLProgressElement|`HTMLProgressElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		readonly labels: NodeListOf<HTMLLabelElement> | null;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		length: number;
-		/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}. */
-		link: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		readonly list: HTMLDataListElement | null;
-		/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLImageElement|`HTMLImageElement`}. */
-		loading: "eager" | "lazy" | (string & {});
-		/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLImageElement|`HTMLImageElement`}. */
-		longDesc: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		loop: boolean;
-		/** Valid for {@link HTMLMeterElement|`HTMLMeterElement`}. */
-		low: number;
-		/** @deprecated Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
-		lowsrc: string;
-		/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
-		marginHeight: string;
-		/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
-		marginWidth: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLMeterElement|`HTMLMeterElement`} and {@link HTMLProgressElement|`HTMLProgressElement`}. */
-		max: string | number;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		maxLength: number;
-		/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}, {@link HTMLMetaElement|`HTMLMetaElement`}, {@link HTMLSourceElement|`HTMLSourceElement`} and {@link HTMLStyleElement|`HTMLStyleElement`}. */
-		media: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly mediaKeys: MediaKeys | null;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
-		method: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLMeterElement|`HTMLMeterElement`}. */
-		min: string | number;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		minLength: number;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		multiple: boolean;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		muted: boolean;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLDetailsElement|`HTMLDetailsElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLMapElement|`HTMLMapElement`}, {@link HTMLMetaElement|`HTMLMetaElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`}, {@link HTMLSlotElement|`HTMLSlotElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		name: string;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
-		readonly naturalHeight: number;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
-		readonly naturalWidth: number;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly networkState: number;
-		/** @deprecated Valid for {@link HTMLAreaElement|`HTMLAreaElement`}. */
-		noHref: boolean;
-		/** Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		noModule: boolean;
-		/** @deprecated Valid for {@link HTMLHRElement|`HTMLHRElement`}. */
-		noShade: boolean;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
-		noValidate: boolean;
-		/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
-		noWrap: boolean;
-		/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
-		nonce: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		onencrypted: ((this: HTMLMediaElement, ev: MediaEncryptedEvent) => any) | null;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		onenterpictureinpicture: ((this: HTMLVideoElement, ev: Event) => any) | null;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		onleavepictureinpicture: ((this: HTMLVideoElement, ev: Event) => any) | null;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		onwaitingforkey: ((this: HTMLMediaElement, ev: Event) => any) | null;
-		/** Valid for {@link HTMLDetailsElement|`HTMLDetailsElement`} and {@link HTMLDialogElement|`HTMLDialogElement`}. */
-		open: boolean;
-		/** Valid for {@link HTMLMeterElement|`HTMLMeterElement`}. */
-		optimum: number;
-		/** Valid for {@link HTMLDataListElement|`HTMLDataListElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		readonly options: HTMLCollectionOf<HTMLOptionElement> | HTMLOptionsCollection;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		readonly origin: string;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		password: string;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		pathname: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		pattern: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly paused: boolean;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLAreaElement|`HTMLAreaElement`}. */
-		ping: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		placeholder: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		playbackRate: number;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly played: TimeRanges;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		playsInline: boolean;
-		/** Valid for {@link PopoverInvokerElement|`PopoverInvokerElement`}. */
-		popoverTargetAction: string;
-		/** Valid for {@link PopoverInvokerElement|`PopoverInvokerElement`}. */
-		popoverTargetElement: Element | null;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		port: string;
-		/** Valid for {@link HTMLProgressElement|`HTMLProgressElement`}. */
-		readonly position: number;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		poster: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		preload: "none" | "metadata" | "auto" | "";
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		preservesPitch: boolean;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		protocol: string;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		readOnly: boolean;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`} and {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		readonly readyState: number;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
-		referrerPolicy: ReferrerPolicy | (string & {});
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLFormElement|`HTMLFormElement`} and {@link HTMLLinkElement|`HTMLLinkElement`}. */
-		rel: string;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLFormElement|`HTMLFormElement`} and {@link HTMLLinkElement|`HTMLLinkElement`}. */
-		readonly relList: DOMTokenList;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly remote: RemotePlayback;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		required: boolean;
-		/** Valid for {@link HTMLDialogElement|`HTMLDialogElement`}. */
-		returnValue: string;
-		/** @deprecated Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLLinkElement|`HTMLLinkElement`}. */
-		rev: string;
-		/** Valid for {@link HTMLOListElement|`HTMLOListElement`}. */
-		reversed: boolean;
-		/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
-		readonly rowIndex: number;
-		/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
-		rowSpan: number;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}, {@link HTMLTableSectionElement|`HTMLTableSectionElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		rows: HTMLCollectionOf<HTMLTableRowElement> | number;
-		/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		rules: string;
-		/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
-		readonly sandbox: DOMTokenList;
-		/** @deprecated Valid for {@link HTMLMetaElement|`HTMLMetaElement`}. */
-		scheme: string;
-		/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
-		scope: string;
-		/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
-		scrolling: string;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		search: string;
-		/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
-		readonly sectionRowIndex: number;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly seekable: TimeRanges;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly seeking: boolean;
-		/** Valid for {@link HTMLOptionElement|`HTMLOptionElement`}. */
-		selected: boolean;
-		/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		selectedIndex: number;
-		/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		readonly selectedOptions: HTMLCollectionOf<HTMLOptionElement>;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		selectionDirection: "forward" | "backward" | "none" | null;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		selectionEnd: number | null;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		selectionStart: number | null;
-		/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
-		shadowRootClonable: boolean;
-		/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
-		shadowRootDelegatesFocus: boolean;
-		/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
-		shadowRootMode: string;
-		/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
-		shadowRootSerializable: boolean;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLAreaElement|`HTMLAreaElement`}. */
-		shape: string;
-		/** Valid for {@link LinkStyle|`LinkStyle`}. */
-		readonly sheet: CSSStyleSheet | null;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly sinkId: string;
-		/** Valid for {@link HTMLHRElement|`HTMLHRElement`}, {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		size: string | number;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLSourceElement|`HTMLSourceElement`}. */
-		sizes: DOMTokenList | (string & {});
-		/** Valid for {@link HTMLTableColElement|`HTMLTableColElement`}. */
-		span: number;
-		/** Valid for {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLMediaElement|`HTMLMediaElement`}, {@link HTMLScriptElement|`HTMLScriptElement`}, {@link HTMLSourceElement|`HTMLSourceElement`} and {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		src: string;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		srcObject: MediaProvider | null;
-		/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
-		srcdoc: string;
-		/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		srclang: string;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLSourceElement|`HTMLSourceElement`}. */
-		srcset: string;
-		/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		standby: string;
-		/** Valid for {@link HTMLOListElement|`HTMLOListElement`}. */
-		start: number;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		step: string;
-		/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		summary: string;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		readonly tBodies: HTMLCollectionOf<HTMLTableSectionElement>;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		tFoot: HTMLTableSectionElement | null;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		tHead: HTMLTableSectionElement | null;
-		/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
-		tabIndex: number;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLBaseElement|`HTMLBaseElement`}, {@link HTMLFormElement|`HTMLFormElement`} and {@link HTMLLinkElement|`HTMLLinkElement`}. */
-		target: string;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLBodyElement|`HTMLBodyElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLScriptElement|`HTMLScriptElement`} and {@link HTMLTitleElement|`HTMLTitleElement`}. */
-		text: string;
-		/** Valid for {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		readonly textLength: number;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		readonly textTracks: TextTrackList;
-		/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
-		readonly track: TextTrack;
-		/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLIElement|`HTMLLIElement`}, {@link HTMLLinkElement|`HTMLLinkElement`}, {@link HTMLOListElement|`HTMLOListElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLScriptElement|`HTMLScriptElement`}, {@link HTMLSelectElement|`HTMLSelectElement`}, {@link HTMLSourceElement|`HTMLSourceElement`}, {@link HTMLStyleElement|`HTMLStyleElement`}, {@link HTMLTextAreaElement|`HTMLTextAreaElement`} and {@link HTMLUListElement|`HTMLUListElement`}. */
-		type: "submit" | "reset" | "button" | "select-one" | "select-multiple" | (string & {});
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		useMap: string;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		username: string;
-		/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableRowElement|`HTMLTableRowElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
-		vAlign: string;
-		/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}. */
-		vLink: string;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		readonly validationMessage: string;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		readonly validity: ValidityState;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLDataElement|`HTMLDataElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLIElement|`HTMLLIElement`}, {@link HTMLMeterElement|`HTMLMeterElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLProgressElement|`HTMLProgressElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		value: string | number;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		valueAsDate: Date | null;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		valueAsNumber: number;
-		/** @deprecated Valid for {@link HTMLHtmlElement|`HTMLHtmlElement`}. */
-		version: string;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		readonly videoHeight: number;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		readonly videoWidth: number;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		volume: number;
-		/** @deprecated Valid for {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		vspace: number;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		readonly webkitEntries: ReadonlyArray<FileSystemEntry>;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		webkitdirectory: boolean;
-		/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLHRElement|`HTMLHRElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLPreElement|`HTMLPreElement`}, {@link HTMLSourceElement|`HTMLSourceElement`}, {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableElement|`HTMLTableElement`} and {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		width: number | string;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		readonly willValidate: boolean;
-		/** Valid for {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		wrap: string;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
-		readonly x: number;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
-		readonly y: number;
-		/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		add(element: HTMLOptionElement | HTMLOptGroupElement, before?: HTMLElement | number | null): void;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		addTextTrack(kind: TextTrackKind, label?: string, language?: string): TextTrack;
-		/** Valid for {@link HTMLSlotElement|`HTMLSlotElement`}. */
-		assign(...nodes: (Element | Text)[]): void;
-		/** Valid for {@link HTMLSlotElement|`HTMLSlotElement`}. */
-		assignedElements(options?: AssignedNodesOptions): Element[];
-		/** Valid for {@link HTMLSlotElement|`HTMLSlotElement`}. */
-		assignedNodes(options?: AssignedNodesOptions): Node[];
-		/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
-		blur(): void;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		canPlayType(type: string): CanPlayTypeResult;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		cancelVideoFrameCallback(handle: number): void;
-		/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
-		captureStream(frameRequestRate?: number): MediaStream;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		checkValidity(): boolean;
-		/** Valid for {@link HTMLDialogElement|`HTMLDialogElement`}. */
-		close(returnValue?: string): void;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		createCaption(): HTMLTableCaptionElement;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		createTBody(): HTMLTableSectionElement;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		createTFoot(): HTMLTableSectionElement;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		createTHead(): HTMLTableSectionElement;
-		/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
-		decode(): Promise<void>;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		deleteCaption(): void;
-		/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
-		deleteCell(index: number): void;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
-		deleteRow(index: number): void;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		deleteTFoot(): void;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
-		deleteTHead(): void;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		fastSeek(time: number): void;
-		/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
-		focus(options?: FocusOptions): void;
-		/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
-		getContext(contextId: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D | null;
-		getContext(contextId: "bitmaprenderer", options?: ImageBitmapRenderingContextSettings): ImageBitmapRenderingContext | null;
-		getContext(contextId: "webgl", options?: WebGLContextAttributes): WebGLRenderingContext | null;
-		getContext(contextId: "webgl2", options?: WebGLContextAttributes): WebGL2RenderingContext | null;
-		getContext(contextId: string, options?: any): RenderingContext | null;
-		/** Valid for {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
-		getSVGDocument(): Document | null;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		getVideoPlaybackQuality(): VideoPlaybackQuality;
-		/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
-		insertCell(index?: number): HTMLTableCellElement;
-		/** Valid for {@link HTMLTableElement|`HTMLTableElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
-		insertRow(index?: number): HTMLTableRowElement;
-		/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		item(index: number): HTMLOptionElement | null;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		load(): void;
-		/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		namedItem(name: string): HTMLOptionElement | null;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		pause(): void;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		play(): Promise<void>;
-		/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		remove(): void;
-		remove(index: number): void;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		reportValidity(): boolean;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		requestPictureInPicture(): Promise<PictureInPictureWindow>;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
-		requestSubmit(submitter?: HTMLElement | null): void;
-		/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-		requestVideoFrameCallback(callback: VideoFrameRequestCallback): number;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
-		reset(): void;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		select(): void;
-		/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		setCustomValidity(error: string): void;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		setMediaKeys(mediaKeys: MediaKeys | null): Promise<void>;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		setRangeText(replacement: string): void;
-		setRangeText(replacement: string, start: number, end: number, selectionMode?: SelectionMode): void;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
-		setSelectionRange(start: number | null, end: number | null, direction?: "forward" | "backward" | "none"): void;
-		/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
-		setSinkId(sinkId: string): Promise<void>;
-		/** Valid for {@link HTMLDialogElement|`HTMLDialogElement`}. */
-		show(): void;
-		/** Valid for {@link HTMLDialogElement|`HTMLDialogElement`}. */
-		showModal(): void;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
-		showPicker(): void;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		stepDown(n?: number): void;
-		/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
-		stepUp(n?: number): void;
-		/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
-		submit(): void;
-		/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
-		toBlob(callback: BlobCallback, type?: string, quality?: any): void;
-		/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
-		toDataURL(type?: string, quality?: any): string;
-		/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
-		toString(): string;
-		/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
-		transferControlToOffscreen(): OffscreenCanvas;
-		[name: number]: HTMLOptionElement | HTMLOptGroupElement;
-		[Symbol.iterator](): IterableIterator<HTMLOptionElement>;
+	interface ChildNodeAttributes extends ElementAttributes.NodeAttributes {
 	}
+
+	interface ElementAttributes extends ElementAttributes.NodeAttributes, ElementAttributes.ARIAMixinAttributes, ElementAttributes.AnimatableAttributes, ElementAttributes.ChildNodeAttributes, ElementAttributes.NonDocumentTypeChildNodeAttributes, ElementAttributes.ParentNodeAttributes, ElementAttributes.SlottableAttributes, WinzigTypes.GlobalEventHandlers, WinzigTypes.ElementEventHandlers {
+		className?: string;
+		id?: string;
+		innerHTML?: string;
+		outerHTML?: string;
+		scrollLeft?: number;
+		scrollTop?: number;
+		slot?: string;
+	}
+
+	interface ElementCSSInlineStyleAttributes {
+		style?: string;
+	}
+
+	interface ElementContentEditableAttributes {
+		contentEditable?: "true" | "false" | "plaintext-only" | "inherit";
+		enterKeyHint?: "enter" | "done" | "go" | "next" | "previous" | "search" | "send";
+		inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
+	}
+
+	interface EventTargetAttributes {
+	}
+
+	interface HTMLAnchorElementAttributes extends ElementAttributes.HTMLElementAttributes, ElementAttributes.HTMLHyperlinkElementUtilsAttributes {
+		download?: string;
+		hreflang?: string;
+		ping?: string;
+		referrerPolicy?: ReferrerPolicy;
+		rel?: "alternate" | "canonical" | "author" | "bookmark" | "dns-prefetch" | "expect" | "external" | "help" | "icon" | "manifest" | "modulepreload" | "license" | "next" | "nofollow" | "noopener" | "noreferrer" | "opener" | "pingback" | "preconnect" | "prefetch" | "preload" | "prev" | "privacy-policy" | "search" | "stylesheet" | "tag" | "terms-of-service" | "about" | "archived" | "attachment" | "category" | "code-repository" | "code-license" | "component" | "chrome-webstore-item" | "content-repository" | "content-license" | "disclosure" | "discussion" | "donation" | "edit" | "enclosure" | "sitemap" | (string & {});
+		relList?: string;
+		target?: "_blank" | "_self" | "_parent" | "_top" | (string & {});
+		text?: string;
+		type?: string;
+	}
+
+	interface HTMLAreaElementAttributes extends ElementAttributes.HTMLElementAttributes, ElementAttributes.HTMLHyperlinkElementUtilsAttributes {
+		alt?: string;
+		coords?: string;
+		download?: string;
+		ping?: string;
+		referrerPolicy?: ReferrerPolicy;
+		rel?: "alternate" | "canonical" | "author" | "bookmark" | "dns-prefetch" | "expect" | "external" | "help" | "icon" | "manifest" | "modulepreload" | "license" | "next" | "nofollow" | "noopener" | "noreferrer" | "opener" | "pingback" | "preconnect" | "prefetch" | "preload" | "prev" | "privacy-policy" | "search" | "stylesheet" | "tag" | "terms-of-service" | "about" | "archived" | "attachment" | "category" | "code-repository" | "code-license" | "component" | "chrome-webstore-item" | "content-repository" | "content-license" | "disclosure" | "discussion" | "donation" | "edit" | "enclosure" | "sitemap" | (string & {});
+		relList?: string;
+		shape?: "circle" | "default" | "poly" | "rect";
+		target?: "_blank" | "_self" | "_parent" | "_top" | (string & {});
+	}
+
+	interface HTMLAudioElementAttributes extends ElementAttributes.HTMLMediaElementAttributes {
+	}
+
+	interface HTMLBRElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLBaseElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		href?: string;
+		target?: string;
+	}
+
+	interface HTMLBodyElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLButtonElementAttributes extends ElementAttributes.HTMLElementAttributes, ElementAttributes.PopoverInvokerElementAttributes {
+		disabled?: boolean;
+		formAction?: string;
+		formEnctype?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
+		formMethod?: "get" | "post" | "dialog";
+		formNoValidate?: boolean;
+		formTarget?: "_blank" | "_self" | "_parent" | "_top" | (string & {});
+		name?: string;
+		type?: "submit" | "reset" | "button";
+		value?: string;
+	}
+
+	interface HTMLCanvasElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		height?: number;
+		width?: number;
+	}
+
+	interface HTMLDListElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLDataElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		value?: string;
+	}
+
+	interface HTMLDataListElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLDetailsElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		name?: string;
+		open?: boolean;
+	}
+
+	interface HTMLDialogElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		open?: boolean;
+		returnValue?: string;
+	}
+
+	interface HTMLDivElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLElementAttributes extends ElementAttributes.ElementAttributes, ElementAttributes.ElementCSSInlineStyleAttributes, ElementAttributes.ElementContentEditableAttributes, ElementAttributes.HTMLOrSVGElementAttributes {
+		accessKey?: string;
+		autocapitalize?: "off" | "none" | "on" | "sentences" | "words" | "characters";
+		autocorrect?: boolean;
+		dir?: "auto" | "manual" | null;
+		draggable?: boolean;
+		hidden?: boolean | "until-found";
+		inert?: boolean;
+		innerText?: string;
+		lang?: string;
+		outerText?: string;
+		popover?: string | null;
+		spellcheck?: boolean;
+		title?: string;
+		translate?: boolean;
+		writingSuggestions?: "true" | "false";
+	}
+
+	interface HTMLEmbedElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		height?: string;
+		src?: string;
+		type?: string;
+		width?: string;
+	}
+
+	interface HTMLFieldSetElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		disabled?: boolean;
+		name?: string;
+	}
+
+	interface HTMLFormElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		acceptCharset?: string;
+		action?: string;
+		autocomplete?: AutoFillBase;
+		encoding?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
+		enctype?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
+		method?: "get" | "post" | "dialog";
+		name?: string;
+		noValidate?: boolean;
+		rel?: "alternate" | "canonical" | "author" | "bookmark" | "dns-prefetch" | "expect" | "external" | "help" | "icon" | "manifest" | "modulepreload" | "license" | "next" | "nofollow" | "noopener" | "noreferrer" | "opener" | "pingback" | "preconnect" | "prefetch" | "preload" | "prev" | "privacy-policy" | "search" | "stylesheet" | "tag" | "terms-of-service" | "about" | "archived" | "attachment" | "category" | "code-repository" | "code-license" | "component" | "chrome-webstore-item" | "content-repository" | "content-license" | "disclosure" | "discussion" | "donation" | "edit" | "enclosure" | "sitemap" | (string & {});
+		relList?: string;
+		target?: string;
+	}
+
+	interface HTMLHRElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLHeadElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLHeadingElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLHtmlElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLHyperlinkElementUtilsAttributes {
+		hash?: string;
+		host?: string;
+		hostname?: string;
+		href?: string;
+		password?: string;
+		pathname?: string;
+		port?: string;
+		protocol?: string;
+		search?: string;
+		username?: string;
+	}
+
+	interface HTMLIFrameElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		allow?: string;
+		allowFullscreen?: boolean;
+		height?: string;
+		loading?: string;
+		name?: string;
+		referrerPolicy?: ReferrerPolicy;
+		sandbox?: string;
+		src?: string;
+		srcdoc?: string;
+		width?: string;
+	}
+
+	interface HTMLImageElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		alt?: string;
+		crossOrigin?: "anonymous" | "use-credentials" | "" | null;
+		decoding?: "async" | "sync" | "auto";
+		fetchPriority?: "high" | "low" | "auto";
+		height?: number;
+		isMap?: boolean;
+		loading?: "eager" | "lazy";
+		referrerPolicy?: ReferrerPolicy;
+		sizes?: string;
+		src?: string;
+		srcset?: string;
+		useMap?: string;
+		width?: number;
+	}
+
+	interface HTMLInputElementAttributes extends ElementAttributes.HTMLElementAttributes, ElementAttributes.PopoverInvokerElementAttributes {
+		accept?: string;
+		alt?: string;
+		autocomplete?: AutoFill;
+		capture?: "user" | "environment" | "";
+		checked?: boolean;
+		defaultChecked?: boolean;
+		defaultValue?: string;
+		dirName?: string;
+		disabled?: boolean;
+		files?: FileList | null;
+		formAction?: string;
+		formEnctype?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
+		formMethod?: "get" | "post" | "dialog";
+		formNoValidate?: boolean;
+		formTarget?: "_blank" | "_self" | "_parent" | "_top" | (string & {});
+		height?: number;
+		indeterminate?: boolean;
+		max?: string;
+		maxLength?: number;
+		min?: string;
+		minLength?: number;
+		multiple?: boolean;
+		name?: string;
+		pattern?: string;
+		placeholder?: string;
+		readOnly?: boolean;
+		required?: boolean;
+		selectionDirection?: "forward" | "backward" | "none" | null;
+		selectionEnd?: number | null;
+		selectionStart?: number | null;
+		size?: number;
+		src?: string;
+		step?: string;
+		type?: "hidden" | "text" | "search" | "tel" | "url" | "email" | "password" | "date" | "month" | "week" | "time" | "datetime-local" | "number" | "range" | "color" | "checkbox" | "radio" | "file" | "submit" | "image" | "reset" | "button";
+		value?: string;
+		valueAsDate?: Date | null;
+		valueAsNumber?: number;
+		webkitdirectory?: boolean;
+		width?: number;
+	}
+
+	interface HTMLLIElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		value?: number;
+	}
+
+	interface HTMLLabelElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		htmlFor?: string;
+	}
+
+	interface HTMLLegendElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLLinkElementAttributes extends ElementAttributes.HTMLElementAttributes, ElementAttributes.LinkStyleAttributes {
+		as?: "fetch" | "audio" | "audioworklet" | "document" | "embed" | "font" | "frame" | "iframe" | "image" | "json" | "manifest" | "object" | "paintworklet" | "report" | "script" | "serviceworker" | "sharedworker" | "style" | "track" | "video" | "webidentity" | "worker" | "xslt";
+		blocking?: string;
+		crossOrigin?: "anonymous" | "use-credentials" | "" | null;
+		disabled?: boolean;
+		fetchPriority?: "high" | "low" | "auto";
+		href?: string;
+		hreflang?: string;
+		imageSizes?: string;
+		imageSrcset?: string;
+		integrity?: string;
+		media?: string;
+		referrerPolicy?: ReferrerPolicy;
+		rel?: "alternate" | "canonical" | "author" | "bookmark" | "dns-prefetch" | "expect" | "external" | "help" | "icon" | "manifest" | "modulepreload" | "license" | "next" | "nofollow" | "noopener" | "noreferrer" | "opener" | "pingback" | "preconnect" | "prefetch" | "preload" | "prev" | "privacy-policy" | "search" | "stylesheet" | "tag" | "terms-of-service" | "about" | "archived" | "attachment" | "category" | "code-repository" | "code-license" | "component" | "chrome-webstore-item" | "content-repository" | "content-license" | "disclosure" | "discussion" | "donation" | "edit" | "enclosure" | "sitemap" | (string & {});
+		relList?: string;
+		sizes?: string;
+		type?: string;
+	}
+
+	interface HTMLMapElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		name?: string;
+	}
+
+	interface HTMLMediaElementAttributes extends ElementAttributes.HTMLElementAttributes, WinzigTypes.HTMLMediaElementEventHandlers {
+		autoplay?: boolean;
+		controls?: boolean;
+		crossOrigin?: "anonymous" | "use-credentials" | "" | null;
+		currentTime?: number;
+		defaultMuted?: boolean;
+		defaultPlaybackRate?: number;
+		disableRemotePlayback?: boolean;
+		loop?: boolean;
+		muted?: boolean;
+		playbackRate?: number;
+		preload?: "none" | "metadata" | "auto" | "";
+		preservesPitch?: boolean;
+		src?: string;
+		srcObject?: MediaProvider | null;
+		volume?: number;
+	}
+
+	interface HTMLMenuElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLMetaElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		content?: string;
+		httpEquiv?: "content-language" | "content-type" | "default-style" | "refresh" | "set-cookie" | "x-ua-compatible" | "content-security-policy" | "origin-trial" | (string & {});
+		media?: string;
+		name?: "application-name" | "author" | "description" | "generator" | "keywords" | "referrer" | "theme-color" | "color-scheme" | "license" | "robots" | "viewport" | "version" | "twitter:card" | "twitter:site" | "twitter:site:id" | "twitter:creator" | "twitter:creator:id" | "twitter:description" | "twitter:title" | "twitter:image" | "twitter:image:alt" | "twitter:player" | "twitter:player:width" | "twitter:player:height" | "twitter:player:stream" | "twitter:app:name:iphone" | "twitter:app:id:iphone" | "twitter:app:url:iphone" | "twitter:app:name:ipad" | "twitter:app:id:ipad" | "twitter:app:url:ipad" | "twitter:app:name:googleplay" | "twitter:app:id:googleplay" | "twitter:app:url:googleplay" | "app-title" | (string & {});
+		property?: "og:title" | "og:type" | "og:image" | "og:url" | "og:audio" | "og:description" | "og:determiner" | "og:locale" | "og:locale:alternate" | "og:site_name" | "og:video" | "og:image" | "og:image:url" | "og:image" | "og:image:secure_url" | "og:image:type" | "og:image:width" | "og:image:height" | "og:image:alt" | "og:image:alt" | "og:video" | "og:image" | "og:audio" | "og:type" | "og:type" | "og:type" | "og:type" | "og:type" | "og:type" | (string & {});
+	}
+
+	interface HTMLMeterElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		high?: number;
+		low?: number;
+		max?: number;
+		min?: number;
+		optimum?: number;
+		value?: number;
+	}
+
+	interface HTMLModElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		cite?: string;
+		dateTime?: string;
+	}
+
+	interface HTMLOListElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		reversed?: boolean;
+		start?: number;
+		type?: "1" | "a" | "A" | "i" | "I";
+	}
+
+	interface HTMLObjectElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		data?: string;
+		height?: string;
+		name?: string;
+		type?: string;
+		width?: string;
+	}
+
+	interface HTMLOptGroupElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		disabled?: boolean;
+		label?: string;
+	}
+
+	interface HTMLOptionElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		defaultSelected?: boolean;
+		disabled?: boolean;
+		label?: string;
+		selected?: boolean;
+		text?: string;
+		value?: string;
+	}
+
+	interface HTMLOrSVGElementAttributes {
+		autofocus?: boolean;
+		nonce?: string;
+		tabIndex?: number;
+	}
+
+	interface HTMLOutputElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		defaultValue?: string;
+		htmlFor?: string;
+		name?: string;
+		value?: string;
+	}
+
+	interface HTMLParagraphElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLPictureElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLPreElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLProgressElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		max?: number;
+		value?: number;
+	}
+
+	interface HTMLQuoteElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		cite?: string;
+	}
+
+	interface HTMLScriptElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		async?: boolean;
+		blocking?: string;
+		crossOrigin?: "anonymous" | "use-credentials" | "" | null;
+		defer?: boolean;
+		fetchPriority?: "high" | "low" | "auto";
+		integrity?: string;
+		noModule?: boolean;
+		referrerPolicy?: ReferrerPolicy;
+		src?: string;
+		text?: string;
+		type?: string;
+	}
+
+	interface HTMLSelectElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		autocomplete?: AutoFill;
+		disabled?: boolean;
+		length?: number;
+		multiple?: boolean;
+		name?: string;
+		required?: boolean;
+		selectedIndex?: number;
+		size?: number;
+		value?: string;
+	}
+
+	interface HTMLSlotElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		name?: string;
+	}
+
+	interface HTMLSourceElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		height?: number;
+		media?: string;
+		sizes?: string;
+		src?: string;
+		srcset?: string;
+		type?: string;
+		width?: number;
+	}
+
+	interface HTMLSpanElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLStyleElementAttributes extends ElementAttributes.HTMLElementAttributes, ElementAttributes.LinkStyleAttributes {
+		blocking?: string;
+		disabled?: boolean;
+		media?: string;
+	}
+
+	interface HTMLTableCaptionElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLTableCellElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		abbr?: string;
+		colSpan?: number;
+		headers?: string;
+		rowSpan?: number;
+		scope?: string;
+	}
+
+	interface HTMLTableColElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		span?: number;
+	}
+
+	interface HTMLTableDataCellElementAttributes extends ElementAttributes.HTMLTableCellElementAttributes {
+	}
+
+	interface HTMLTableElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		caption?: HTMLTableCaptionElement | null;
+		tFoot?: HTMLTableSectionElement | null;
+		tHead?: HTMLTableSectionElement | null;
+	}
+
+	interface HTMLTableHeaderCellElementAttributes extends ElementAttributes.HTMLTableCellElementAttributes {
+	}
+
+	interface HTMLTableRowElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLTableSectionElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLTemplateElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		shadowRootClonable?: boolean;
+		shadowRootDelegatesFocus?: boolean;
+		shadowRootMode?: string;
+		shadowRootSerializable?: boolean;
+	}
+
+	interface HTMLTextAreaElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		autocomplete?: AutoFill;
+		cols?: number;
+		defaultValue?: string;
+		dirName?: string;
+		disabled?: boolean;
+		maxLength?: number;
+		minLength?: number;
+		name?: string;
+		placeholder?: string;
+		readOnly?: boolean;
+		required?: boolean;
+		rows?: number;
+		selectionDirection?: "forward" | "backward" | "none";
+		selectionEnd?: number;
+		selectionStart?: number;
+		value?: string;
+		wrap?: string;
+	}
+
+	interface HTMLTimeElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		dateTime?: string;
+	}
+
+	interface HTMLTitleElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		text?: string;
+	}
+
+	interface HTMLTrackElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		default?: boolean;
+		kind?: string;
+		label?: string;
+		src?: string;
+		srclang?: string;
+	}
+
+	interface HTMLUListElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLUnknownElementAttributes extends ElementAttributes.HTMLElementAttributes {
+	}
+
+	interface HTMLVideoElementAttributes extends ElementAttributes.HTMLMediaElementAttributes, WinzigTypes.HTMLVideoElementEventHandlers {
+		disablePictureInPicture?: boolean;
+		height?: number;
+		playsInline?: boolean;
+		poster?: string;
+		width?: number;
+	}
+
+	interface LinkStyleAttributes {
+	}
+
+	interface MathMLElementAttributes extends ElementAttributes.ElementAttributes, ElementAttributes.ElementCSSInlineStyleAttributes, ElementAttributes.HTMLOrSVGElementAttributes {
+	}
+
+	interface NodeAttributes extends ElementAttributes.EventTargetAttributes {
+		nodeValue?: string | null;
+		textContent?: string | null;
+	}
+
+	interface NonDocumentTypeChildNodeAttributes {
+	}
+
+	interface ParentNodeAttributes extends ElementAttributes.NodeAttributes {
+	}
+
+	interface PopoverInvokerElementAttributes {
+		popoverTargetAction?: string;
+		popoverTargetElement?: Element | null;
+	}
+
+	interface SVGAElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+		rel?: string;
+	}
+
+	interface SVGAnimateElementAttributes extends ElementAttributes.SVGAnimationElementAttributes {
+	}
+
+	interface SVGAnimateMotionElementAttributes extends ElementAttributes.SVGAnimationElementAttributes {
+	}
+
+	interface SVGAnimateTransformElementAttributes extends ElementAttributes.SVGAnimationElementAttributes {
+	}
+
+	interface SVGAnimatedPointsAttributes {
+	}
+
+	interface SVGAnimationElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGTestsAttributes {
+	}
+
+	interface SVGCircleElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+	}
+
+	interface SVGClipPathElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGComponentTransferFunctionElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGDefsElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
+	}
+
+	interface SVGDescElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGElementAttributes extends ElementAttributes.ElementAttributes, ElementAttributes.ElementCSSInlineStyleAttributes, ElementAttributes.HTMLOrSVGElementAttributes {
+	}
+
+	interface SVGEllipseElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+	}
+
+	interface SVGFEBlendElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEColorMatrixElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEComponentTransferElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFECompositeElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEConvolveMatrixElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEDiffuseLightingElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEDisplacementMapElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEDistantLightElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGFEDropShadowElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEFloodElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEFuncAElementAttributes extends ElementAttributes.SVGComponentTransferFunctionElementAttributes {
+	}
+
+	interface SVGFEFuncBElementAttributes extends ElementAttributes.SVGComponentTransferFunctionElementAttributes {
+	}
+
+	interface SVGFEFuncGElementAttributes extends ElementAttributes.SVGComponentTransferFunctionElementAttributes {
+	}
+
+	interface SVGFEFuncRElementAttributes extends ElementAttributes.SVGComponentTransferFunctionElementAttributes {
+	}
+
+	interface SVGFEGaussianBlurElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEImageElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes, ElementAttributes.SVGURIReferenceAttributes {
+	}
+
+	interface SVGFEMergeElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEMergeNodeElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGFEMorphologyElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEOffsetElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFEPointLightElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGFESpecularLightingElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFESpotLightElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGFETileElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFETurbulenceElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFilterElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+	}
+
+	interface SVGFilterPrimitiveStandardAttributesAttributes {
+	}
+
+	interface SVGFitToViewBoxAttributes {
+	}
+
+	interface SVGForeignObjectElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
+	}
+
+	interface SVGGElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
+	}
+
+	interface SVGGeometryElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
+	}
+
+	interface SVGGradientElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+	}
+
+	interface SVGGraphicsElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGTestsAttributes {
+	}
+
+	interface SVGImageElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+		crossOrigin?: string | null;
+	}
+
+	interface SVGLineElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+	}
+
+	interface SVGLinearGradientElementAttributes extends ElementAttributes.SVGGradientElementAttributes {
+	}
+
+	interface SVGMPathElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+	}
+
+	interface SVGMarkerElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFitToViewBoxAttributes {
+	}
+
+	interface SVGMaskElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGMetadataElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGPathElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+	}
+
+	interface SVGPatternElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFitToViewBoxAttributes, ElementAttributes.SVGURIReferenceAttributes {
+	}
+
+	interface SVGPolygonElementAttributes extends ElementAttributes.SVGGeometryElementAttributes, ElementAttributes.SVGAnimatedPointsAttributes {
+	}
+
+	interface SVGPolylineElementAttributes extends ElementAttributes.SVGGeometryElementAttributes, ElementAttributes.SVGAnimatedPointsAttributes {
+	}
+
+	interface SVGRadialGradientElementAttributes extends ElementAttributes.SVGGradientElementAttributes {
+	}
+
+	interface SVGRectElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+	}
+
+	interface SVGSVGElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes, ElementAttributes.SVGFitToViewBoxAttributes {
+		currentScale?: number;
+	}
+
+	interface SVGScriptElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+		type?: string;
+	}
+
+	interface SVGSetElementAttributes extends ElementAttributes.SVGAnimationElementAttributes {
+	}
+
+	interface SVGStopElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGStyleElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.LinkStyleAttributes {
+		disabled?: boolean;
+		media?: string;
+		title?: string;
+	}
+
+	interface SVGSwitchElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
+	}
+
+	interface SVGSymbolElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFitToViewBoxAttributes {
+	}
+
+	interface SVGTSpanElementAttributes extends ElementAttributes.SVGTextPositioningElementAttributes {
+	}
+
+	interface SVGTestsAttributes {
+	}
+
+	interface SVGTextContentElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
+	}
+
+	interface SVGTextElementAttributes extends ElementAttributes.SVGTextPositioningElementAttributes {
+	}
+
+	interface SVGTextPathElementAttributes extends ElementAttributes.SVGTextContentElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+	}
+
+	interface SVGTextPositioningElementAttributes extends ElementAttributes.SVGTextContentElementAttributes {
+	}
+
+	interface SVGTitleElementAttributes extends ElementAttributes.SVGElementAttributes {
+	}
+
+	interface SVGURIReferenceAttributes {
+	}
+
+	interface SVGUseElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+	}
+
+	interface SVGViewElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFitToViewBoxAttributes {
+	}
+
+	interface SlottableAttributes {
+	}
+}
+
+interface GetHTMLOptions { }
+interface PointerLockOptions { }
+
+export interface WinzigGenericElement extends GlobalEventHandlers {
+	/** Valid for {@link Node|`Node`}. */
+	readonly ATTRIBUTE_NODE: 2;
+	/** Valid for {@link Node|`Node`}. */
+	readonly CDATA_SECTION_NODE: 4;
+	/** Valid for {@link Node|`Node`}. */
+	readonly COMMENT_NODE: 8;
+	/** Valid for {@link Node|`Node`}. */
+	readonly DOCUMENT_FRAGMENT_NODE: 11;
+	/** Valid for {@link Node|`Node`}. */
+	readonly DOCUMENT_NODE: 9;
+	/** Valid for {@link Node|`Node`}. */
+	readonly DOCUMENT_POSITION_CONTAINED_BY: 0x10;
+	/** Valid for {@link Node|`Node`}. */
+	readonly DOCUMENT_POSITION_CONTAINS: 0x08;
+	/** Valid for {@link Node|`Node`}. */
+	readonly DOCUMENT_POSITION_DISCONNECTED: 0x01;
+	/** Valid for {@link Node|`Node`}. */
+	readonly DOCUMENT_POSITION_FOLLOWING: 0x04;
+	/** Valid for {@link Node|`Node`}. */
+	readonly DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC: 0x20;
+	/** Valid for {@link Node|`Node`}. */
+	readonly DOCUMENT_POSITION_PRECEDING: 0x02;
+	/** Valid for {@link Node|`Node`}. */
+	readonly DOCUMENT_TYPE_NODE: 10;
+	/** Valid for {@link Node|`Node`}. */
+	readonly ELEMENT_NODE: 1;
+	/** Valid for {@link Node|`Node`}. */
+	readonly ENTITY_NODE: 6;
+	/** Valid for {@link Node|`Node`}. */
+	readonly ENTITY_REFERENCE_NODE: 5;
+	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	readonly ERROR: 3;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly HAVE_CURRENT_DATA: 2;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly HAVE_ENOUGH_DATA: 4;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly HAVE_FUTURE_DATA: 3;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly HAVE_METADATA: 1;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly HAVE_NOTHING: 0;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	readonly LENGTHADJUST_SPACING: 1;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	readonly LENGTHADJUST_SPACINGANDGLYPHS: 2;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	readonly LENGTHADJUST_UNKNOWN: 0;
+	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	readonly LOADED: 2;
+	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	readonly LOADING: 1;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly NETWORK_EMPTY: 0;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly NETWORK_IDLE: 1;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly NETWORK_LOADING: 2;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly NETWORK_NO_SOURCE: 3;
+	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	readonly NONE: 0;
+	/** Valid for {@link Node|`Node`}. */
+	readonly NOTATION_NODE: 12;
+	/** Valid for {@link Node|`Node`}. */
+	readonly PROCESSING_INSTRUCTION_NODE: 7;
+	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
+	readonly SVG_CHANNEL_A: 4;
+	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
+	readonly SVG_CHANNEL_B: 3;
+	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
+	readonly SVG_CHANNEL_G: 2;
+	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
+	readonly SVG_CHANNEL_R: 1;
+	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
+	readonly SVG_CHANNEL_UNKNOWN: 0;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly SVG_EDGEMODE_DUPLICATE: 1;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly SVG_EDGEMODE_NONE: 3;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly SVG_EDGEMODE_UNKNOWN: 0;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly SVG_EDGEMODE_WRAP: 2;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_COLOR: 15;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_COLOR_BURN: 8;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_COLOR_DODGE: 7;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_DARKEN: 4;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_DIFFERENCE: 11;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_EXCLUSION: 12;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_HARD_LIGHT: 9;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_HUE: 13;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_LIGHTEN: 5;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_LUMINOSITY: 16;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_MULTIPLY: 2;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_NORMAL: 1;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_OVERLAY: 6;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_SATURATION: 14;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_SCREEN: 3;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_SOFT_LIGHT: 10;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly SVG_FEBLEND_MODE_UNKNOWN: 0;
+	/** Valid for {@link SVGFEColorMatrixElement|`SVGFEColorMatrixElement`}. */
+	readonly SVG_FECOLORMATRIX_TYPE_HUEROTATE: 3;
+	/** Valid for {@link SVGFEColorMatrixElement|`SVGFEColorMatrixElement`}. */
+	readonly SVG_FECOLORMATRIX_TYPE_LUMINANCETOALPHA: 4;
+	/** Valid for {@link SVGFEColorMatrixElement|`SVGFEColorMatrixElement`}. */
+	readonly SVG_FECOLORMATRIX_TYPE_MATRIX: 1;
+	/** Valid for {@link SVGFEColorMatrixElement|`SVGFEColorMatrixElement`}. */
+	readonly SVG_FECOLORMATRIX_TYPE_SATURATE: 2;
+	/** Valid for {@link SVGFEColorMatrixElement|`SVGFEColorMatrixElement`}. */
+	readonly SVG_FECOLORMATRIX_TYPE_UNKNOWN: 0;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly SVG_FECOMPONENTTRANSFER_TYPE_DISCRETE: 3;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly SVG_FECOMPONENTTRANSFER_TYPE_GAMMA: 5;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly SVG_FECOMPONENTTRANSFER_TYPE_IDENTITY: 1;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly SVG_FECOMPONENTTRANSFER_TYPE_LINEAR: 4;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly SVG_FECOMPONENTTRANSFER_TYPE_TABLE: 2;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly SVG_FECOMPONENTTRANSFER_TYPE_UNKNOWN: 0;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly SVG_FECOMPOSITE_OPERATOR_ARITHMETIC: 6;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly SVG_FECOMPOSITE_OPERATOR_ATOP: 4;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly SVG_FECOMPOSITE_OPERATOR_IN: 2;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly SVG_FECOMPOSITE_OPERATOR_OUT: 3;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly SVG_FECOMPOSITE_OPERATOR_OVER: 1;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly SVG_FECOMPOSITE_OPERATOR_UNKNOWN: 0;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly SVG_FECOMPOSITE_OPERATOR_XOR: 5;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly SVG_MARKERUNITS_STROKEWIDTH: 2;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly SVG_MARKERUNITS_UNKNOWN: 0;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly SVG_MARKERUNITS_USERSPACEONUSE: 1;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly SVG_MARKER_ORIENT_ANGLE: 2;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly SVG_MARKER_ORIENT_AUTO: 1;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly SVG_MARKER_ORIENT_UNKNOWN: 0;
+	/** Valid for {@link SVGFEMorphologyElement|`SVGFEMorphologyElement`}. */
+	readonly SVG_MORPHOLOGY_OPERATOR_DILATE: 2;
+	/** Valid for {@link SVGFEMorphologyElement|`SVGFEMorphologyElement`}. */
+	readonly SVG_MORPHOLOGY_OPERATOR_ERODE: 1;
+	/** Valid for {@link SVGFEMorphologyElement|`SVGFEMorphologyElement`}. */
+	readonly SVG_MORPHOLOGY_OPERATOR_UNKNOWN: 0;
+	/** Valid for {@link SVGGradientElement|`SVGGradientElement`}. */
+	readonly SVG_SPREADMETHOD_PAD: 1;
+	/** Valid for {@link SVGGradientElement|`SVGGradientElement`}. */
+	readonly SVG_SPREADMETHOD_REFLECT: 2;
+	/** Valid for {@link SVGGradientElement|`SVGGradientElement`}. */
+	readonly SVG_SPREADMETHOD_REPEAT: 3;
+	/** Valid for {@link SVGGradientElement|`SVGGradientElement`}. */
+	readonly SVG_SPREADMETHOD_UNKNOWN: 0;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly SVG_STITCHTYPE_NOSTITCH: 2;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly SVG_STITCHTYPE_STITCH: 1;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly SVG_STITCHTYPE_UNKNOWN: 0;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly SVG_TURBULENCE_TYPE_FRACTALNOISE: 1;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly SVG_TURBULENCE_TYPE_TURBULENCE: 2;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly SVG_TURBULENCE_TYPE_UNKNOWN: 0;
+	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
+	readonly TEXTPATH_METHODTYPE_ALIGN: 1;
+	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
+	readonly TEXTPATH_METHODTYPE_STRETCH: 2;
+	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
+	readonly TEXTPATH_METHODTYPE_UNKNOWN: 0;
+	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
+	readonly TEXTPATH_SPACINGTYPE_AUTO: 1;
+	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
+	readonly TEXTPATH_SPACINGTYPE_EXACT: 2;
+	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
+	readonly TEXTPATH_SPACINGTYPE_UNKNOWN: 0;
+	/** Valid for {@link Node|`Node`}. */
+	readonly TEXT_NODE: 3;
+	/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}. */
+	aLink: string;
+	/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
+	abbr: string;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	accept: string;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
+	acceptCharset: string;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	accessKey: string;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	readonly accessKeyLabel: string;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
+	action: string;
+	/** @deprecated Valid for {@link HTMLDivElement|`HTMLDivElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLHRElement|`HTMLHRElement`}, {@link HTMLHeadingElement|`HTMLHeadingElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLegendElement|`HTMLLegendElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLParagraphElement|`HTMLParagraphElement`}, {@link HTMLTableCaptionElement|`HTMLTableCaptionElement`}, {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableElement|`HTMLTableElement`}, {@link HTMLTableRowElement|`HTMLTableRowElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
+	align: string;
+	/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
+	allow: string;
+	/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
+	allowFullscreen: boolean;
+	/** Valid for {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
+	alt: string;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly amplitude: SVGAnimatedNumber;
+	/** Valid for {@link SVGAnimatedPoints|`SVGAnimatedPoints`}. */
+	readonly animatedPoints: SVGPointList;
+	/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	archive: string;
+	/** Valid for {@link HTMLMapElement|`HTMLMapElement`}. */
+	readonly areas: HTMLCollection;
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaAtomic: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaAutoComplete: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaBrailleLabel: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaBrailleRoleDescription: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaBusy: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaChecked: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaColCount: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaColIndex: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaColSpan: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaCurrent: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaDescription: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaDisabled: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaExpanded: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaHasPopup: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaHidden: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaInvalid: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaKeyShortcuts: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaLabel: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaLevel: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaLive: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaModal: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaMultiLine: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaMultiSelectable: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaOrientation: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaPlaceholder: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaPosInSet: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaPressed: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaReadOnly: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaRequired: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaRoleDescription: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaRowCount: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaRowIndex: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaRowSpan: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaSelected: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaSetSize: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaSort: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaValueMax: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaValueMin: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaValueNow: null | (string & {});
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	ariaValueText: null | (string & {});
+	/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}. */
+	as: string;
+	/** Valid for {@link Slottable|`Slottable`}. */
+	readonly assignedSlot: HTMLSlotElement | null;
+	/** Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
+	async: boolean;
+	/** Valid for {@link ElementCSSInlineStyle|`ElementCSSInlineStyle`}. */
+	readonly attributeStyleMap: StylePropertyMap;
+	/** Valid for {@link Element|`Element`}. */
+	readonly attributes: NamedNodeMap;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	autocapitalize: string;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	autocomplete: AutoFillBase | AutoFill;
+	/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
+	autofocus: boolean;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	autoplay: boolean;
+	/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
+	axis: string;
+	/** Valid for {@link SVGFEDistantLightElement|`SVGFEDistantLightElement`}. */
+	readonly azimuth: SVGAnimatedNumber;
+	/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}. */
+	background: string;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly baseFrequencyX: SVGAnimatedNumber;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly baseFrequencyY: SVGAnimatedNumber;
+	/** Valid for {@link Node|`Node`}. */
+	readonly baseURI: string;
+	/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}, {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableElement|`HTMLTableElement`} and {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
+	bgColor: string;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly bias: SVGAnimatedNumber;
+	/** @deprecated Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLObjectElement|`HTMLObjectElement`} and {@link HTMLTableElement|`HTMLTableElement`}. */
+	border: string;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly buffered: TimeRanges;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	caption: HTMLTableCaptionElement | null;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	capture: string;
+	/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
+	readonly cellIndex: number;
+	/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	cellPadding: string;
+	/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	cellSpacing: string;
+	/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
+	readonly cells: HTMLCollectionOf<HTMLTableCellElement>;
+	/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableRowElement|`HTMLTableRowElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
+	ch: string;
+	/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableRowElement|`HTMLTableRowElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
+	chOff: string;
+	/** @deprecated Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
+	charset: string;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	checked: boolean;
+	/** Valid for {@link ParentNode|`ParentNode`}. */
+	readonly childElementCount: number;
+	/** Valid for {@link Node|`Node`}. */
+	readonly childNodes: NodeListOf<ChildNode>;
+	/** Valid for {@link ParentNode|`ParentNode`}. */
+	readonly children: HTMLCollection;
+	/** Valid for {@link HTMLModElement|`HTMLModElement`} and {@link HTMLQuoteElement|`HTMLQuoteElement`}. */
+	cite: string;
+	/** Valid for {@link Element|`Element`}. */
+	readonly classList: DOMTokenList;
+	/** Valid for {@link Element|`Element`} and {@link SVGElement|`SVGElement`}. */
+	className: any | (string & {});
+	/** @deprecated Valid for {@link HTMLBRElement|`HTMLBRElement`}. */
+	clear: string;
+	/** Valid for {@link Element|`Element`}. */
+	readonly clientHeight: number;
+	/** Valid for {@link Element|`Element`}. */
+	readonly clientLeft: number;
+	/** Valid for {@link Element|`Element`}. */
+	readonly clientTop: number;
+	/** Valid for {@link Element|`Element`}. */
+	readonly clientWidth: number;
+	/** Valid for {@link SVGClipPathElement|`SVGClipPathElement`}. */
+	readonly clipPathUnits: SVGAnimatedEnumeration;
+	/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	code: string;
+	/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	codeBase: string;
+	/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	codeType: string;
+	/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
+	colSpan: number;
+	/** @deprecated Valid for {@link HTMLHRElement|`HTMLHRElement`}. */
+	color: string;
+	/** Valid for {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	cols: number;
+	/** @deprecated Valid for {@link HTMLDListElement|`HTMLDListElement`}, {@link HTMLMenuElement|`HTMLMenuElement`}, {@link HTMLOListElement|`HTMLOListElement`} and {@link HTMLUListElement|`HTMLUListElement`}. */
+	compact: boolean;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
+	readonly complete: boolean;
+	/** Valid for {@link HTMLMetaElement|`HTMLMetaElement`} and {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
+	content: DocumentFragment | (string & {});
+	/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	readonly contentDocument: Document | null;
+	/** Valid for {@link ElementContentEditable|`ElementContentEditable`}. */
+	contentEditable: string;
+	/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	readonly contentWindow: WindowProxy | null;
+	/** Valid for {@link HTMLLabelElement|`HTMLLabelElement`}. */
+	readonly control: HTMLElement | null;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	controls: boolean;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLAreaElement|`HTMLAreaElement`}. */
+	coords: string;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLLinkElement|`HTMLLinkElement`}, {@link HTMLMediaElement|`HTMLMediaElement`}, {@link HTMLScriptElement|`HTMLScriptElement`} and {@link SVGImageElement|`SVGImageElement`}. */
+	crossOrigin: null | (string & {});
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	currentScale: number;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly currentSrc: string;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	currentTime: number;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	readonly currentTranslate: DOMPointReadOnly;
+	/** Valid for {@link SVGCircleElement|`SVGCircleElement`}, {@link SVGEllipseElement|`SVGEllipseElement`} and {@link SVGRadialGradientElement|`SVGRadialGradientElement`}. */
+	readonly cx: SVGAnimatedLength;
+	/** Valid for {@link SVGCircleElement|`SVGCircleElement`}, {@link SVGEllipseElement|`SVGEllipseElement`} and {@link SVGRadialGradientElement|`SVGRadialGradientElement`}. */
+	readonly cy: SVGAnimatedLength;
+	/** Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	data: string;
+	/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
+	readonly dataset: DOMStringMap;
+	/** Valid for {@link HTMLModElement|`HTMLModElement`} and {@link HTMLTimeElement|`HTMLTimeElement`}. */
+	dateTime: string;
+	/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	declare: boolean;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
+	decoding: "async" | "sync" | "auto";
+	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	default: boolean;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	defaultChecked: boolean;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	defaultMuted: boolean;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	defaultPlaybackRate: number;
+	/** Valid for {@link HTMLOptionElement|`HTMLOptionElement`}. */
+	defaultSelected: boolean;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLOutputElement|`HTMLOutputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	defaultValue: string;
+	/** Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
+	defer: boolean;
+	/** Valid for {@link SVGFEDiffuseLightingElement|`SVGFEDiffuseLightingElement`}. */
+	readonly diffuseConstant: SVGAnimatedNumber;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	dir: string;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	dirName: string;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	disablePictureInPicture: boolean;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	disableRemotePlayback: boolean;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLinkElement|`HTMLLinkElement`}, {@link HTMLOptGroupElement|`HTMLOptGroupElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLSelectElement|`HTMLSelectElement`}, {@link HTMLStyleElement|`HTMLStyleElement`}, {@link HTMLTextAreaElement|`HTMLTextAreaElement`} and {@link SVGStyleElement|`SVGStyleElement`}. */
+	disabled: boolean;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly divisor: SVGAnimatedNumber;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLAreaElement|`HTMLAreaElement`}. */
+	download: string;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	draggable: boolean;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly duration: number;
+	/** Valid for {@link SVGFEDropShadowElement|`SVGFEDropShadowElement`}, {@link SVGFEOffsetElement|`SVGFEOffsetElement`} and {@link SVGTextPositioningElement|`SVGTextPositioningElement`}. */
+	readonly dx: SVGAnimatedNumber | SVGAnimatedLengthList;
+	/** Valid for {@link SVGFEDropShadowElement|`SVGFEDropShadowElement`}, {@link SVGFEOffsetElement|`SVGFEOffsetElement`} and {@link SVGTextPositioningElement|`SVGTextPositioningElement`}. */
+	readonly dy: SVGAnimatedNumber | SVGAnimatedLengthList;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly edgeMode: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLFieldSetElement|`HTMLFieldSetElement`} and {@link HTMLFormElement|`HTMLFormElement`}. */
+	readonly elements: HTMLCollection | HTMLFormControlsCollection;
+	/** Valid for {@link SVGFEDistantLightElement|`SVGFEDistantLightElement`}. */
+	readonly elevation: SVGAnimatedNumber;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
+	encoding: string;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
+	enctype: string;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly ended: boolean;
+	/** Valid for {@link ElementContentEditable|`ElementContentEditable`}. */
+	enterKeyHint: string;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly error: MediaError | null;
+	/** @deprecated Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
+	event: string;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly exponent: SVGAnimatedNumber;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
+	fetchPriority: string;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	files: FileList | null;
+	/** Valid for {@link SVGFilterElement|`SVGFilterElement`}. */
+	readonly filterUnits: SVGAnimatedEnumeration;
+	/** Valid for {@link Node|`Node`}. */
+	readonly firstChild: ChildNode | null;
+	/** Valid for {@link ParentNode|`ParentNode`}. */
+	readonly firstElementChild: Element | null;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLabelElement|`HTMLLabelElement`}, {@link HTMLLegendElement|`HTMLLegendElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	readonly form: HTMLFormElement | null;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
+	formAction: string;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
+	formEnctype: string;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
+	formMethod: string;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
+	formNoValidate: boolean;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
+	formTarget: string;
+	/** Valid for {@link SVGRadialGradientElement|`SVGRadialGradientElement`}. */
+	readonly fr: SVGAnimatedLength;
+	/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	frame: string;
+	/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
+	frameBorder: string;
+	/** Valid for {@link SVGRadialGradientElement|`SVGRadialGradientElement`}. */
+	readonly fx: SVGAnimatedLength;
+	/** Valid for {@link SVGRadialGradientElement|`SVGRadialGradientElement`}. */
+	readonly fy: SVGAnimatedLength;
+	/** Valid for {@link SVGGradientElement|`SVGGradientElement`}. */
+	readonly gradientTransform: SVGAnimatedTransformList;
+	/** Valid for {@link SVGGradientElement|`SVGGradientElement`}. */
+	readonly gradientUnits: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	hash: string;
+	/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
+	headers: string;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLSourceElement|`HTMLSourceElement`}, {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLVideoElement|`HTMLVideoElement`}, {@link SVGFilterElement|`SVGFilterElement`}, {@link SVGFilterPrimitiveStandardAttributes|`SVGFilterPrimitiveStandardAttributes`}, {@link SVGForeignObjectElement|`SVGForeignObjectElement`}, {@link SVGImageElement|`SVGImageElement`}, {@link SVGMaskElement|`SVGMaskElement`}, {@link SVGPatternElement|`SVGPatternElement`}, {@link SVGRectElement|`SVGRectElement`}, {@link SVGSVGElement|`SVGSVGElement`} and {@link SVGUseElement|`SVGUseElement`}. */
+	height: number | SVGAnimatedLength | (string & {});
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	hidden: boolean;
+	/** Valid for {@link HTMLMeterElement|`HTMLMeterElement`}. */
+	high: number;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	host: string;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	hostname: string;
+	/** Valid for {@link HTMLBaseElement|`HTMLBaseElement`}, {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link SVGURIReference|`SVGURIReference`}. */
+	href: SVGAnimatedString | (string & {});
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLLinkElement|`HTMLLinkElement`}. */
+	hreflang: string;
+	/** @deprecated Valid for {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	hspace: number;
+	/** Valid for {@link HTMLLabelElement|`HTMLLabelElement`}, {@link HTMLOutputElement|`HTMLOutputElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
+	htmlFor: DOMTokenList | (string & {});
+	/** Valid for {@link HTMLMetaElement|`HTMLMetaElement`}. */
+	httpEquiv: string;
+	/** Valid for {@link Element|`Element`}. */
+	id: string;
+	/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}. */
+	imageSizes: string;
+	/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}. */
+	imageSrcset: string;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}, {@link SVGFEColorMatrixElement|`SVGFEColorMatrixElement`}, {@link SVGFEComponentTransferElement|`SVGFEComponentTransferElement`}, {@link SVGFECompositeElement|`SVGFECompositeElement`}, {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}, {@link SVGFEDiffuseLightingElement|`SVGFEDiffuseLightingElement`}, {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}, {@link SVGFEDropShadowElement|`SVGFEDropShadowElement`}, {@link SVGFEGaussianBlurElement|`SVGFEGaussianBlurElement`}, {@link SVGFEMergeNodeElement|`SVGFEMergeNodeElement`}, {@link SVGFEMorphologyElement|`SVGFEMorphologyElement`}, {@link SVGFEOffsetElement|`SVGFEOffsetElement`}, {@link SVGFESpecularLightingElement|`SVGFESpecularLightingElement`} and {@link SVGFETileElement|`SVGFETileElement`}. */
+	readonly in1: SVGAnimatedString;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}, {@link SVGFECompositeElement|`SVGFECompositeElement`} and {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
+	readonly in2: SVGAnimatedString;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	indeterminate: boolean;
+	/** Valid for {@link HTMLOptionElement|`HTMLOptionElement`}. */
+	readonly index: number;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	inert: boolean;
+	/** Valid for {@link Element|`Element`}. */
+	innerHTML: string;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	innerText: string;
+	/** Valid for {@link ElementContentEditable|`ElementContentEditable`}. */
+	inputMode: string;
+	/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
+	integrity: string;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly intercept: SVGAnimatedNumber;
+	/** Valid for {@link Node|`Node`}. */
+	readonly isConnected: boolean;
+	/** Valid for {@link ElementContentEditable|`ElementContentEditable`}. */
+	readonly isContentEditable: boolean;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
+	isMap: boolean;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly k1: SVGAnimatedNumber;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly k2: SVGAnimatedNumber;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly k3: SVGAnimatedNumber;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`}. */
+	readonly k4: SVGAnimatedNumber;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly kernelMatrix: SVGAnimatedNumberList;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}, {@link SVGFEDiffuseLightingElement|`SVGFEDiffuseLightingElement`} and {@link SVGFESpecularLightingElement|`SVGFESpecularLightingElement`}. */
+	readonly kernelUnitLengthX: SVGAnimatedNumber;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}, {@link SVGFEDiffuseLightingElement|`SVGFEDiffuseLightingElement`} and {@link SVGFESpecularLightingElement|`SVGFESpecularLightingElement`}. */
+	readonly kernelUnitLengthY: SVGAnimatedNumber;
+	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	kind: string;
+	/** Valid for {@link HTMLOptGroupElement|`HTMLOptGroupElement`}, {@link HTMLOptionElement|`HTMLOptionElement`} and {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	label: string;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLMeterElement|`HTMLMeterElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLProgressElement|`HTMLProgressElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	readonly labels: NodeListOf<HTMLLabelElement> | null;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	lang: string;
+	/** Valid for {@link Node|`Node`}. */
+	readonly lastChild: ChildNode | null;
+	/** Valid for {@link ParentNode|`ParentNode`}. */
+	readonly lastElementChild: Element | null;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	length: number;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	readonly lengthAdjust: SVGAnimatedEnumeration;
+	/** Valid for {@link SVGFESpotLightElement|`SVGFESpotLightElement`}. */
+	readonly limitingConeAngle: SVGAnimatedNumber;
+	/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}. */
+	link: string;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	readonly list: HTMLDataListElement | null;
+	/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLImageElement|`HTMLImageElement`}. */
+	loading: "eager" | "lazy" | (string & {});
+	/** Valid for {@link Element|`Element`}. */
+	readonly localName: string;
+	/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLImageElement|`HTMLImageElement`}. */
+	longDesc: string;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	loop: boolean;
+	/** Valid for {@link HTMLMeterElement|`HTMLMeterElement`}. */
+	low: number;
+	/** @deprecated Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
+	lowsrc: string;
+	/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
+	marginHeight: string;
+	/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
+	marginWidth: string;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly markerHeight: SVGAnimatedLength;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly markerUnits: SVGAnimatedEnumeration;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly markerWidth: SVGAnimatedLength;
+	/** Valid for {@link SVGMaskElement|`SVGMaskElement`}. */
+	readonly maskContentUnits: SVGAnimatedEnumeration;
+	/** Valid for {@link SVGMaskElement|`SVGMaskElement`}. */
+	readonly maskUnits: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLMeterElement|`HTMLMeterElement`} and {@link HTMLProgressElement|`HTMLProgressElement`}. */
+	max: string | number;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	maxLength: number;
+	/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}, {@link HTMLMetaElement|`HTMLMetaElement`}, {@link HTMLSourceElement|`HTMLSourceElement`}, {@link HTMLStyleElement|`HTMLStyleElement`} and {@link SVGStyleElement|`SVGStyleElement`}. */
+	media: string;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly mediaKeys: MediaKeys | null;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`} and {@link SVGTextPathElement|`SVGTextPathElement`}. */
+	method: SVGAnimatedEnumeration | (string & {});
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLMeterElement|`HTMLMeterElement`}. */
+	min: string | number;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	minLength: number;
+	/** Valid for {@link SVGFEBlendElement|`SVGFEBlendElement`}. */
+	readonly mode: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	multiple: boolean;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	muted: boolean;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLDetailsElement|`HTMLDetailsElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLMapElement|`HTMLMapElement`}, {@link HTMLMetaElement|`HTMLMetaElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`}, {@link HTMLSlotElement|`HTMLSlotElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	name: string;
+	/** Valid for {@link Element|`Element`}. */
+	readonly namespaceURI: null | (string & {});
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
+	readonly naturalHeight: number;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
+	readonly naturalWidth: number;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly networkState: number;
+	/** Valid for {@link NonDocumentTypeChildNode|`NonDocumentTypeChildNode`}. */
+	readonly nextElementSibling: Element | null;
+	/** Valid for {@link Node|`Node`}. */
+	readonly nextSibling: ChildNode | null;
+	/** @deprecated Valid for {@link HTMLAreaElement|`HTMLAreaElement`}. */
+	noHref: boolean;
+	/** Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
+	noModule: boolean;
+	/** @deprecated Valid for {@link HTMLHRElement|`HTMLHRElement`}. */
+	noShade: boolean;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
+	noValidate: boolean;
+	/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
+	noWrap: boolean;
+	/** Valid for {@link Node|`Node`}. */
+	readonly nodeName: string;
+	/** Valid for {@link Node|`Node`}. */
+	readonly nodeType: number;
+	/** Valid for {@link Node|`Node`}. */
+	nodeValue: null | (string & {});
+	/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
+	nonce: string;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly numOctaves: SVGAnimatedInteger;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`} and {@link SVGStopElement|`SVGStopElement`}. */
+	readonly offset: SVGAnimatedNumber;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	readonly offsetHeight: number;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	readonly offsetLeft: number;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	readonly offsetParent: Element | null;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	readonly offsetTop: number;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	readonly offsetWidth: number;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	onencrypted: ((this: HTMLMediaElement, ev: MediaEncryptedEvent) => any) | null;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	onenterpictureinpicture: ((this: HTMLVideoElement, ev: Event) => any) | null;
+	/** Valid for {@link Element|`Element`}. */
+	onfullscreenchange: ((this: Element, ev: Event) => any) | null;
+	/** Valid for {@link Element|`Element`}. */
+	onfullscreenerror: ((this: Element, ev: Event) => any) | null;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	onleavepictureinpicture: ((this: HTMLVideoElement, ev: Event) => any) | null;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	onwaitingforkey: ((this: HTMLMediaElement, ev: Event) => any) | null;
+	/** Valid for {@link HTMLDetailsElement|`HTMLDetailsElement`} and {@link HTMLDialogElement|`HTMLDialogElement`}. */
+	open: boolean;
+	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`} and {@link SVGFEMorphologyElement|`SVGFEMorphologyElement`}. */
+	readonly operator: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLMeterElement|`HTMLMeterElement`}. */
+	optimum: number;
+	/** Valid for {@link HTMLDataListElement|`HTMLDataListElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	readonly options: HTMLCollectionOf<HTMLOptionElement> | HTMLOptionsCollection;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly orderX: SVGAnimatedInteger;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly orderY: SVGAnimatedInteger;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly orientAngle: SVGAnimatedAngle;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly orientType: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	readonly origin: string;
+	/** Valid for {@link Element|`Element`}. */
+	outerHTML: string;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	outerText: string;
+	/** Valid for {@link Element|`Element`} and {@link Node|`Node`}. */
+	readonly ownerDocument: Document | null;
+	/** Valid for {@link SVGElement|`SVGElement`}. */
+	readonly ownerSVGElement: SVGSVGElement | null;
+	/** Valid for {@link Node|`Node`}. */
+	readonly parentElement: HTMLElement | null;
+	/** Valid for {@link Node|`Node`}. */
+	readonly parentNode: ParentNode | null;
+	/** Valid for {@link Element|`Element`}. */
+	readonly part: DOMTokenList;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	password: string;
+	/** Valid for {@link SVGGeometryElement|`SVGGeometryElement`}. */
+	readonly pathLength: SVGAnimatedNumber;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	pathname: string;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	pattern: string;
+	/** Valid for {@link SVGPatternElement|`SVGPatternElement`}. */
+	readonly patternContentUnits: SVGAnimatedEnumeration;
+	/** Valid for {@link SVGPatternElement|`SVGPatternElement`}. */
+	readonly patternTransform: SVGAnimatedTransformList;
+	/** Valid for {@link SVGPatternElement|`SVGPatternElement`}. */
+	readonly patternUnits: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly paused: boolean;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLAreaElement|`HTMLAreaElement`}. */
+	ping: string;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	placeholder: string;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	playbackRate: number;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly played: TimeRanges;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	playsInline: boolean;
+	/** Valid for {@link SVGAnimatedPoints|`SVGAnimatedPoints`}. */
+	readonly points: SVGPointList;
+	/** Valid for {@link SVGFESpotLightElement|`SVGFESpotLightElement`}. */
+	readonly pointsAtX: SVGAnimatedNumber;
+	/** Valid for {@link SVGFESpotLightElement|`SVGFESpotLightElement`}. */
+	readonly pointsAtY: SVGAnimatedNumber;
+	/** Valid for {@link SVGFESpotLightElement|`SVGFESpotLightElement`}. */
+	readonly pointsAtZ: SVGAnimatedNumber;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	popover: null | (string & {});
+	/** Valid for {@link PopoverInvokerElement|`PopoverInvokerElement`}. */
+	popoverTargetAction: string;
+	/** Valid for {@link PopoverInvokerElement|`PopoverInvokerElement`}. */
+	popoverTargetElement: Element | null;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	port: string;
+	/** Valid for {@link HTMLProgressElement|`HTMLProgressElement`}. */
+	readonly position: number;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	poster: string;
+	/** Valid for {@link Element|`Element`}. */
+	readonly prefix: null | (string & {});
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	preload: "none" | "metadata" | "auto" | "";
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly preserveAlpha: SVGAnimatedBoolean;
+	/** Valid for {@link SVGFEImageElement|`SVGFEImageElement`}, {@link SVGFitToViewBox|`SVGFitToViewBox`} and {@link SVGImageElement|`SVGImageElement`}. */
+	readonly preserveAspectRatio: SVGAnimatedPreserveAspectRatio;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	preservesPitch: boolean;
+	/** Valid for {@link NonDocumentTypeChildNode|`NonDocumentTypeChildNode`}. */
+	readonly previousElementSibling: Element | null;
+	/** Valid for {@link Node|`Node`}. */
+	readonly previousSibling: ChildNode | null;
+	/** Valid for {@link SVGFilterElement|`SVGFilterElement`}. */
+	readonly primitiveUnits: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	protocol: string;
+	/** Valid for {@link SVGCircleElement|`SVGCircleElement`} and {@link SVGRadialGradientElement|`SVGRadialGradientElement`}. */
+	readonly r: SVGAnimatedLength;
+	/** Valid for {@link SVGFEMorphologyElement|`SVGFEMorphologyElement`}. */
+	readonly radiusX: SVGAnimatedNumber;
+	/** Valid for {@link SVGFEMorphologyElement|`SVGFEMorphologyElement`}. */
+	readonly radiusY: SVGAnimatedNumber;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	readOnly: boolean;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`} and {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	readonly readyState: number;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly refX: SVGAnimatedLength;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	readonly refY: SVGAnimatedLength;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLScriptElement|`HTMLScriptElement`}. */
+	referrerPolicy: ReferrerPolicy | (string & {});
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link SVGAElement|`SVGAElement`}. */
+	rel: string;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link SVGAElement|`SVGAElement`}. */
+	readonly relList: DOMTokenList;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly remote: RemotePlayback;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	required: boolean;
+	/** Valid for {@link SVGTests|`SVGTests`}. */
+	readonly requiredExtensions: SVGStringList;
+	/** Valid for {@link SVGFilterPrimitiveStandardAttributes|`SVGFilterPrimitiveStandardAttributes`}. */
+	readonly result: SVGAnimatedString;
+	/** Valid for {@link HTMLDialogElement|`HTMLDialogElement`}. */
+	returnValue: string;
+	/** @deprecated Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLLinkElement|`HTMLLinkElement`}. */
+	rev: string;
+	/** Valid for {@link HTMLOListElement|`HTMLOListElement`}. */
+	reversed: boolean;
+	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
+	role: null | (string & {});
+	/** Valid for {@link SVGTextPositioningElement|`SVGTextPositioningElement`}. */
+	readonly rotate: SVGAnimatedNumberList;
+	/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
+	readonly rowIndex: number;
+	/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
+	rowSpan: number;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}, {@link HTMLTableSectionElement|`HTMLTableSectionElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	rows: HTMLCollectionOf<HTMLTableRowElement> | number;
+	/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	rules: string;
+	/** Valid for {@link SVGEllipseElement|`SVGEllipseElement`} and {@link SVGRectElement|`SVGRectElement`}. */
+	readonly rx: SVGAnimatedLength;
+	/** Valid for {@link SVGEllipseElement|`SVGEllipseElement`} and {@link SVGRectElement|`SVGRectElement`}. */
+	readonly ry: SVGAnimatedLength;
+	/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
+	readonly sandbox: DOMTokenList;
+	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
+	readonly scale: SVGAnimatedNumber;
+	/** @deprecated Valid for {@link HTMLMetaElement|`HTMLMetaElement`}. */
+	scheme: string;
+	/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
+	scope: string;
+	/** Valid for {@link Element|`Element`}. */
+	readonly scrollHeight: number;
+	/** Valid for {@link Element|`Element`}. */
+	scrollLeft: number;
+	/** Valid for {@link Element|`Element`}. */
+	scrollTop: number;
+	/** Valid for {@link Element|`Element`}. */
+	readonly scrollWidth: number;
+	/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
+	scrolling: string;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	search: string;
+	/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
+	readonly sectionRowIndex: number;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly seed: SVGAnimatedNumber;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly seekable: TimeRanges;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly seeking: boolean;
+	/** Valid for {@link HTMLOptionElement|`HTMLOptionElement`}. */
+	selected: boolean;
+	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	selectedIndex: number;
+	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	readonly selectedOptions: HTMLCollectionOf<HTMLOptionElement>;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	selectionDirection: "forward" | "backward" | "none" | null;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	selectionEnd: number | null;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	selectionStart: number | null;
+	/** Valid for {@link Element|`Element`}. */
+	readonly shadowRoot: ShadowRoot | null;
+	/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
+	shadowRootClonable: boolean;
+	/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
+	shadowRootDelegatesFocus: boolean;
+	/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
+	shadowRootMode: string;
+	/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
+	shadowRootSerializable: boolean;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`} and {@link HTMLAreaElement|`HTMLAreaElement`}. */
+	shape: string;
+	/** Valid for {@link LinkStyle|`LinkStyle`}. */
+	readonly sheet: CSSStyleSheet | null;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly sinkId: string;
+	/** Valid for {@link HTMLHRElement|`HTMLHRElement`}, {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	size: string | number;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link HTMLSourceElement|`HTMLSourceElement`}. */
+	sizes: DOMTokenList | (string & {});
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly slope: SVGAnimatedNumber;
+	/** Valid for {@link Element|`Element`}. */
+	slot: string;
+	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
+	readonly spacing: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLTableColElement|`HTMLTableColElement`}. */
+	span: number;
+	/** Valid for {@link SVGFESpecularLightingElement|`SVGFESpecularLightingElement`}. */
+	readonly specularConstant: SVGAnimatedNumber;
+	/** Valid for {@link SVGFESpecularLightingElement|`SVGFESpecularLightingElement`} and {@link SVGFESpotLightElement|`SVGFESpotLightElement`}. */
+	readonly specularExponent: SVGAnimatedNumber;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	spellcheck: boolean;
+	/** Valid for {@link SVGGradientElement|`SVGGradientElement`}. */
+	readonly spreadMethod: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLMediaElement|`HTMLMediaElement`}, {@link HTMLScriptElement|`HTMLScriptElement`}, {@link HTMLSourceElement|`HTMLSourceElement`} and {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	src: string;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	srcObject: MediaProvider | null;
+	/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
+	srcdoc: string;
+	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	srclang: string;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLSourceElement|`HTMLSourceElement`}. */
+	srcset: string;
+	/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	standby: string;
+	/** Valid for {@link HTMLOListElement|`HTMLOListElement`}. */
+	start: number;
+	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
+	readonly startOffset: SVGAnimatedLength;
+	/** Valid for {@link SVGFEDropShadowElement|`SVGFEDropShadowElement`} and {@link SVGFEGaussianBlurElement|`SVGFEGaussianBlurElement`}. */
+	readonly stdDeviationX: SVGAnimatedNumber;
+	/** Valid for {@link SVGFEDropShadowElement|`SVGFEDropShadowElement`} and {@link SVGFEGaussianBlurElement|`SVGFEGaussianBlurElement`}. */
+	readonly stdDeviationY: SVGAnimatedNumber;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	step: string;
+	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
+	readonly stitchTiles: SVGAnimatedEnumeration;
+	/** Valid for {@link ElementCSSInlineStyle|`ElementCSSInlineStyle`}. */
+	readonly style: CSSStyleDeclaration;
+	/** @deprecated Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	summary: string;
+	/** Valid for {@link SVGFEDiffuseLightingElement|`SVGFEDiffuseLightingElement`} and {@link SVGFESpecularLightingElement|`SVGFESpecularLightingElement`}. */
+	readonly surfaceScale: SVGAnimatedNumber;
+	/** Valid for {@link SVGTests|`SVGTests`}. */
+	readonly systemLanguage: SVGStringList;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	readonly tBodies: HTMLCollectionOf<HTMLTableSectionElement>;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	tFoot: HTMLTableSectionElement | null;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	tHead: HTMLTableSectionElement | null;
+	/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
+	tabIndex: number;
+	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
+	readonly tableValues: SVGAnimatedNumberList;
+	/** Valid for {@link Element|`Element`}. */
+	readonly tagName: string;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLBaseElement|`HTMLBaseElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link SVGAElement|`SVGAElement`}. */
+	target: SVGAnimatedString | (string & {});
+	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
+	readonly targetElement: SVGElement | null;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly targetX: SVGAnimatedInteger;
+	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
+	readonly targetY: SVGAnimatedInteger;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLBodyElement|`HTMLBodyElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLScriptElement|`HTMLScriptElement`} and {@link HTMLTitleElement|`HTMLTitleElement`}. */
+	text: string;
+	/** Valid for {@link Node|`Node`}. */
+	textContent: null | (string & {});
+	/** Valid for {@link HTMLTextAreaElement|`HTMLTextAreaElement`} and {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	readonly textLength: number | SVGAnimatedLength;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	readonly textTracks: TextTrackList;
+	/** Valid for {@link HTMLElement|`HTMLElement`} and {@link SVGStyleElement|`SVGStyleElement`}. */
+	title: string;
+	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
+	readonly track: TextTrack;
+	/** Valid for {@link SVGClipPathElement|`SVGClipPathElement`} and {@link SVGGraphicsElement|`SVGGraphicsElement`}. */
+	readonly transform: SVGAnimatedTransformList;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	translate: boolean;
+	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLIElement|`HTMLLIElement`}, {@link HTMLLinkElement|`HTMLLinkElement`}, {@link HTMLOListElement|`HTMLOListElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLScriptElement|`HTMLScriptElement`}, {@link HTMLSelectElement|`HTMLSelectElement`}, {@link HTMLSourceElement|`HTMLSourceElement`}, {@link HTMLStyleElement|`HTMLStyleElement`}, {@link HTMLTextAreaElement|`HTMLTextAreaElement`}, {@link HTMLUListElement|`HTMLUListElement`}, {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}, {@link SVGFEColorMatrixElement|`SVGFEColorMatrixElement`}, {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}, {@link SVGScriptElement|`SVGScriptElement`} and {@link SVGStyleElement|`SVGStyleElement`}. */
+	type: "submit" | "reset" | "button" | "select-one" | "select-multiple" | SVGAnimatedEnumeration | (string & {});
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	useMap: string;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	username: string;
+	/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableRowElement|`HTMLTableRowElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
+	vAlign: string;
+	/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}. */
+	vLink: string;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	readonly validationMessage: string;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	readonly validity: ValidityState;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLDataElement|`HTMLDataElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLIElement|`HTMLLIElement`}, {@link HTMLMeterElement|`HTMLMeterElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLProgressElement|`HTMLProgressElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	value: string | number;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	valueAsDate: Date | null;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	valueAsNumber: number;
+	/** Valid for {@link SVGFEColorMatrixElement|`SVGFEColorMatrixElement`}. */
+	readonly values: SVGAnimatedNumberList;
+	/** @deprecated Valid for {@link HTMLHtmlElement|`HTMLHtmlElement`}. */
+	version: string;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	readonly videoHeight: number;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	readonly videoWidth: number;
+	/** Valid for {@link SVGFitToViewBox|`SVGFitToViewBox`}. */
+	readonly viewBox: SVGAnimatedRect;
+	/** Valid for {@link SVGElement|`SVGElement`}. */
+	readonly viewportElement: SVGElement | null;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	volume: number;
+	/** @deprecated Valid for {@link HTMLImageElement|`HTMLImageElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	vspace: number;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	readonly webkitEntries: ReadonlyArray<FileSystemEntry>;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	webkitdirectory: boolean;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLHRElement|`HTMLHRElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLPreElement|`HTMLPreElement`}, {@link HTMLSourceElement|`HTMLSourceElement`}, {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableColElement|`HTMLTableColElement`}, {@link HTMLTableElement|`HTMLTableElement`}, {@link HTMLVideoElement|`HTMLVideoElement`}, {@link SVGFilterElement|`SVGFilterElement`}, {@link SVGFilterPrimitiveStandardAttributes|`SVGFilterPrimitiveStandardAttributes`}, {@link SVGForeignObjectElement|`SVGForeignObjectElement`}, {@link SVGImageElement|`SVGImageElement`}, {@link SVGMaskElement|`SVGMaskElement`}, {@link SVGPatternElement|`SVGPatternElement`}, {@link SVGRectElement|`SVGRectElement`}, {@link SVGSVGElement|`SVGSVGElement`} and {@link SVGUseElement|`SVGUseElement`}. */
+	width: number | SVGAnimatedLength | (string & {});
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	readonly willValidate: boolean;
+	/** Valid for {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	wrap: string;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link SVGFEPointLightElement|`SVGFEPointLightElement`}, {@link SVGFESpotLightElement|`SVGFESpotLightElement`}, {@link SVGFilterElement|`SVGFilterElement`}, {@link SVGFilterPrimitiveStandardAttributes|`SVGFilterPrimitiveStandardAttributes`}, {@link SVGForeignObjectElement|`SVGForeignObjectElement`}, {@link SVGImageElement|`SVGImageElement`}, {@link SVGMaskElement|`SVGMaskElement`}, {@link SVGPatternElement|`SVGPatternElement`}, {@link SVGRectElement|`SVGRectElement`}, {@link SVGSVGElement|`SVGSVGElement`}, {@link SVGTextPositioningElement|`SVGTextPositioningElement`} and {@link SVGUseElement|`SVGUseElement`}. */
+	readonly x: number | SVGAnimatedNumber | SVGAnimatedLength | SVGAnimatedLengthList;
+	/** Valid for {@link SVGLineElement|`SVGLineElement`} and {@link SVGLinearGradientElement|`SVGLinearGradientElement`}. */
+	readonly x1: SVGAnimatedLength;
+	/** Valid for {@link SVGLineElement|`SVGLineElement`} and {@link SVGLinearGradientElement|`SVGLinearGradientElement`}. */
+	readonly x2: SVGAnimatedLength;
+	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
+	readonly xChannelSelector: SVGAnimatedEnumeration;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link SVGFEPointLightElement|`SVGFEPointLightElement`}, {@link SVGFESpotLightElement|`SVGFESpotLightElement`}, {@link SVGFilterElement|`SVGFilterElement`}, {@link SVGFilterPrimitiveStandardAttributes|`SVGFilterPrimitiveStandardAttributes`}, {@link SVGForeignObjectElement|`SVGForeignObjectElement`}, {@link SVGImageElement|`SVGImageElement`}, {@link SVGMaskElement|`SVGMaskElement`}, {@link SVGPatternElement|`SVGPatternElement`}, {@link SVGRectElement|`SVGRectElement`}, {@link SVGSVGElement|`SVGSVGElement`}, {@link SVGTextPositioningElement|`SVGTextPositioningElement`} and {@link SVGUseElement|`SVGUseElement`}. */
+	readonly y: number | SVGAnimatedNumber | SVGAnimatedLength | SVGAnimatedLengthList;
+	/** Valid for {@link SVGLineElement|`SVGLineElement`} and {@link SVGLinearGradientElement|`SVGLinearGradientElement`}. */
+	readonly y1: SVGAnimatedLength;
+	/** Valid for {@link SVGLineElement|`SVGLineElement`} and {@link SVGLinearGradientElement|`SVGLinearGradientElement`}. */
+	readonly y2: SVGAnimatedLength;
+	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
+	readonly yChannelSelector: SVGAnimatedEnumeration;
+	/** Valid for {@link SVGFEPointLightElement|`SVGFEPointLightElement`} and {@link SVGFESpotLightElement|`SVGFESpotLightElement`}. */
+	readonly z: SVGAnimatedNumber;
+	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	add(element: HTMLOptionElement | HTMLOptGroupElement, before?: HTMLElement | number | null): void;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	addTextTrack(kind: TextTrackKind, label?: string, language?: string): TextTrack;
+	/** Valid for {@link ChildNode|`ChildNode`}. */
+	after(...nodes: (Node | string)[]): void;
+	/** Valid for {@link Animatable|`Animatable`}. */
+	animate(keyframes: Keyframe[] | PropertyIndexedKeyframes | null, options?: number | KeyframeAnimationOptions): Animation;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	animationsPaused(): boolean;
+	/** Valid for {@link ParentNode|`ParentNode`}. */
+	append(...nodes: (Node | string)[]): void;
+	/** Valid for {@link Node|`Node`}. */
+	appendChild<T extends Node>(node: T): T;
+	/** Valid for {@link HTMLSlotElement|`HTMLSlotElement`}. */
+	assign(...nodes: (Element | Text)[]): void;
+	/** Valid for {@link HTMLSlotElement|`HTMLSlotElement`}. */
+	assignedElements(options?: AssignedNodesOptions): Element[];
+	/** Valid for {@link HTMLSlotElement|`HTMLSlotElement`}. */
+	assignedNodes(options?: AssignedNodesOptions): Node[];
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	attachInternals(): ElementInternals;
+	/** Valid for {@link Element|`Element`}. */
+	attachShadow(init: ShadowRootInit): ShadowRoot;
+	/** Valid for {@link ChildNode|`ChildNode`}. */
+	before(...nodes: (Node | string)[]): void;
+	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
+	beginElement(): void;
+	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
+	beginElementAt(offset: number): void;
+	/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
+	blur(): void;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	canPlayType(type: string): CanPlayTypeResult;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	cancelVideoFrameCallback(handle: number): void;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
+	captureStream(frameRequestRate?: number): MediaStream;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	checkEnclosure(element: SVGElement, rect: DOMRectReadOnly): boolean;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	checkIntersection(element: SVGElement, rect: DOMRectReadOnly): boolean;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	checkValidity(): boolean;
+	/** Valid for {@link Element|`Element`}. */
+	checkVisibility(options?: CheckVisibilityOptions): boolean;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	click(): void;
+	/** Valid for {@link Node|`Node`}. */
+	cloneNode(deep?: boolean): Node;
+	/** Valid for {@link HTMLDialogElement|`HTMLDialogElement`}. */
+	close(returnValue?: string): void;
+	/** Valid for {@link Element|`Element`}. */
+	closest<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K] | null;
+	closest<K extends keyof SVGElementTagNameMap>(selector: K): SVGElementTagNameMap[K] | null;
+	closest<K extends keyof MathMLElementTagNameMap>(selector: K): MathMLElementTagNameMap[K] | null;
+	closest<E extends Element = Element>(selectors: string): E | null;
+	/** Valid for {@link Node|`Node`}. */
+	compareDocumentPosition(other: Node): number;
+	/** Valid for {@link Element|`Element`}. */
+	computedStyleMap(): StylePropertyMapReadOnly;
+	/** Valid for {@link Node|`Node`}. */
+	contains(other: Node | null): boolean;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	createCaption(): HTMLTableCaptionElement;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	createSVGAngle(): SVGAngle;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	createSVGLength(): SVGLength;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	createSVGMatrix(): DOMMatrix;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	createSVGNumber(): SVGNumber;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	createSVGPoint(): DOMPoint;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	createSVGRect(): DOMRect;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	createSVGTransform(): SVGTransform;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	createSVGTransformFromMatrix(matrix?: DOMMatrix2DInit): SVGTransform;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	createTBody(): HTMLTableSectionElement;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	createTFoot(): HTMLTableSectionElement;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	createTHead(): HTMLTableSectionElement;
+	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
+	decode(): Promise<void>;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	deleteCaption(): void;
+	/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
+	deleteCell(index: number): void;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
+	deleteRow(index: number): void;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	deleteTFoot(): void;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
+	deleteTHead(): void;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	deselectAll(): void;
+	/** Valid for {@link EventTarget|`EventTarget`}. */
+	dispatchEvent(event: Event): boolean;
+	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
+	endElement(): void;
+	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
+	endElementAt(offset: number): void;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	fastSeek(time: number): void;
+	/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
+	focus(options?: FocusOptions): void;
+	/** @deprecated Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	forceRedraw(): void;
+	/** Valid for {@link Animatable|`Animatable`}. */
+	getAnimations(options?: GetAnimationsOptions): Animation[];
+	/** Valid for {@link Element|`Element`}. */
+	getAttribute(qualifiedName: string): string | null;
+	/** Valid for {@link Element|`Element`}. */
+	getAttributeNS(namespace: string | null, localName: string): string | null;
+	/** Valid for {@link Element|`Element`}. */
+	getAttributeNames(): string[];
+	/** Valid for {@link Element|`Element`}. */
+	getAttributeNode(qualifiedName: string): Attr | null;
+	/** Valid for {@link Element|`Element`}. */
+	getAttributeNodeNS(namespace: string | null, localName: string): Attr | null;
+	/** Valid for {@link SVGGraphicsElement|`SVGGraphicsElement`}. */
+	getBBox(options?: SVGBoundingBoxOptions): DOMRect;
+	/** Valid for {@link Element|`Element`}. */
+	getBoundingClientRect(): DOMRect;
+	/** Valid for {@link SVGGraphicsElement|`SVGGraphicsElement`}. */
+	getCTM(): DOMMatrix | null;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	getCharNumAtPosition(point?: DOMPointInit): number;
+	/** Valid for {@link Element|`Element`}. */
+	getClientRects(): DOMRectList;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	getComputedTextLength(): number;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
+	getContext(contextId: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D | null;
+	getContext(contextId: "bitmaprenderer", options?: ImageBitmapRenderingContextSettings): ImageBitmapRenderingContext | null;
+	getContext(contextId: "webgl", options?: WebGLContextAttributes): WebGLRenderingContext | null;
+	getContext(contextId: "webgl2", options?: WebGLContextAttributes): WebGL2RenderingContext | null;
+	getContext(contextId: string, options?: any): RenderingContext | null;
+	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`} and {@link SVGSVGElement|`SVGSVGElement`}. */
+	getCurrentTime(): number;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	getElementById(elementId: string): Element;
+	/** Valid for {@link Element|`Element`}. */
+	getElementsByClassName(classNames: string): HTMLCollectionOf<Element>;
+	/** Valid for {@link Element|`Element`}. */
+	getElementsByTagName<K extends keyof HTMLElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<HTMLElementTagNameMap[K]>;
+	getElementsByTagName<K extends keyof SVGElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<SVGElementTagNameMap[K]>;
+	getElementsByTagName<K extends keyof MathMLElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<MathMLElementTagNameMap[K]>;
+	getElementsByTagName<K extends keyof HTMLElementDeprecatedTagNameMap>(qualifiedName: K): HTMLCollectionOf<HTMLElementDeprecatedTagNameMap[K]>;
+	getElementsByTagName(qualifiedName: string): HTMLCollectionOf<Element>;
+	/** Valid for {@link Element|`Element`}. */
+	getElementsByTagNameNS(namespaceURI: "http://www.w3.org/1999/xhtml", localName: string): HTMLCollectionOf<HTMLElement>;
+	getElementsByTagNameNS(namespaceURI: "http://www.w3.org/2000/svg", localName: string): HTMLCollectionOf<SVGElement>;
+	getElementsByTagNameNS(namespaceURI: "http://www.w3.org/1998/Math/MathML", localName: string): HTMLCollectionOf<MathMLElement>;
+	getElementsByTagNameNS(namespace: string | null, localName: string): HTMLCollectionOf<Element>;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	getEnclosureList(rect: DOMRectReadOnly, referenceElement: SVGElement | null): NodeListOf<SVGCircleElement | SVGEllipseElement | SVGImageElement | SVGLineElement | SVGPathElement | SVGPolygonElement | SVGPolylineElement | SVGRectElement | SVGTextElement | SVGUseElement>;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	getEndPositionOfChar(charnum: number): DOMPoint;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	getExtentOfChar(charnum: number): DOMRect;
+	/** Valid for {@link Element|`Element`}. */
+	getHTML(options?: GetHTMLOptions): string;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	getIntersectionList(rect: DOMRectReadOnly, referenceElement: SVGElement | null): NodeListOf<SVGCircleElement | SVGEllipseElement | SVGImageElement | SVGLineElement | SVGPathElement | SVGPolygonElement | SVGPolylineElement | SVGRectElement | SVGTextElement | SVGUseElement>;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	getNumberOfChars(): number;
+	/** Valid for {@link SVGGeometryElement|`SVGGeometryElement`}. */
+	getPointAtLength(distance: number): DOMPoint;
+	/** Valid for {@link Node|`Node`}. */
+	getRootNode(options?: GetRootNodeOptions): Node;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	getRotationOfChar(charnum: number): number;
+	/** Valid for {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
+	getSVGDocument(): Document | null;
+	/** Valid for {@link SVGGraphicsElement|`SVGGraphicsElement`}. */
+	getScreenCTM(): DOMMatrix | null;
+	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
+	getSimpleDuration(): number;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	getStartPositionOfChar(charnum: number): DOMPoint;
+	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
+	getStartTime(): number;
+	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	getSubStringLength(charnum: number, nchars: number): number;
+	/** Valid for {@link SVGGeometryElement|`SVGGeometryElement`}. */
+	getTotalLength(): number;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	getVideoPlaybackQuality(): VideoPlaybackQuality;
+	/** Valid for {@link Element|`Element`}. */
+	hasAttribute(qualifiedName: string): boolean;
+	/** Valid for {@link Element|`Element`}. */
+	hasAttributeNS(namespace: string | null, localName: string): boolean;
+	/** Valid for {@link Element|`Element`}. */
+	hasAttributes(): boolean;
+	/** Valid for {@link Node|`Node`}. */
+	hasChildNodes(): boolean;
+	/** Valid for {@link Element|`Element`}. */
+	hasPointerCapture(pointerId: number): boolean;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	hidePopover(): void;
+	/** Valid for {@link Element|`Element`}. */
+	insertAdjacentElement(where: InsertPosition, element: Element): Element | null;
+	/** Valid for {@link Element|`Element`}. */
+	insertAdjacentHTML(position: InsertPosition, string: string): void;
+	/** Valid for {@link Element|`Element`}. */
+	insertAdjacentText(where: InsertPosition, data: string): void;
+	/** Valid for {@link Node|`Node`}. */
+	insertBefore<T extends Node>(node: T, child: Node | null): T;
+	/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
+	insertCell(index?: number): HTMLTableCellElement;
+	/** Valid for {@link HTMLTableElement|`HTMLTableElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
+	insertRow(index?: number): HTMLTableRowElement;
+	/** Valid for {@link Node|`Node`}. */
+	isDefaultNamespace(namespace: string | null): boolean;
+	/** Valid for {@link Node|`Node`}. */
+	isEqualNode(otherNode: Node | null): boolean;
+	/** Valid for {@link SVGGeometryElement|`SVGGeometryElement`}. */
+	isPointInFill(point?: DOMPointInit): boolean;
+	/** Valid for {@link SVGGeometryElement|`SVGGeometryElement`}. */
+	isPointInStroke(point?: DOMPointInit): boolean;
+	/** Valid for {@link Node|`Node`}. */
+	isSameNode(otherNode: Node | null): boolean;
+	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	item(index: number): HTMLOptionElement | null;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	load(): void;
+	/** Valid for {@link Node|`Node`}. */
+	lookupNamespaceURI(prefix: string | null): string | null;
+	/** Valid for {@link Node|`Node`}. */
+	lookupPrefix(namespace: string | null): string | null;
+	/** Valid for {@link Element|`Element`}. */
+	matches(selectors: string): boolean;
+	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	namedItem(name: string): HTMLOptionElement | null;
+	/** Valid for {@link Node|`Node`}. */
+	normalize(): void;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	pause(): void;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	pauseAnimations(): void;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	play(): Promise<void>;
+	/** Valid for {@link ParentNode|`ParentNode`}. */
+	prepend(...nodes: (Node | string)[]): void;
+	/** Valid for {@link ParentNode|`ParentNode`}. */
+	querySelector<K extends keyof HTMLElementTagNameMap>(selectors: K): HTMLElementTagNameMap[K] | null;
+	querySelector<K extends keyof SVGElementTagNameMap>(selectors: K): SVGElementTagNameMap[K] | null;
+	querySelector<K extends keyof MathMLElementTagNameMap>(selectors: K): MathMLElementTagNameMap[K] | null;
+	querySelector<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): HTMLElementDeprecatedTagNameMap[K] | null;
+	querySelector<E extends Element = Element>(selectors: string): E | null;
+	/** Valid for {@link ParentNode|`ParentNode`}. */
+	querySelectorAll<K extends keyof HTMLElementTagNameMap>(selectors: K): NodeListOf<HTMLElementTagNameMap[K]>;
+	querySelectorAll<K extends keyof SVGElementTagNameMap>(selectors: K): NodeListOf<SVGElementTagNameMap[K]>;
+	querySelectorAll<K extends keyof MathMLElementTagNameMap>(selectors: K): NodeListOf<MathMLElementTagNameMap[K]>;
+	querySelectorAll<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): NodeListOf<HTMLElementDeprecatedTagNameMap[K]>;
+	querySelectorAll<E extends Element = Element>(selectors: string): NodeListOf<E>;
+	/** Valid for {@link Element|`Element`}. */
+	releasePointerCapture(pointerId: number): void;
+	/** Valid for {@link ChildNode|`ChildNode`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	remove(): void;
+	remove(index: number): void;
+	/** Valid for {@link Element|`Element`}. */
+	removeAttribute(qualifiedName: string): void;
+	/** Valid for {@link Element|`Element`}. */
+	removeAttributeNS(namespace: string | null, localName: string): void;
+	/** Valid for {@link Element|`Element`}. */
+	removeAttributeNode(attr: Attr): Attr;
+	/** Valid for {@link Node|`Node`}. */
+	removeChild<T extends Node>(child: T): T;
+	/** Valid for {@link Node|`Node`}. */
+	replaceChild<T extends Node>(node: Node, child: T): T;
+	/** Valid for {@link ParentNode|`ParentNode`}. */
+	replaceChildren(...nodes: (Node | string)[]): void;
+	/** Valid for {@link ChildNode|`ChildNode`}. */
+	replaceWith(...nodes: (Node | string)[]): void;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	reportValidity(): boolean;
+	/** Valid for {@link Element|`Element`}. */
+	requestFullscreen(options?: FullscreenOptions): Promise<void>;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	requestPictureInPicture(): Promise<PictureInPictureWindow>;
+	/** Valid for {@link Element|`Element`}. */
+	requestPointerLock(options?: PointerLockOptions): Promise<void>;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
+	requestSubmit(submitter?: HTMLElement | null): void;
+	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
+	requestVideoFrameCallback(callback: VideoFrameRequestCallback): number;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
+	reset(): void;
+	/** Valid for {@link Element|`Element`}. */
+	scroll(options?: ScrollToOptions): void;
+	scroll(x: number, y: number): void;
+	/** Valid for {@link Element|`Element`}. */
+	scrollBy(options?: ScrollToOptions): void;
+	scrollBy(x: number, y: number): void;
+	/** Valid for {@link Element|`Element`}. */
+	scrollIntoView(arg?: boolean | ScrollIntoViewOptions): void;
+	/** Valid for {@link Element|`Element`}. */
+	scrollTo(options?: ScrollToOptions): void;
+	scrollTo(x: number, y: number): void;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	select(): void;
+	/** @deprecated Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
+	selectSubString(charnum: number, nchars: number): void;
+	/** Valid for {@link Element|`Element`}. */
+	setAttribute(qualifiedName: string, value: string): void;
+	/** Valid for {@link Element|`Element`}. */
+	setAttributeNS(namespace: string | null, qualifiedName: string, value: string): void;
+	/** Valid for {@link Element|`Element`}. */
+	setAttributeNode(attr: Attr): Attr | null;
+	/** Valid for {@link Element|`Element`}. */
+	setAttributeNodeNS(attr: Attr): Attr | null;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	setCurrentTime(seconds: number): void;
+	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	setCustomValidity(error: string): void;
+	/** Valid for {@link Element|`Element`}. */
+	setHTMLUnsafe(html: string): void;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	setMediaKeys(mediaKeys: MediaKeys | null): Promise<void>;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	setOrientToAngle(angle: SVGAngle): void;
+	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
+	setOrientToAuto(): void;
+	/** Valid for {@link Element|`Element`}. */
+	setPointerCapture(pointerId: number): void;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	setRangeText(replacement: string): void;
+	setRangeText(replacement: string, start: number, end: number, selectionMode?: SelectionMode): void;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
+	setSelectionRange(start: number | null, end: number | null, direction?: "forward" | "backward" | "none"): void;
+	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
+	setSinkId(sinkId: string): Promise<void>;
+	/** Valid for {@link SVGFEDropShadowElement|`SVGFEDropShadowElement`} and {@link SVGFEGaussianBlurElement|`SVGFEGaussianBlurElement`}. */
+	setStdDeviation(stdDeviationX: number, stdDeviationY: number): void;
+	/** Valid for {@link HTMLDialogElement|`HTMLDialogElement`}. */
+	show(): void;
+	/** Valid for {@link HTMLDialogElement|`HTMLDialogElement`}. */
+	showModal(): void;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	showPicker(): void;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	showPopover(): void;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	stepDown(n?: number): void;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
+	stepUp(n?: number): void;
+	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
+	submit(): void;
+	/** @deprecated Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	suspendRedraw(maxWaitMilliseconds: number): number;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
+	toBlob(callback: BlobCallback, type?: string, quality?: any): void;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
+	toDataURL(type?: string, quality?: any): string;
+	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
+	toString(): string;
+	/** Valid for {@link Element|`Element`}. */
+	toggleAttribute(qualifiedName: string, force?: boolean): boolean;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	togglePopover(force?: boolean): boolean;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
+	transferControlToOffscreen(): OffscreenCanvas;
+	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	unpauseAnimations(): void;
+	/** @deprecated Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	unsuspendRedraw(suspendHandleID: number): void;
+	/** @deprecated Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
+	unsuspendRedrawAll(): void;
+	/** @deprecated Valid for {@link Element|`Element`}. */
+	webkitMatchesSelector(selectors: string): boolean;
+	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	[name: number]: HTMLOptionElement | HTMLOptGroupElement;
+	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	[Symbol.iterator](): IterableIterator<HTMLOptionElement>;
 }

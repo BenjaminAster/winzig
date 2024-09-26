@@ -48,7 +48,7 @@ export default (
 		headNodes.push(styleElement);
 	}
 	if (data.pretty) headNodes.push(new Text("\n"));
-	{
+	if (data.importMap) {
 		const importMapElement = document.createElement("script");
 		importMapElement.setAttribute("type", "importmap");
 		const stringifiedImportMap =
@@ -57,22 +57,22 @@ export default (
 			+ (data.pretty ? "\n" : "");
 		importMapElement.append(new Text(stringifiedImportMap));
 		headNodes.push(importMapElement);
+		if (data.pretty) headNodes.push(new Text("\n"));
 	}
-	if (data.pretty) headNodes.push(new Text("\n"));
-	{
+	if (data.entryFilePath) {
 		const scriptElement = document.createElement("script");
 		scriptElement.setAttribute("type", "module");
 		scriptElement.setAttribute("src", data.entryFilePath);
 		headNodes.push(scriptElement);
+		if (data.pretty) headNodes.push(new Text("\n"));
 	}
-	if (data.pretty) headNodes.push(new Text("\n"));
 	for (const path of data.modulePreloadPaths) {
 		const linkElement = document.createElement("link");
 		linkElement.setAttribute("rel", "modulepreload");
 		linkElement.setAttribute("href", path);
 		headNodes.push(linkElement);
+		if (data.pretty) headNodes.push(new Text("\n"));
 	}
-	if (data.pretty) headNodes.push(new Text("\n"));
 
 	document.head.prepend(...headNodes);
 };

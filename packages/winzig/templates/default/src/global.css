@@ -5,7 +5,8 @@
 	font-size-adjust: cap-height from-font;
 	overflow-wrap: break-word;
 	line-height: 1.5;
-	background-color: Canvas;
+	background-color: light-dark(white, #111);
+	color: light-dark(black, white);
 	scrollbar-color: light-dark(#ccc, #333) transparent;
 	scrollbar-width: thin;
 	-webkit-text-size-adjust: none;

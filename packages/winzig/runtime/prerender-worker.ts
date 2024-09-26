@@ -4,9 +4,16 @@ import * as Path from "node:path";
 import * as NodeURL from "node:url";
 import * as FS from "node:fs/promises";
 
-import * as HappyDOM from "happy-dom";
+import * as HappyDOM from "@benjaminaster/bundled-happy-dom";
+// import * as HappyDOM from "happy-dom/lib/index.js";
+
+// import "entities";
+// import "whatwg-mimetype";
+
+// import * as HappyDOM from "happy-dom";
 
 import "fake-indexeddb/auto";
+import addWinzigHTML from "./add-winzig-html.ts";
 
 const fakeWindow = new HappyDOM.Window({
 	settings: {
@@ -77,9 +84,39 @@ parentPort.on("message", async (data) => {
 			}
 		}) as any;
 
-		const { setBuildData } = await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./winzig-runtime.js")).href);
+		// const { setBuildData } = await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./winzig-runtime.js")).href);
 
-		setBuildData(data);
+		// setBuildData(data);
+		// await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./index.js")).href);
+
+		// // @ts-ignore
+		// globalThis.__winzig__ = {
+		// 	finish() {
+		// 		setTimeout(() => {
+		// 			addWinzigHTML({ document, Text }, {
+		// 				...data,
+		// 				pretty: workerData.pretty,
+		// 			});
+		// 			parentPort.postMessage({
+		// 				type: "send-html",
+		// 				html: `<!DOCTYPE html>\n${document.documentElement.outerHTML}`,
+		// 			});
+		// 		});
+		// 	},
+		// };
+
+		await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./winzig-runtime.js")).href);
 		await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./index.js")).href);
+
+		queueMicrotask(() => {
+			addWinzigHTML({ document, Text }, {
+				...data,
+				pretty: workerData.pretty,
+			});
+			parentPort.postMessage({
+				type: "send-html",
+				html: `<!DOCTYPE html>\n${document.documentElement.outerHTML}`,
+			});
+		});
 	}
 });

@@ -1,4 +1,8 @@
 
+/* 
+node --experimental-strip-types ./scripts/generate-interfaces.ts
+ */
+
 import * as FS from "node:fs/promises";
 import * as Path from "node:path";
 
@@ -23,36 +27,87 @@ const interfaces = new Map<string, {
 	properties: Map<string, string>,
 }>();
 
-const deprecatedHTMLElementInterfaces = [
+const deprecatedHTMLElementInterfaces = new Set([
 	"HTMLDirectoryElement",
 	"HTMLFontElement",
 	"HTMLFrameElement",
 	"HTMLFrameSetElement",
 	"HTMLMarqueeElement",
 	"HTMLParamElement",
-];
+]);
+
+const svgElementsCollidingWithHTML = new Set([
+	"a",
+	"style",
+	"script",
+	"title",
+]);
 
 // const requiredAttributes: Record<string, Set<string>> = {
 // 	HTMLInputElement: new Set(["type"]),
 // 	HTMLImageElement: new Set(["src", "alt"]),
 // };
 
-let tagNames: string[][] = [];
+const additionalInterfaces = [
+	"ARIAMixin",
+	"Animatable",
+	"ChildNode",
+	"ElementContentEditable",
+	"ElementCSSInlineStyle",
+	"EventTarget",
+	"HTMLHyperlinkElementUtils",
+	"InnerHTML",
+	"LinkStyle",
+	"Node",
+	"NonDocumentTypeChildNode",
+	"ParentNode",
+	"PopoverInvokerElement",
+	"Slottable",
+	"SVGAnimatedPoints",
+	"SVGFilterPrimitiveStandardAttributes",
+	"SVGFitToViewBox",
+	"SVGTests",
+	"SVGURIReference",
+];
 
-for (const match of domLib.matchAll(
-	/^interface (?<name>HTML\w+Element|HTMLHyperlinkElementUtils|PopoverInvokerElement|LinkStyle|HTMLElementTagNameMap) (?:extends (?<baseInterfaces>.+) )?{\n(?<content>(?:    .+\n)+)}/mg
+const htmlTagNames: [string, string][] = [];
+const svgTagNames: [string, string][] = [];
+const mathMLTagNames: [string, string][] = [];
+
+for (const match of domLib.matchAll(new RegExp([
+	String.raw`^interface (?<name>\w*Element|\w+ElementTagNameMap|${additionalInterfaces.join("|")})`,
+	String.raw`(?: extends (?<baseInterfaces>.+))? {\n(?<content>(?:    .+\n)+)`
+].join(""), "mg")
 )) {
 	const interfaceName = match.groups.name;
 
-	if (interfaceName === "HTMLElementTagNameMap") {
-		tagNames = match.groups.content.trim().split("\n").map(line => line.trim().slice(1, -1).split(`": `));
+	if (interfaceName.endsWith("ElementTagNameMap")) {
+		for (let [name, elementInterface] of match.groups.content.trim().split("\n").map(
+			line => line.trim().slice(1, -1).split(`": `)
+		)) {
+			// if (interfaceName === "SVGElementTagNameMap" && svgElementsCollidingWithHTML.has(name)) name = `"svg:${name}"`;
+			switch (interfaceName) {
+				case "HTMLElementTagNameMap": {
+					htmlTagNames.push([name, elementInterface]);
+					break;
+				}
+				case "SVGElementTagNameMap": {
+					svgTagNames.push([name, elementInterface]);
+					break;
+				}
+				case "MathMLElementTagNameMap": {
+					mathMLTagNames.push([name, elementInterface]);
+					break;
+				}
+			}
+		}
 	} else {
-		const baseInterfaces = match.groups.baseInterfaces?.split(", ").map(base => `WinzigInternals.ElementAttributes.${base}Attributes`);
+		const baseInterfaces = match.groups.baseInterfaces?.split(", ").map(base => `ElementAttributes.${base}Attributes`);
 
 		// console.log(interfaceName, baseInterfaces);
 		// const baseInterfaces = match.groups.baseInterfaces?.split(", ") ?? [];
 		// console.log(interfaceName, baseInterfaces);
-		if (deprecatedHTMLElementInterfaces.includes(interfaceName)) continue;
+		if (deprecatedHTMLElementInterfaces.has(interfaceName)) continue;
 		// let isFormInterface = interfaceName === "HTMLFormElement";
 
 		const interfaceInfo = {
@@ -102,27 +157,63 @@ for (const match of domLib.matchAll(
 }
 
 {
-	interfaces.get("HTMLMediaElement").extends.push("WinzigInternals.HTMLMediaElementEventHandlers");
+	for (const interfaceName of ["HTMLElement", "SVGElement", "MathMLElement"]) {
+		const info = interfaces.get(interfaceName);
+		info.extends = info.extends.filter(base => base !== "ElementAttributes.GlobalEventHandlersAttributes");
+	}
+	// interfaces.get("Element").extends = ["ElementAttributes.ARIAMixinAttributes"];
+
+	interfaces.get("Element").extends.push("WinzigTypes.GlobalEventHandlers");
+	interfaces.get("Element").extends.push("WinzigTypes.ElementEventHandlers");
+	interfaces.get("Element").properties.delete("onfullscreenchange");
+	interfaces.get("Element").properties.delete("onfullscreenerror");
+	interfaces.get("HTMLMediaElement").extends.push("WinzigTypes.HTMLMediaElementEventHandlers");
 	interfaces.get("HTMLMediaElement").properties.delete("onencrypted");
 	interfaces.get("HTMLMediaElement").properties.delete("onwaitingforkey");
-	interfaces.get("HTMLVideoElement").extends.push("WinzigInternals.HTMLVideoElementEventHandlers");
+	interfaces.get("HTMLVideoElement").extends.push("WinzigTypes.HTMLVideoElementEventHandlers");
 	interfaces.get("HTMLVideoElement").properties.delete("onenterpictureinpicture");
 	interfaces.get("HTMLVideoElement").properties.delete("onleavepictureinpicture");
 }
 
-interfaces.delete("HTMLOrSVGElement");
-
 {
+	// More specific string stypes:
 	const joinStringTypes = (types: string[]) => types.map(type => JSON.stringify(type)).join(" | ");
 
 	const orStringWithAutocomplete = " | (string & {})";
-	interfaces.get("HTMLBodyElement").extends = ["WinzigInternals.ElementAttributes.HTMLElementAttributes"];
-	interfaces.get("HTMLLinkElement").properties.set("sizes", "string");
+	const orNull = " | null";
+
+	interfaces.get("HTMLElement").properties.set("autocapitalize", joinStringTypes([
+		"off", "none", "on", "sentences", "words", "characters"
+	]));
+	interfaces.get("HTMLElement").properties.set("autocorrect", "boolean");
+	interfaces.get("HTMLElement").properties.set("dir", joinStringTypes([
+		"ltr", "rtl", "auto"
+	]));
+	interfaces.get("HTMLElement").properties.set("hidden", 'boolean | "until-found"');
+	interfaces.get("HTMLElement").properties.set("dir",
+		joinStringTypes(["auto", "manual"]) + orNull
+	);
+	interfaces.get("HTMLElement").properties.set("writingSuggestions",
+		joinStringTypes(["true", "false"])
+	);
+
+	interfaces.get("ElementContentEditable").properties.set("enterKeyHint", joinStringTypes([
+		"enter", "done", "go", "next", "previous", "search", "send"
+	]));
+	interfaces.get("ElementContentEditable").properties.set("contentEditable", joinStringTypes([
+		"true", "false", "plaintext-only", "inherit"
+	]));
+	interfaces.get("ElementContentEditable").properties.set("inputMode", joinStringTypes([
+		"none", "text", "tel", "url", "email", "numeric", "decimal", "search"
+	]));
+
 	interfaces.get("HTMLInputElement").properties.set("type", joinStringTypes([
 		// https://html.spec.whatwg.org/multipage/input.html#attr-input-type
 		"hidden", "text", "search", "tel", "url", "email", "password", "date", "month", "week", "time", "datetime-local",
 		"number", "range", "color", "checkbox", "radio", "file", "submit", "image", "reset", "button"
 	]));
+	// https://w3c.github.io/html-media-capture/#dfn-capture
+	interfaces.get("HTMLInputElement").properties.set("capture", joinStringTypes(["user", "environment", ""]));
 	interfaces.get("HTMLAnchorElement").properties.set("referrerPolicy", "ReferrerPolicy");
 	interfaces.get("HTMLAreaElement").properties.set("referrerPolicy", "ReferrerPolicy");
 	interfaces.get("HTMLImageElement").properties.set("referrerPolicy", "ReferrerPolicy");
@@ -145,13 +236,6 @@ interfaces.delete("HTMLOrSVGElement");
 
 		// https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/DocumentSubtitle/explainer.md
 		"app-title",
-	]) + orStringWithAutocomplete);
-	interfaces.get("HTMLMetaElement").properties.set("property", joinStringTypes([
-		// https://ogp.me/
-		"og:title", "og:type", "og:image", "og:url", "og:audio", "og:description", "og:determiner", "og:locale",
-		"og:locale:alternate", "og:site_name", "og:video", "og:image", "og:image:url", "og:image",
-		"og:image:secure_url", "og:image:type", "og:image:width", "og:image:height", "og:image:alt", "og:image:alt",
-		"og:video", "og:image", "og:audio", "og:type", "og:type", "og:type", "og:type", "og:type", "og:type"
 	]) + orStringWithAutocomplete);
 	interfaces.get("HTMLMetaElement").properties.set("httpEquiv", joinStringTypes([
 		// https://html.spec.whatwg.org/multipage/semantics.html#attr-meta-http-equiv
@@ -202,6 +286,81 @@ interfaces.delete("HTMLOrSVGElement");
 	}
 	// https://html.spec.whatwg.org/multipage/grouping-content.html#attr-ol-type
 	interfaces.get("HTMLOListElement").properties.set("type", joinStringTypes(["1", "a", "A", "i", "I"]));
+	{
+		const potentialDestination = joinStringTypes([
+			// https://fetch.spec.whatwg.org/#concept-potential-destination
+			"fetch",
+			// https://fetch.spec.whatwg.org/#concept-request-destination
+			"audio", "audioworklet", "document", "embed", "font", "frame", "iframe", "image", "json", "manifest", "object", "paintworklet", "report", "script", "serviceworker", "sharedworker", "style", "track", "video", "webidentity", "worker", "xslt"
+		]);
+		interfaces.get("HTMLLinkElement").properties.set("as", potentialDestination);
+	}
+	{
+		// https://html.spec.whatwg.org/multipage/urls-and-fetching.html#fetch-priority-attribute
+		const fetchPriority = joinStringTypes(["high", "low", "auto"]);
+		interfaces.get("HTMLLinkElement").properties.set("fetchPriority", fetchPriority);
+		interfaces.get("HTMLImageElement").properties.set("fetchPriority", fetchPriority);
+		interfaces.get("HTMLScriptElement").properties.set("fetchPriority", fetchPriority);
+	}
+	{
+		// https://html.spec.whatwg.org/multipage/urls-and-fetching.html#cors-settings-attribute
+		const crossOriginTypes = joinStringTypes(["anonymous", "use-credentials", ""]) + orNull;
+		interfaces.get("HTMLLinkElement").properties.set("crossOrigin", crossOriginTypes);
+		interfaces.get("HTMLImageElement").properties.set("crossOrigin", crossOriginTypes);
+		interfaces.get("HTMLMediaElement").properties.set("crossOrigin", crossOriginTypes);
+		interfaces.get("HTMLScriptElement").properties.set("crossOrigin", crossOriginTypes);
+	}
+	interfaces.get("HTMLAreaElement").properties.set("shape", joinStringTypes([
+		// https://html.spec.whatwg.org/multipage/image-maps.html#attr-area-shape
+		// non-conforming aliases (circ, polygon, rectangle) excluded
+		"circle", "default", "poly", "rect"
+	]));
+
+	// Remove somewhat deprecated global event listeners on <body>:
+	for (const interfaceName of ["HTMLBodyElement", "SVGSVGElement"]) {
+		const info = interfaces.get(interfaceName);
+		info.extends = info.extends.filter(base => base !== "ElementAttributes.WindowEventHandlersAttributes");
+	}
+
+	// Unofficial OpenGraph `.property` attribute:
+	interfaces.get("HTMLMetaElement").properties.set("property", joinStringTypes([
+		// https://ogp.me/
+		"og:title", "og:type", "og:image", "og:url", "og:audio", "og:description", "og:determiner", "og:locale",
+		"og:locale:alternate", "og:site_name", "og:video", "og:image", "og:image:url", "og:image",
+		"og:image:secure_url", "og:image:type", "og:image:width", "og:image:height", "og:image:alt", "og:image:alt",
+		"og:video", "og:image", "og:audio", "og:type", "og:type", "og:type", "og:type", "og:type", "og:type"
+	]) + orStringWithAutocomplete);
+
+	interfaces.get("ARIAMixin").properties.set("role", joinStringTypes([
+		// https://w3c.github.io/aria/#role_definitions
+		"alert", "alertdialog", "application", "article", "banner", "blockquote", "button", "caption",
+		"cell", "checkbox", "code", "columnheader", "combobox", "command", "comment", "complementary",
+		"composite", "contentinfo", "definition", "deletion", "dialog", "directory", "document", "emphasis",
+		"feed", "figure", "form", "generic", "grid", "gridcell", "group", "heading", "image", "img",
+		"input", "insertion", "landmark", "link", "list", "listbox", "listitem", "log", "main", "mark",
+		"marquee", "math", "menu", "menubar", "menuitem", "menuitemcheckbox", "menuitemradio", "meter",
+		"navigation", "none", "note", "option", "paragraph", "presentation", "progressbar", "radio",
+		"radiogroup", "range", "region", "roletype", "row", "rowgroup", "rowheader", "scrollbar",
+		"search", "searchbox", "section", "sectionhead", "select", "separator", "slider", "spinbutton",
+		"status", "strong", "structure", "subscript", "suggestion", "superscript", "switch", "tab",
+		"table", "tablist", "tabpanel", "term", "textbox", "time", "timer", "toolbar", "tooltip",
+		"tree", "treegrid", "treeitem", "widget", "window"
+	]) + orStringWithAutocomplete + orNull);
+	// TODO: other aria attributes
+
+	// account for WebIDL's [PutForwards] extended attribute that TypeScript doesn't recognize:
+	// https://webidl.spec.whatwg.org/#PutForwards
+	interfaces.get("ElementCSSInlineStyle").properties.set("style", "string");
+	interfaces.get("HTMLLinkElement").properties.set("relList", "string");
+	interfaces.get("HTMLLinkElement").properties.set("sizes", "string");
+	interfaces.get("HTMLLinkElement").properties.set("blocking", "string");
+	interfaces.get("HTMLStyleElement").properties.set("blocking", "string");
+	interfaces.get("HTMLAnchorElement").properties.set("relList", "string");
+	interfaces.get("HTMLIFrameElement").properties.set("sandbox", "string");
+	interfaces.get("HTMLAreaElement").properties.set("relList", "string");
+	interfaces.get("HTMLFormElement").properties.set("relList", "string");
+	interfaces.get("HTMLOutputElement").properties.set("htmlFor", "string");
+	interfaces.get("HTMLScriptElement").properties.set("blocking", "string");
 }
 
 const listFormatter = new Intl.ListFormat("en-GB", {
@@ -221,11 +380,20 @@ for (const [property, propertyInfo] of allPropertiesMap) {
 	}
 }
 
-const createJSDocLine = ({ deprecated, validFor }: { deprecated: boolean, validFor: Set<string>; }) => `\t\t/**${deprecated ? " @deprecated" : ""} Valid for ${(
-	listFormatter.format(
-		[...validFor].map(interfaceName => `{@link ${interfaceName}|\`${interfaceName}\`}`)
-	)
-)}. */`;
+const createJSDocLine = ({ deprecated = false, validFor }: { deprecated?: boolean, validFor: Iterable<string>; }) =>
+	`\t/**${deprecated ? " @deprecated" : ""} Valid for ${(
+		listFormatter.format(
+			[...validFor].map(interfaceName => `{@link ${interfaceName}|\`${interfaceName}\`}`)
+		)
+	)}. */`;
+
+const createTagNameMappings = (tagNames: [string, string][]) => (tagNames
+	.map(([name, interfaceName]) => `\t${(
+		(tagNames === svgTagNames && svgElementsCollidingWithHTML.has(name))
+			? `"svg:${name}"`
+			: name.includes("-") ? JSON.stringify(name) : name
+	)}: ElementAttributes.${interfaceName}Attributes;`)
+);
 
 const result = [
 	``,
@@ -237,45 +405,64 @@ const result = [
 	`/// <reference lib="DOM.Iterable" />`,
 	`/// <reference lib="DOM.AsyncIterable" />`,
 	``,
-	`/// <reference path="./index.d.ts" />`,
+	`/// <reference path="./main.d.ts" />`,
 	``,
-	`declare namespace WinzigInternals {`,
-	`\tinterface TagNameMap {`,
-	...tagNames.map(([name, interfaceName]) => `\t\t${name}: WinzigInternals.ElementAttributes.${interfaceName}Attributes;`),
-	`\t}`,
+	`import type * as WinzigTypes from "./main.d.ts";`,
 	``,
-	`\tnamespace ElementAttributes {`,
+	`interface HTMLTagNameToAttributesMap {`,
+	...createTagNameMappings(htmlTagNames),
+	`}`,
+	``,
+	`interface SVGTagNameToAttributesMap {`,
+	...createTagNameMappings(svgTagNames),
+	`}`,
+	``,
+	`interface MathMLTagNameToAttributesMap {`,
+	...createTagNameMappings(mathMLTagNames),
+	`}`,
+	``,
+	`export interface TagNameToAttributesMap extends HTMLTagNameToAttributesMap, SVGTagNameToAttributesMap, MathMLTagNameToAttributesMap { }`,
+	``,
+	`export declare namespace ElementAttributes {`,
+	// `\tinterface HTMLElementAttributes extends WinzigTypes.HTMLElementAttributes {`,
+	// `\t}`,
+	// ``,
 	[...interfaces]
 		.sort(([name1], [name2]) => name1 > name2 ? 1 : -1)
 		.map(([name, info]) => [
-			`\t\tinterface ${name}Attributes${info.extends
+			`\tinterface ${name}Attributes${info.extends
 				? ` extends ${info.extends.join(", ")}`
 				: ""
 			} {`,
 			...[...info.properties]
 				.sort(([name1], [name2]) => name1 > name2 ? 1 : -1)
-				.map(([property, definition]) => `\t\t\t${property}?: ${definition};`),
-			`\t\t}`,
+				.map(([property, definition]) => `\t\t${property}?: ${definition};`),
+			`\t}`,
 		].join("\n"))
 		.join("\n\n"),
-	`\t}`,
+	`}`,
 	``,
-	`\tinterface WinzigGenericElement extends HTMLElement {`,
+	`interface GetHTMLOptions { }`,
+	`interface PointerLockOptions { }`,
+	``,
+	// `export interface WinzigGenericElement extends Node, Animatable, ChildNode, InnerHTML, NonDocumentTypeChildNode, ParentNode, Slottable, GlobalEventHandlers {`,
+	`export interface WinzigGenericElement extends GlobalEventHandlers {`,
 	...[...allPropertiesMap]
 		.sort(([name1], [name2]) => name1 > name2 ? 1 : -1)
 		.map(([name, info]) => [
 			createJSDocLine(info),
-			`\t\t${info.readonly ? "readonly " : ""}${name}: ${[...info.definitions].join(" | ")};`,
+			`\t${info.readonly ? "readonly " : ""}${name}: ${[...info.definitions].join(" | ")};`,
 		].join("\n")),
 	...[...allMethodsMap]
 		.sort(([name1], [name2]) => name1 > name2 ? 1 : -1)
 		.map(([name, info]) => [
 			createJSDocLine(info),
-			`\t\t${[...info.overloads].join(";\n\t\t")};`,
+			`\t${[...info.overloads].join(";\n\t")};`,
 		].join("\n")),
-	`\t\t[name: number]: HTMLOptionElement | HTMLOptGroupElement;`,
-	`\t\t[Symbol.iterator](): IterableIterator<HTMLOptionElement>;`,
-	`\t}`,
+	createJSDocLine({ validFor: ["HTMLSelectElement"] }),
+	`\t[name: number]: HTMLOptionElement | HTMLOptGroupElement;`,
+	createJSDocLine({ validFor: ["HTMLSelectElement"] }),
+	`\t[Symbol.iterator](): IterableIterator<HTMLOptionElement>;`,
 	`}`,
 	``,
 ].join("\n");

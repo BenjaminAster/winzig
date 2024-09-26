@@ -14,7 +14,7 @@ $: () => console.log("%c" + count$, "color: light-dark(blue, dodgerblue);"); // 
 
 let myArray$ = ["hello", "world"];
 
-const SomethingSomething = ({ }, children: Node[]) => {
+const SomethingSomething = (_: any, children: any[] = []) => {
 	return <div>
 		<div>before inserted children</div>
 		{...children}
@@ -22,9 +22,9 @@ const SomethingSomething = ({ }, children: Node[]) => {
 	</div>;
 };
 
-let Input = <input type="text" value="hello" />;
+let input = <input type="text" value="hello" />;
 
-console.log(Input, Input.value);
+console.log(input.value);
 
 const consonants = "bcdfghjklmnpqrstvwxyz";
 const vocals = "aeiou";
@@ -39,7 +39,7 @@ const vocals = "aeiou";
 		Double count: {doubleCount$}<br />
 		Triple count: {count$ * 3}<br />
 		<button className={`count-${count$.toString(16)}`} on:click={() => ++count$}>increase count</button> { }
-		<button className={`count-${count$.toString(16)}`}>increase count</button>
+		<button className={`count-${count$.toString(32)}`} on:click={() => --count$}>decrease count</button>
 		<div>some div</div>
 		<div>
 			<button on:click={() => myArray$.push(
@@ -67,7 +67,7 @@ const vocals = "aeiou";
 			</div>)}
 		</SomethingSomething>
 		<hr />
-		<Input />
+		{input}
 		{css`
 			div {
 				color: light-dark(green, lightgreen);

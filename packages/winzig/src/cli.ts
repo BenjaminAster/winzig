@@ -51,6 +51,10 @@ try {
 				type: "boolean",
 				default: false,
 			},
+			"version": {
+				type: "boolean",
+				default: false,
+			},
 		},
 		strict: true,
 		tokens: true,
@@ -75,18 +79,22 @@ if (cmdArgs.help) {
 		+ styleText(["green", "underline"], "https://github.com/BenjaminAster/winzig#cli-options")
 		+ styleText(["green"], " for help.")
 	);
+} else if (cmdArgs.version) {
+	const packageJSONPath = Path.resolve(import.meta.dirname, "../package.json");
+	const packageJSON = JSON.parse(await FS.readFile(packageJSONPath, "utf8"));
+	console.info(packageJSON.version);
 } else if (positionals[0] === "create") {
 	const templateDir = Path.resolve(import.meta.dirname, "../templates/default/");
 	await FS.cp(templateDir, process.cwd(), { recursive: true });
 	console.info("Default template copied into current directory.");
 } else {
-	init({
+	await init({
 		liveReload,
 		minify,
 		watch,
 		keepPrerenderFolder,
 		prerender,
-		workingDirectory: process.cwd(),
+		directory: process.cwd(),
 		logLevel,
 		debug,
 	});

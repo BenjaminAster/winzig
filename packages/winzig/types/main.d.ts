@@ -7,7 +7,7 @@ export interface WinzigOptions {
 	liveReload?: boolean;
 	keepPrerenderFolder?: boolean;
 	prerender?: boolean;
-	workingDirectory?: string;
+	directory?: string;
 	logLevel?: string;
 	debug?: boolean;
 }

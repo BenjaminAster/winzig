@@ -1,6 +1,6 @@
 {
 	"name": "winzig",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "Yet another reactive JavaScript frontend framework—but different.",
 	"type": "module",
 	"bin": {
@@ -23,11 +23,11 @@
 	},
 	"license": "WTFPL",
 	"dependencies": {
-		"@babel/parser": "^7.25.3",
-		"esbuild": "^0.23.0",
+		"@babel/parser": "^7.25.6",
+		"esbuild": "^0.23.1",
 		"fake-indexeddb": "^6.0.0",
-		"happy-dom": "^15.0.0",
-		"terser": "^5.31.3"
+		"@benjaminaster/bundled-happy-dom": "^0.0.1",
+		"terser": "^5.32.0"
 	},
 	"devDependencies": {
 		"@jridgewell/gen-mapping": "^0.3.5",

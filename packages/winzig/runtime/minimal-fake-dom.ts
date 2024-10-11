@@ -1,5 +1,7 @@
 
-import { voidElements } from "./constants.ts";
+// https://html.spec.whatwg.org/multipage/syntax.html#void-elements
+// deprecated void elements (https://html.spec.whatwg.org/multipage/parsing.html#serializes-as-void) excluded
+const voidElements = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
 
 export class Node {
 	textContent: string;

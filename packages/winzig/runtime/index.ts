@@ -3,6 +3,12 @@ var createHTMLElement = document.createElement.bind(document);
 var createSVGElement = document.createElementNS.bind(document, "http://www.w3.org/2000/svg");
 var createMathMLElement = document.createElementNS.bind(document, "http://www.w3.org/1998/Math/MathML");
 
+var setOrRemoveAttribute = (element: Element, attributeName: string, value: any) => (
+	value == null
+		? element.removeAttribute(attributeName)
+		: element.setAttribute(attributeName, value)
+);
+
 var setTextNodeDataToEventDotDetail = function (this: Text, event: CustomEvent) {
 	this.data = event.detail;
 };
@@ -191,4 +197,5 @@ export {
 	createSVGElement as s,
 	createMathMLElement as m,
 	createLiveTextNode as t,
+	setOrRemoveAttribute as a,
 };

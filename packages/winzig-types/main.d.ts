@@ -38,6 +38,12 @@ export type HTMLVideoElementEventHandlers = Partial<{
 	(this: HTMLVideoElement, event: HTMLVideoElementEventMap[key]) => any;
 }>;
 
+export interface GlobalSpecialAttributes {
+	[key: `data:${string}`]: any;
+	[key: `class:${string}`]: any;
+	"bind:this"?: Element;
+}
+
 export interface WinzigUsingDeclarationsPatch {
 	[Symbol.dispose](): void;
 }

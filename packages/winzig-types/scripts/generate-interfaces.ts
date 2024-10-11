@@ -27,6 +27,8 @@ const interfaces = new Map<string, {
 	properties: Map<string, string>,
 }>();
 
+// const nonEmptyAttributesInterfaces = new Set<string>();
+
 const deprecatedHTMLElementInterfaces = new Set([
 	"HTMLDirectoryElement",
 	"HTMLFontElement",
@@ -55,6 +57,7 @@ const additionalInterfaces = [
 	"ElementContentEditable",
 	"ElementCSSInlineStyle",
 	"EventTarget",
+	"GlobalEventHandlers",
 	"HTMLHyperlinkElementUtils",
 	"InnerHTML",
 	"LinkStyle",
@@ -70,14 +73,37 @@ const additionalInterfaces = [
 	"SVGURIReference",
 ];
 
+const interfacesAlreadyInElement = new Set([
+	"Element",
+	"Node",
+	"ARIAMixin",
+	"Animatable",
+	"ChildNode",
+	"NonDocumentTypeChildNode",
+	"ParentNode",
+	"Slottable",
+	"EventTarget",
+]);
+
+const mathMLTagNameToAttributesOverridesMap = Object.assign(Object.create(null), {
+	math: "MathMLMathElement",
+	mfrac: "MathMLMFracElement",
+	mo: "MathMLMOElement",
+	mpadded: "MathMLMPaddedElement",
+	mspace: "MathMLMSpaceElement",
+	munderover: "MathMLMUnderOverElement",
+	mtd: "MathMLMTableCellElement",
+});
+
 const htmlTagNames: [string, string][] = [];
 const svgTagNames: [string, string][] = [];
 const mathMLTagNames: [string, string][] = [];
 
-for (const match of domLib.matchAll(new RegExp([
-	String.raw`^interface (?<name>\w*Element|\w+ElementTagNameMap|${additionalInterfaces.join("|")})`,
-	String.raw`(?: extends (?<baseInterfaces>.+))? {\n(?<content>(?:    .+\n)+)`
-].join(""), "mg")
+for (const match of domLib.matchAll(
+	new RegExp([
+		String.raw`^interface (?<name>\w*Element|\w+ElementTagNameMap|${additionalInterfaces.join("|")})`,
+		String.raw`(?: extends (?<baseInterfaces>.+))? {\n(?<content>(?:    .+\n)+)`
+	].join(""), "mg")
 )) {
 	const interfaceName = match.groups.name;
 
@@ -96,7 +122,7 @@ for (const match of domLib.matchAll(new RegExp([
 					break;
 				}
 				case "MathMLElementTagNameMap": {
-					mathMLTagNames.push([name, elementInterface]);
+					mathMLTagNames.push([name, mathMLTagNameToAttributesOverridesMap[name] || elementInterface]);
 					break;
 				}
 			}
@@ -114,7 +140,8 @@ for (const match of domLib.matchAll(new RegExp([
 			extends: baseInterfaces,
 			properties: new Map<string, string>(),
 		};
-		interfaces.set(interfaceName, interfaceInfo);
+		const shouldAddToGenericElementInterface = !interfacesAlreadyInElement.has(interfaceName);
+		// let hasConfigurableProperties = false;
 
 		const members = match.groups.content.replaceAll("\n    ", "\n\t").split(";\n").slice(0, -1);
 		for (const member of members) {
@@ -122,57 +149,50 @@ for (const match of domLib.matchAll(new RegExp([
 			let match: RegExpMatchArray;
 			if (match = declarationLine.match(/^(?<isReadonly>readonly )?(?<propertyName>\w+)\??\: (?<definition>.+)$/)) {
 				let { propertyName, definition, isReadonly } = match.groups;
-				let propertyInfo = allPropertiesMap.get(propertyName);
-				if (!propertyInfo) allPropertiesMap.set(propertyName, propertyInfo = {
-					definitions: new Set(),
-					validFor: new Set(),
-					deprecated: true,
-					readonly: true,
-				});
 				const isDeprecated = member.includes("@deprecated");
-				if (!isDeprecated) propertyInfo.deprecated = false;
-				if (!isReadonly) {
-					propertyInfo.readonly = false;
-					if (!isDeprecated) interfaceInfo.properties.set(propertyName, definition);
+				if (!isReadonly && !isDeprecated && interfaceName !== "GlobalEventHandlers") {
+					// hasConfigurableProperties = true;
+					interfaceInfo.properties.set(propertyName, definition);
 				}
-				propertyInfo.validFor.add(interfaceName);
-				for (const subDefinition of definition.split(" | ")) propertyInfo.definitions.add(subDefinition);
+				if (shouldAddToGenericElementInterface) {
+					let propertyInfo = allPropertiesMap.get(propertyName);
+					if (!propertyInfo) allPropertiesMap.set(propertyName, propertyInfo = {
+						definitions: new Set(),
+						validFor: new Set(),
+						deprecated: true,
+						readonly: true,
+					});
+					if (!isDeprecated) propertyInfo.deprecated = false;
+					if (!isReadonly) {
+						propertyInfo.readonly = false;
+					}
+					propertyInfo.validFor.add(interfaceName);
+					for (const subDefinition of definition.split(" | ")) propertyInfo.definitions.add(subDefinition);
+				}
 			} else if (match = declarationLine.match(/^(?<methodName>\w+)[<(]/)) {
-				let { methodName } = match.groups;
-				if (["addEventListener", "removeEventListener"].includes(methodName)) continue;
-				let methodInfo = allMethodsMap.get(methodName);
-				if (!methodInfo) allMethodsMap.set(methodName, methodInfo = {
-					overloads: new Set(),
-					validFor: new Set(),
-					deprecated: true,
-				});
-				if (!member.includes("@deprecated")) methodInfo.deprecated = false;
-				methodInfo.validFor.add(interfaceName);
-				methodInfo.overloads.add(declarationLine);
+				if (shouldAddToGenericElementInterface) {
+					let { methodName } = match.groups;
+					if (["addEventListener", "removeEventListener"].includes(methodName)) continue;
+					let methodInfo = allMethodsMap.get(methodName);
+					if (!methodInfo) allMethodsMap.set(methodName, methodInfo = {
+						overloads: new Set(),
+						validFor: new Set(),
+						deprecated: true,
+					});
+					if (!member.includes("@deprecated")) methodInfo.deprecated = false;
+					methodInfo.validFor.add(interfaceName);
+					methodInfo.overloads.add(declarationLine);
+				}
 			} else {
 				console.log(`skipped property/method ${declarationLine} (${interfaceName})`);
 			}
 		}
-	}
-}
 
-{
-	for (const interfaceName of ["HTMLElement", "SVGElement", "MathMLElement"]) {
-		const info = interfaces.get(interfaceName);
-		info.extends = info.extends.filter(base => base !== "ElementAttributes.GlobalEventHandlersAttributes");
+		interfaces.set(interfaceName, interfaceInfo);
+		// if (hasConfigurableProperties) {
+		// 	// nonEmptyAttributesInterfaces.add(`ElementAttributes.${interfaceName}Attributes`);
+		// }
 	}
-	// interfaces.get("Element").extends = ["ElementAttributes.ARIAMixinAttributes"];
-
-	interfaces.get("Element").extends.push("WinzigTypes.GlobalEventHandlers");
-	interfaces.get("Element").extends.push("WinzigTypes.ElementEventHandlers");
-	interfaces.get("Element").properties.delete("onfullscreenchange");
-	interfaces.get("Element").properties.delete("onfullscreenerror");
-	interfaces.get("HTMLMediaElement").extends.push("WinzigTypes.HTMLMediaElementEventHandlers");
-	interfaces.get("HTMLMediaElement").properties.delete("onencrypted");
-	interfaces.get("HTMLMediaElement").properties.delete("onwaitingforkey");
-	interfaces.get("HTMLVideoElement").extends.push("WinzigTypes.HTMLVideoElementEventHandlers");
-	interfaces.get("HTMLVideoElement").properties.delete("onenterpictureinpicture");
-	interfaces.get("HTMLVideoElement").properties.delete("onleavepictureinpicture");
 }
 
 {
@@ -181,6 +201,8 @@ for (const match of domLib.matchAll(new RegExp([
 
 	const orStringWithAutocomplete = " | (string & {})";
 	const orNull = " | null";
+	const booleanString = joinStringTypes(["true", "false"]);
+	const booleanish = booleanString + " | boolean"; // booleans are usually automatically converted to strings as per WebIDL spec
 
 	interfaces.get("HTMLElement").properties.set("autocapitalize", joinStringTypes([
 		"off", "none", "on", "sentences", "words", "characters"
@@ -191,11 +213,9 @@ for (const match of domLib.matchAll(new RegExp([
 	]));
 	interfaces.get("HTMLElement").properties.set("hidden", 'boolean | "until-found"');
 	interfaces.get("HTMLElement").properties.set("dir",
-		joinStringTypes(["auto", "manual"]) + orNull
+		joinStringTypes(["rtl", "ltr", "auto"]) + orNull
 	);
-	interfaces.get("HTMLElement").properties.set("writingSuggestions",
-		joinStringTypes(["true", "false"])
-	);
+	interfaces.get("HTMLElement").properties.set("writingSuggestions", booleanish);
 
 	interfaces.get("ElementContentEditable").properties.set("enterKeyHint", joinStringTypes([
 		"enter", "done", "go", "next", "previous", "search", "send"
@@ -322,15 +342,6 @@ for (const match of domLib.matchAll(new RegExp([
 		info.extends = info.extends.filter(base => base !== "ElementAttributes.WindowEventHandlersAttributes");
 	}
 
-	// Unofficial OpenGraph `.property` attribute:
-	interfaces.get("HTMLMetaElement").properties.set("property", joinStringTypes([
-		// https://ogp.me/
-		"og:title", "og:type", "og:image", "og:url", "og:audio", "og:description", "og:determiner", "og:locale",
-		"og:locale:alternate", "og:site_name", "og:video", "og:image", "og:image:url", "og:image",
-		"og:image:secure_url", "og:image:type", "og:image:width", "og:image:height", "og:image:alt", "og:image:alt",
-		"og:video", "og:image", "og:audio", "og:type", "og:type", "og:type", "og:type", "og:type", "og:type"
-	]) + orStringWithAutocomplete);
-
 	interfaces.get("ARIAMixin").properties.set("role", joinStringTypes([
 		// https://w3c.github.io/aria/#role_definitions
 		"alert", "alertdialog", "application", "article", "banner", "blockquote", "button", "caption",
@@ -348,19 +359,154 @@ for (const match of domLib.matchAll(new RegExp([
 	]) + orStringWithAutocomplete + orNull);
 	// TODO: other aria attributes
 
-	// account for WebIDL's [PutForwards] extended attribute that TypeScript doesn't recognize:
-	// https://webidl.spec.whatwg.org/#PutForwards
-	interfaces.get("ElementCSSInlineStyle").properties.set("style", "string");
-	interfaces.get("HTMLLinkElement").properties.set("relList", "string");
-	interfaces.get("HTMLLinkElement").properties.set("sizes", "string");
-	interfaces.get("HTMLLinkElement").properties.set("blocking", "string");
-	interfaces.get("HTMLStyleElement").properties.set("blocking", "string");
-	interfaces.get("HTMLAnchorElement").properties.set("relList", "string");
-	interfaces.get("HTMLIFrameElement").properties.set("sandbox", "string");
-	interfaces.get("HTMLAreaElement").properties.set("relList", "string");
-	interfaces.get("HTMLFormElement").properties.set("relList", "string");
-	interfaces.get("HTMLOutputElement").properties.set("htmlFor", "string");
-	interfaces.get("HTMLScriptElement").properties.set("blocking", "string");
+	{
+		// account for WebIDL's [PutForwards] extended attribute that TypeScript doesn't recognize:
+		// https://webidl.spec.whatwg.org/#PutForwards
+		interfaces.get("ElementCSSInlineStyle").properties.set("style", "string");
+		interfaces.get("HTMLLinkElement").properties.set("relList", "string");
+		interfaces.get("HTMLLinkElement").properties.set("sizes", "string");
+		interfaces.get("HTMLLinkElement").properties.set("blocking", "string");
+		interfaces.get("HTMLStyleElement").properties.set("blocking", "string");
+		interfaces.get("HTMLAnchorElement").properties.set("relList", "string");
+		interfaces.get("HTMLIFrameElement").properties.set("sandbox", "string");
+		interfaces.get("HTMLAreaElement").properties.set("relList", "string");
+		interfaces.get("HTMLFormElement").properties.set("relList", "string");
+		interfaces.get("HTMLOutputElement").properties.set("htmlFor", "string");
+		interfaces.get("HTMLScriptElement").properties.set("blocking", "string");
+	}
+
+	{
+		// Attributs that do not have a corresponding IDL attribute
+
+		// Unofficial OpenGraph `.property` attribute:
+		interfaces.get("HTMLMetaElement").properties.set(`"attr:property"`, joinStringTypes([
+			// https://ogp.me/
+			"og:title", "og:type", "og:image", "og:url", "og:audio", "og:description", "og:determiner", "og:locale",
+			"og:locale:alternate", "og:site_name", "og:video", "og:image", "og:image:url", "og:image",
+			"og:image:secure_url", "og:image:type", "og:image:width", "og:image:height", "og:image:alt", "og:image:alt",
+			"og:video", "og:image", "og:audio", "og:type", "og:type", "og:type", "og:type", "og:type", "og:type"
+		]) + orStringWithAutocomplete + orNull);
+
+		// https://w3c.github.io/mathml-core/#dfn-displaystyle
+		interfaces.get("MathMLElement").properties.set(`"attr:displaystyle"`, booleanish + orNull);
+		// https://w3c.github.io/mathml-core/#dfn-scriptlevel
+		interfaces.get("MathMLElement").properties.set(`"attr:scriptlevel"`, "string" + orNull);
+
+		// The following interfaces do not exist in the MathML specification.
+		// (All MathML elements implement the generic MathMLElement interface.)
+		// I am therefore making up these names, hoping that the W3C Math Working Group
+		// will use the same names in case they ever get specified.
+		// The question is especially whether the M prefix would be included in the interface name or not.
+		// https://github.com/w3c/mathml-core/issues/159
+
+		{
+			let mathMLMathElementAttributes = interfaces.get("MathMLMathElement");
+			if (!mathMLMathElementAttributes) interfaces.set("MathMLMathElement", mathMLMathElementAttributes = {
+				extends: ["ElementAttributes.MathMLElementAttributes"],
+				properties: new Map(),
+			});
+			// https://w3c.github.io/mathml-core/#dfn-display
+			mathMLMathElementAttributes.properties.set(`"attr:display"`, joinStringTypes(["block", "inline"]) + orNull);
+		}
+
+		{
+			let mathMLMOElementAttributes = interfaces.get("MathMLMOElement");
+			if (!mathMLMOElementAttributes) interfaces.set("MathMLMOElement", mathMLMOElementAttributes = {
+				extends: ["ElementAttributes.MathMLElementAttributes"],
+				properties: new Map(),
+			});
+			// https://w3c.github.io/mathml-core/#mo-attributes
+			mathMLMOElementAttributes.properties.set(`"attr:form"`, joinStringTypes(["infix", "prefix", "postfix"]) + orNull);
+			mathMLMOElementAttributes.properties.set(`"attr:lspace"`, "string" + orNull);
+			mathMLMOElementAttributes.properties.set(`"attr:rspace"`, "string" + orNull);
+			mathMLMOElementAttributes.properties.set(`"attr:stretchy"`, booleanish + orNull);
+			mathMLMOElementAttributes.properties.set(`"attr:symmetric"`, booleanish + orNull);
+			mathMLMOElementAttributes.properties.set(`"attr:maxsize"`, "string" + orNull);
+			mathMLMOElementAttributes.properties.set(`"attr:minsize"`, "string" + orNull);
+			mathMLMOElementAttributes.properties.set(`"attr:largeop"`, booleanish + orNull);
+			mathMLMOElementAttributes.properties.set(`"attr:movablelimits"`, booleanish + orNull);
+		}
+
+		{
+			let mathMLMPaddedElementAttributes = interfaces.get("MathMLMPaddedElement");
+			if (!mathMLMPaddedElementAttributes) interfaces.set("MathMLMPaddedElement", mathMLMPaddedElementAttributes = {
+				extends: ["ElementAttributes.MathMLElementAttributes"],
+				properties: new Map(),
+			});
+			// https://w3c.github.io/mathml-core/#mpadded-attributes
+			mathMLMPaddedElementAttributes.properties.set(`"attr:width"`, "string" + orNull);
+			mathMLMPaddedElementAttributes.properties.set(`"attr:height"`, "string" + orNull);
+			mathMLMPaddedElementAttributes.properties.set(`"attr:depth"`, "string" + orNull);
+			mathMLMPaddedElementAttributes.properties.set(`"attr:lspace"`, "string" + orNull);
+			mathMLMPaddedElementAttributes.properties.set(`"attr:voffset"`, "string" + orNull);
+		}
+
+		{
+			let mathMLMSpaceElementAttributes = interfaces.get("MathMLMSpaceElement");
+			if (!mathMLMSpaceElementAttributes) interfaces.set("MathMLMSpaceElement", mathMLMSpaceElementAttributes = {
+				extends: ["ElementAttributes.MathMLElementAttributes"],
+				properties: new Map(),
+			});
+			// https://w3c.github.io/mathml-core/#mspace-attributes
+			mathMLMSpaceElementAttributes.properties.set(`"attr:width"`, "string" + orNull);
+			mathMLMSpaceElementAttributes.properties.set(`"attr:height"`, "string" + orNull);
+			mathMLMSpaceElementAttributes.properties.set(`"attr:depth"`, "string" + orNull);
+		}
+
+		{
+			let mathMLMUnderOverElementAttributes = interfaces.get("MathMLMUnderOverElement");
+			if (!mathMLMUnderOverElementAttributes) interfaces.set("MathMLMUnderOverElement", mathMLMUnderOverElementAttributes = {
+				extends: ["ElementAttributes.MathMLElementAttributes"],
+				properties: new Map(),
+			});
+			// https://w3c.github.io/mathml-core/#munderover-attributes
+			mathMLMUnderOverElementAttributes.properties.set(`"attr:accent"`, booleanish + orNull);
+			mathMLMUnderOverElementAttributes.properties.set(`"attr:accentunder"`, booleanish + orNull);
+		}
+
+		{
+			let mathMLMTableCellElementAttributes = interfaces.get("MathMLMTableCellElement");
+			if (!mathMLMTableCellElementAttributes) interfaces.set("MathMLMTableCellElement", mathMLMTableCellElementAttributes = {
+				extends: ["ElementAttributes.MathMLElementAttributes"],
+				properties: new Map(),
+			});
+			// https://w3c.github.io/mathml-core/#mtd-attributes
+			mathMLMTableCellElementAttributes.properties.set(`"attr:columnspan"`, "string" + orNull);
+			mathMLMTableCellElementAttributes.properties.set(`"attr:rowspan"`, "string" + orNull);
+		}
+
+		{
+			let mathMLMFracElementAttributes = interfaces.get("MathMLMFracElement");
+			if (!mathMLMFracElementAttributes) interfaces.set("MathMLMFracElement", mathMLMFracElementAttributes = {
+				extends: ["ElementAttributes.MathMLElementAttributes"],
+				properties: new Map(),
+			});
+			// https://w3c.github.io/mathml-core/#dfn-linethickness
+			mathMLMFracElementAttributes.properties.set(`"attr:linethickness"`, "string" + orNull);
+		}
+	}
+}
+
+// for (const [interfaceName, interfaceInfo] of interfaces) {
+// 	interfaceInfo.extends &&= interfaceInfo.extends.filter(base => nonEmptyAttributesInterfaces.has(base));
+// }
+
+{
+	for (const interfaceName of ["HTMLElement", "SVGElement", "MathMLElement"]) {
+		const info = interfaces.get(interfaceName);
+		info.extends = info.extends.filter(base => base !== "ElementAttributes.GlobalEventHandlersAttributes");
+	}
+	interfaces.get("Element").extends.push("WinzigTypes.GlobalSpecialAttributes");
+	interfaces.get("Element").extends.push("WinzigTypes.GlobalEventHandlers");
+	interfaces.get("Element").extends.push("WinzigTypes.ElementEventHandlers");
+	interfaces.get("Element").properties.delete("onfullscreenchange");
+	interfaces.get("Element").properties.delete("onfullscreenerror");
+	interfaces.get("HTMLMediaElement").extends.push("WinzigTypes.HTMLMediaElementEventHandlers");
+	interfaces.get("HTMLMediaElement").properties.delete("onencrypted");
+	interfaces.get("HTMLMediaElement").properties.delete("onwaitingforkey");
+	interfaces.get("HTMLVideoElement").extends.push("WinzigTypes.HTMLVideoElementEventHandlers");
+	interfaces.get("HTMLVideoElement").properties.delete("onenterpictureinpicture");
+	interfaces.get("HTMLVideoElement").properties.delete("onleavepictureinpicture");
 }
 
 const listFormatter = new Intl.ListFormat("en-GB", {
@@ -430,7 +576,7 @@ const result = [
 	[...interfaces]
 		.sort(([name1], [name2]) => name1 > name2 ? 1 : -1)
 		.map(([name, info]) => [
-			`\tinterface ${name}Attributes${info.extends
+			`\tinterface ${name}Attributes${info.extends?.length
 				? ` extends ${info.extends.join(", ")}`
 				: ""
 			} {`,
@@ -442,11 +588,7 @@ const result = [
 		.join("\n\n"),
 	`}`,
 	``,
-	`interface GetHTMLOptions { }`,
-	`interface PointerLockOptions { }`,
-	``,
-	// `export interface WinzigGenericElement extends Node, Animatable, ChildNode, InnerHTML, NonDocumentTypeChildNode, ParentNode, Slottable, GlobalEventHandlers {`,
-	`export interface WinzigGenericElement extends GlobalEventHandlers {`,
+	`export interface WinzigGenericElement extends Element {`,
 	...[...allPropertiesMap]
 		.sort(([name1], [name2]) => name1 > name2 ? 1 : -1)
 		.map(([name, info]) => [
@@ -455,10 +597,10 @@ const result = [
 		].join("\n")),
 	...[...allMethodsMap]
 		.sort(([name1], [name2]) => name1 > name2 ? 1 : -1)
-		.map(([name, info]) => [
+		.map(([name, info]) => [...info.overloads].map(overload => [
 			createJSDocLine(info),
-			`\t${[...info.overloads].join(";\n\t")};`,
-		].join("\n")),
+			`\t${overload};`,
+		].join("\n")).join("\n")),
 	createJSDocLine({ validFor: ["HTMLSelectElement"] }),
 	`\t[name: number]: HTMLOptionElement | HTMLOptGroupElement;`,
 	createJSDocLine({ validFor: ["HTMLSelectElement"] }),

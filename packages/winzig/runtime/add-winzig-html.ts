@@ -1,8 +1,10 @@
 
+type Node = import("./minimal-fake-dom.ts").Node;
+
 export default (
 	{ document, Text }: {
-		document: Document,
-		Text: typeof globalThis.Text,
+		document: import("./minimal-fake-dom.ts").Document,
+		Text: typeof import("./minimal-fake-dom.ts").Text,
 	},
 	data: any,
 ) => {

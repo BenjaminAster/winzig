@@ -196,32 +196,32 @@ interface MathMLTagNameToAttributesMap {
 	annotation: ElementAttributes.MathMLElementAttributes;
 	"annotation-xml": ElementAttributes.MathMLElementAttributes;
 	maction: ElementAttributes.MathMLElementAttributes;
-	math: ElementAttributes.MathMLElementAttributes;
+	math: ElementAttributes.MathMLMathElementAttributes;
 	merror: ElementAttributes.MathMLElementAttributes;
-	mfrac: ElementAttributes.MathMLElementAttributes;
+	mfrac: ElementAttributes.MathMLMFracElementAttributes;
 	mi: ElementAttributes.MathMLElementAttributes;
 	mmultiscripts: ElementAttributes.MathMLElementAttributes;
 	mn: ElementAttributes.MathMLElementAttributes;
-	mo: ElementAttributes.MathMLElementAttributes;
+	mo: ElementAttributes.MathMLMOElementAttributes;
 	mover: ElementAttributes.MathMLElementAttributes;
-	mpadded: ElementAttributes.MathMLElementAttributes;
+	mpadded: ElementAttributes.MathMLMPaddedElementAttributes;
 	mphantom: ElementAttributes.MathMLElementAttributes;
 	mprescripts: ElementAttributes.MathMLElementAttributes;
 	mroot: ElementAttributes.MathMLElementAttributes;
 	mrow: ElementAttributes.MathMLElementAttributes;
 	ms: ElementAttributes.MathMLElementAttributes;
-	mspace: ElementAttributes.MathMLElementAttributes;
+	mspace: ElementAttributes.MathMLMSpaceElementAttributes;
 	msqrt: ElementAttributes.MathMLElementAttributes;
 	mstyle: ElementAttributes.MathMLElementAttributes;
 	msub: ElementAttributes.MathMLElementAttributes;
 	msubsup: ElementAttributes.MathMLElementAttributes;
 	msup: ElementAttributes.MathMLElementAttributes;
 	mtable: ElementAttributes.MathMLElementAttributes;
-	mtd: ElementAttributes.MathMLElementAttributes;
+	mtd: ElementAttributes.MathMLMTableCellElementAttributes;
 	mtext: ElementAttributes.MathMLElementAttributes;
 	mtr: ElementAttributes.MathMLElementAttributes;
 	munder: ElementAttributes.MathMLElementAttributes;
-	munderover: ElementAttributes.MathMLElementAttributes;
+	munderover: ElementAttributes.MathMLMUnderOverElementAttributes;
 	semantics: ElementAttributes.MathMLElementAttributes;
 }
 
@@ -237,6 +237,7 @@ export declare namespace ElementAttributes {
 		ariaChecked?: string | null;
 		ariaColCount?: string | null;
 		ariaColIndex?: string | null;
+		ariaColIndexText?: string | null;
 		ariaColSpan?: string | null;
 		ariaCurrent?: string | null;
 		ariaDescription?: string | null;
@@ -261,6 +262,7 @@ export declare namespace ElementAttributes {
 		ariaRoleDescription?: string | null;
 		ariaRowCount?: string | null;
 		ariaRowIndex?: string | null;
+		ariaRowIndexText?: string | null;
 		ariaRowSpan?: string | null;
 		ariaSelected?: string | null;
 		ariaSetSize?: string | null;
@@ -278,7 +280,7 @@ export declare namespace ElementAttributes {
 	interface ChildNodeAttributes extends ElementAttributes.NodeAttributes {
 	}
 
-	interface ElementAttributes extends ElementAttributes.NodeAttributes, ElementAttributes.ARIAMixinAttributes, ElementAttributes.AnimatableAttributes, ElementAttributes.ChildNodeAttributes, ElementAttributes.NonDocumentTypeChildNodeAttributes, ElementAttributes.ParentNodeAttributes, ElementAttributes.SlottableAttributes, WinzigTypes.GlobalEventHandlers, WinzigTypes.ElementEventHandlers {
+	interface ElementAttributes extends ElementAttributes.NodeAttributes, ElementAttributes.ARIAMixinAttributes, ElementAttributes.AnimatableAttributes, ElementAttributes.ChildNodeAttributes, ElementAttributes.NonDocumentTypeChildNodeAttributes, ElementAttributes.ParentNodeAttributes, ElementAttributes.SlottableAttributes, WinzigTypes.GlobalSpecialAttributes, WinzigTypes.GlobalEventHandlers, WinzigTypes.ElementEventHandlers {
 		className?: string;
 		id?: string;
 		innerHTML?: string;
@@ -299,6 +301,9 @@ export declare namespace ElementAttributes {
 	}
 
 	interface EventTargetAttributes {
+	}
+
+	interface GlobalEventHandlersAttributes {
 	}
 
 	interface HTMLAnchorElementAttributes extends ElementAttributes.HTMLElementAttributes, ElementAttributes.HTMLHyperlinkElementUtilsAttributes {
@@ -383,7 +388,7 @@ export declare namespace ElementAttributes {
 		accessKey?: string;
 		autocapitalize?: "off" | "none" | "on" | "sentences" | "words" | "characters";
 		autocorrect?: boolean;
-		dir?: "auto" | "manual" | null;
+		dir?: "rtl" | "ltr" | "auto" | null;
 		draggable?: boolean;
 		hidden?: boolean | "until-found";
 		inert?: boolean;
@@ -394,7 +399,7 @@ export declare namespace ElementAttributes {
 		spellcheck?: boolean;
 		title?: string;
 		translate?: boolean;
-		writingSuggestions?: "true" | "false";
+		writingSuggestions?: "true" | "false" | boolean;
 	}
 
 	interface HTMLEmbedElementAttributes extends ElementAttributes.HTMLElementAttributes {
@@ -575,11 +580,11 @@ export declare namespace ElementAttributes {
 	}
 
 	interface HTMLMetaElementAttributes extends ElementAttributes.HTMLElementAttributes {
+		"attr:property"?: "og:title" | "og:type" | "og:image" | "og:url" | "og:audio" | "og:description" | "og:determiner" | "og:locale" | "og:locale:alternate" | "og:site_name" | "og:video" | "og:image" | "og:image:url" | "og:image" | "og:image:secure_url" | "og:image:type" | "og:image:width" | "og:image:height" | "og:image:alt" | "og:image:alt" | "og:video" | "og:image" | "og:audio" | "og:type" | "og:type" | "og:type" | "og:type" | "og:type" | "og:type" | (string & {}) | null;
 		content?: string;
 		httpEquiv?: "content-language" | "content-type" | "default-style" | "refresh" | "set-cookie" | "x-ua-compatible" | "content-security-policy" | "origin-trial" | (string & {});
 		media?: string;
 		name?: "application-name" | "author" | "description" | "generator" | "keywords" | "referrer" | "theme-color" | "color-scheme" | "license" | "robots" | "viewport" | "version" | "twitter:card" | "twitter:site" | "twitter:site:id" | "twitter:creator" | "twitter:creator:id" | "twitter:description" | "twitter:title" | "twitter:image" | "twitter:image:alt" | "twitter:player" | "twitter:player:width" | "twitter:player:height" | "twitter:player:stream" | "twitter:app:name:iphone" | "twitter:app:id:iphone" | "twitter:app:url:iphone" | "twitter:app:name:ipad" | "twitter:app:id:ipad" | "twitter:app:url:ipad" | "twitter:app:name:googleplay" | "twitter:app:id:googleplay" | "twitter:app:url:googleplay" | "app-title" | (string & {});
-		property?: "og:title" | "og:type" | "og:image" | "og:url" | "og:audio" | "og:description" | "og:determiner" | "og:locale" | "og:locale:alternate" | "og:site_name" | "og:video" | "og:image" | "og:image:url" | "og:image" | "og:image:secure_url" | "og:image:type" | "og:image:width" | "og:image:height" | "og:image:alt" | "og:image:alt" | "og:video" | "og:image" | "og:audio" | "og:type" | "og:type" | "og:type" | "og:type" | "og:type" | "og:type" | (string & {});
 	}
 
 	interface HTMLMeterElementAttributes extends ElementAttributes.HTMLElementAttributes {
@@ -798,6 +803,52 @@ export declare namespace ElementAttributes {
 	}
 
 	interface MathMLElementAttributes extends ElementAttributes.ElementAttributes, ElementAttributes.ElementCSSInlineStyleAttributes, ElementAttributes.HTMLOrSVGElementAttributes {
+		"attr:displaystyle"?: "true" | "false" | boolean | null;
+		"attr:scriptlevel"?: string | null;
+	}
+
+	interface MathMLMFracElementAttributes extends ElementAttributes.MathMLElementAttributes {
+		"attr:linethickness"?: string | null;
+	}
+
+	interface MathMLMOElementAttributes extends ElementAttributes.MathMLElementAttributes {
+		"attr:form"?: "infix" | "prefix" | "postfix" | null;
+		"attr:largeop"?: "true" | "false" | boolean | null;
+		"attr:lspace"?: string | null;
+		"attr:maxsize"?: string | null;
+		"attr:minsize"?: string | null;
+		"attr:movablelimits"?: "true" | "false" | boolean | null;
+		"attr:rspace"?: string | null;
+		"attr:stretchy"?: "true" | "false" | boolean | null;
+		"attr:symmetric"?: "true" | "false" | boolean | null;
+	}
+
+	interface MathMLMPaddedElementAttributes extends ElementAttributes.MathMLElementAttributes {
+		"attr:depth"?: string | null;
+		"attr:height"?: string | null;
+		"attr:lspace"?: string | null;
+		"attr:voffset"?: string | null;
+		"attr:width"?: string | null;
+	}
+
+	interface MathMLMSpaceElementAttributes extends ElementAttributes.MathMLElementAttributes {
+		"attr:depth"?: string | null;
+		"attr:height"?: string | null;
+		"attr:width"?: string | null;
+	}
+
+	interface MathMLMTableCellElementAttributes extends ElementAttributes.MathMLElementAttributes {
+		"attr:columnspan"?: string | null;
+		"attr:rowspan"?: string | null;
+	}
+
+	interface MathMLMUnderOverElementAttributes extends ElementAttributes.MathMLElementAttributes {
+		"attr:accent"?: "true" | "false" | boolean | null;
+		"attr:accentunder"?: "true" | "false" | boolean | null;
+	}
+
+	interface MathMLMathElementAttributes extends ElementAttributes.MathMLElementAttributes {
+		"attr:display"?: "block" | "inline" | null;
 	}
 
 	interface NodeAttributes extends ElementAttributes.EventTargetAttributes {
@@ -1055,40 +1106,7 @@ export declare namespace ElementAttributes {
 	}
 }
 
-interface GetHTMLOptions { }
-interface PointerLockOptions { }
-
-export interface WinzigGenericElement extends GlobalEventHandlers {
-	/** Valid for {@link Node|`Node`}. */
-	readonly ATTRIBUTE_NODE: 2;
-	/** Valid for {@link Node|`Node`}. */
-	readonly CDATA_SECTION_NODE: 4;
-	/** Valid for {@link Node|`Node`}. */
-	readonly COMMENT_NODE: 8;
-	/** Valid for {@link Node|`Node`}. */
-	readonly DOCUMENT_FRAGMENT_NODE: 11;
-	/** Valid for {@link Node|`Node`}. */
-	readonly DOCUMENT_NODE: 9;
-	/** Valid for {@link Node|`Node`}. */
-	readonly DOCUMENT_POSITION_CONTAINED_BY: 0x10;
-	/** Valid for {@link Node|`Node`}. */
-	readonly DOCUMENT_POSITION_CONTAINS: 0x08;
-	/** Valid for {@link Node|`Node`}. */
-	readonly DOCUMENT_POSITION_DISCONNECTED: 0x01;
-	/** Valid for {@link Node|`Node`}. */
-	readonly DOCUMENT_POSITION_FOLLOWING: 0x04;
-	/** Valid for {@link Node|`Node`}. */
-	readonly DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC: 0x20;
-	/** Valid for {@link Node|`Node`}. */
-	readonly DOCUMENT_POSITION_PRECEDING: 0x02;
-	/** Valid for {@link Node|`Node`}. */
-	readonly DOCUMENT_TYPE_NODE: 10;
-	/** Valid for {@link Node|`Node`}. */
-	readonly ELEMENT_NODE: 1;
-	/** Valid for {@link Node|`Node`}. */
-	readonly ENTITY_NODE: 6;
-	/** Valid for {@link Node|`Node`}. */
-	readonly ENTITY_REFERENCE_NODE: 5;
+export interface WinzigGenericElement extends Element {
 	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
 	readonly ERROR: 3;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
@@ -1121,10 +1139,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly NETWORK_NO_SOURCE: 3;
 	/** Valid for {@link HTMLTrackElement|`HTMLTrackElement`}. */
 	readonly NONE: 0;
-	/** Valid for {@link Node|`Node`}. */
-	readonly NOTATION_NODE: 12;
-	/** Valid for {@link Node|`Node`}. */
-	readonly PROCESSING_INSTRUCTION_NODE: 7;
 	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
 	readonly SVG_CHANNEL_A: 4;
 	/** Valid for {@link SVGFEDisplacementMapElement|`SVGFEDisplacementMapElement`}. */
@@ -1263,8 +1277,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly TEXTPATH_SPACINGTYPE_EXACT: 2;
 	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
 	readonly TEXTPATH_SPACINGTYPE_UNKNOWN: 0;
-	/** Valid for {@link Node|`Node`}. */
-	readonly TEXT_NODE: 3;
 	/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}. */
 	aLink: string;
 	/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
@@ -1295,96 +1307,12 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	archive: string;
 	/** Valid for {@link HTMLMapElement|`HTMLMapElement`}. */
 	readonly areas: HTMLCollection;
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaAtomic: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaAutoComplete: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaBrailleLabel: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaBrailleRoleDescription: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaBusy: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaChecked: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaColCount: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaColIndex: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaColSpan: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaCurrent: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaDescription: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaDisabled: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaExpanded: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaHasPopup: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaHidden: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaInvalid: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaKeyShortcuts: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaLabel: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaLevel: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaLive: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaModal: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaMultiLine: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaMultiSelectable: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaOrientation: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaPlaceholder: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaPosInSet: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaPressed: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaReadOnly: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaRequired: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaRoleDescription: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaRowCount: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaRowIndex: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaRowSpan: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaSelected: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaSetSize: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaSort: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaValueMax: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaValueMin: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaValueNow: null | (string & {});
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	ariaValueText: null | (string & {});
 	/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}. */
 	as: string;
-	/** Valid for {@link Slottable|`Slottable`}. */
-	readonly assignedSlot: HTMLSlotElement | null;
 	/** Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
 	async: boolean;
 	/** Valid for {@link ElementCSSInlineStyle|`ElementCSSInlineStyle`}. */
 	readonly attributeStyleMap: StylePropertyMap;
-	/** Valid for {@link Element|`Element`}. */
-	readonly attributes: NamedNodeMap;
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	autocapitalize: string;
 	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
@@ -1403,8 +1331,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly baseFrequencyX: SVGAnimatedNumber;
 	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
 	readonly baseFrequencyY: SVGAnimatedNumber;
-	/** Valid for {@link Node|`Node`}. */
-	readonly baseURI: string;
 	/** @deprecated Valid for {@link HTMLBodyElement|`HTMLBodyElement`}, {@link HTMLTableCellElement|`HTMLTableCellElement`}, {@link HTMLTableElement|`HTMLTableElement`} and {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
 	bgColor: string;
 	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
@@ -1433,28 +1359,12 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	charset: string;
 	/** Valid for {@link HTMLInputElement|`HTMLInputElement`}. */
 	checked: boolean;
-	/** Valid for {@link ParentNode|`ParentNode`}. */
-	readonly childElementCount: number;
-	/** Valid for {@link Node|`Node`}. */
-	readonly childNodes: NodeListOf<ChildNode>;
-	/** Valid for {@link ParentNode|`ParentNode`}. */
-	readonly children: HTMLCollection;
 	/** Valid for {@link HTMLModElement|`HTMLModElement`} and {@link HTMLQuoteElement|`HTMLQuoteElement`}. */
 	cite: string;
-	/** Valid for {@link Element|`Element`}. */
-	readonly classList: DOMTokenList;
-	/** Valid for {@link Element|`Element`} and {@link SVGElement|`SVGElement`}. */
-	className: any | (string & {});
+	/** @deprecated Valid for {@link SVGElement|`SVGElement`}. */
+	readonly className: any;
 	/** @deprecated Valid for {@link HTMLBRElement|`HTMLBRElement`}. */
 	clear: string;
-	/** Valid for {@link Element|`Element`}. */
-	readonly clientHeight: number;
-	/** Valid for {@link Element|`Element`}. */
-	readonly clientLeft: number;
-	/** Valid for {@link Element|`Element`}. */
-	readonly clientTop: number;
-	/** Valid for {@link Element|`Element`}. */
-	readonly clientWidth: number;
 	/** Valid for {@link SVGClipPathElement|`SVGClipPathElement`}. */
 	readonly clipPathUnits: SVGAnimatedEnumeration;
 	/** @deprecated Valid for {@link HTMLObjectElement|`HTMLObjectElement`}. */
@@ -1575,10 +1485,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	files: FileList | null;
 	/** Valid for {@link SVGFilterElement|`SVGFilterElement`}. */
 	readonly filterUnits: SVGAnimatedEnumeration;
-	/** Valid for {@link Node|`Node`}. */
-	readonly firstChild: ChildNode | null;
-	/** Valid for {@link ParentNode|`ParentNode`}. */
-	readonly firstElementChild: Element | null;
 	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLLabelElement|`HTMLLabelElement`}, {@link HTMLLegendElement|`HTMLLegendElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	readonly form: HTMLFormElement | null;
 	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`} and {@link HTMLInputElement|`HTMLInputElement`}. */
@@ -1629,8 +1535,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	htmlFor: DOMTokenList | (string & {});
 	/** Valid for {@link HTMLMetaElement|`HTMLMetaElement`}. */
 	httpEquiv: string;
-	/** Valid for {@link Element|`Element`}. */
-	id: string;
 	/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}. */
 	imageSizes: string;
 	/** Valid for {@link HTMLLinkElement|`HTMLLinkElement`}. */
@@ -1645,8 +1549,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly index: number;
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	inert: boolean;
-	/** Valid for {@link Element|`Element`}. */
-	innerHTML: string;
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	innerText: string;
 	/** Valid for {@link ElementContentEditable|`ElementContentEditable`}. */
@@ -1655,8 +1557,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	integrity: string;
 	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
 	readonly intercept: SVGAnimatedNumber;
-	/** Valid for {@link Node|`Node`}. */
-	readonly isConnected: boolean;
 	/** Valid for {@link ElementContentEditable|`ElementContentEditable`}. */
 	readonly isContentEditable: boolean;
 	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
@@ -1683,10 +1583,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly labels: NodeListOf<HTMLLabelElement> | null;
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	lang: string;
-	/** Valid for {@link Node|`Node`}. */
-	readonly lastChild: ChildNode | null;
-	/** Valid for {@link ParentNode|`ParentNode`}. */
-	readonly lastElementChild: Element | null;
 	/** Valid for {@link HTMLFormElement|`HTMLFormElement`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
 	length: number;
 	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
@@ -1699,8 +1595,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly list: HTMLDataListElement | null;
 	/** Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLImageElement|`HTMLImageElement`}. */
 	loading: "eager" | "lazy" | (string & {});
-	/** Valid for {@link Element|`Element`}. */
-	readonly localName: string;
 	/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLImageElement|`HTMLImageElement`}. */
 	longDesc: string;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
@@ -1745,18 +1639,12 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	muted: boolean;
 	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLDetailsElement|`HTMLDetailsElement`}, {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`}, {@link HTMLImageElement|`HTMLImageElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLMapElement|`HTMLMapElement`}, {@link HTMLMetaElement|`HTMLMetaElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`}, {@link HTMLSlotElement|`HTMLSlotElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	name: string;
-	/** Valid for {@link Element|`Element`}. */
-	readonly namespaceURI: null | (string & {});
 	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
 	readonly naturalHeight: number;
 	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}. */
 	readonly naturalWidth: number;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	readonly networkState: number;
-	/** Valid for {@link NonDocumentTypeChildNode|`NonDocumentTypeChildNode`}. */
-	readonly nextElementSibling: Element | null;
-	/** Valid for {@link Node|`Node`}. */
-	readonly nextSibling: ChildNode | null;
 	/** @deprecated Valid for {@link HTMLAreaElement|`HTMLAreaElement`}. */
 	noHref: boolean;
 	/** Valid for {@link HTMLScriptElement|`HTMLScriptElement`}. */
@@ -1767,12 +1655,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	noValidate: boolean;
 	/** @deprecated Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
 	noWrap: boolean;
-	/** Valid for {@link Node|`Node`}. */
-	readonly nodeName: string;
-	/** Valid for {@link Node|`Node`}. */
-	readonly nodeType: number;
-	/** Valid for {@link Node|`Node`}. */
-	nodeValue: null | (string & {});
 	/** Valid for {@link HTMLOrSVGElement|`HTMLOrSVGElement`}. */
 	nonce: string;
 	/** Valid for {@link SVGFETurbulenceElement|`SVGFETurbulenceElement`}. */
@@ -1789,18 +1671,210 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly offsetTop: number;
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	readonly offsetWidth: number;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onabort: ((this: GlobalEventHandlers, ev: UIEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onanimationcancel: ((this: GlobalEventHandlers, ev: AnimationEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onanimationend: ((this: GlobalEventHandlers, ev: AnimationEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onanimationiteration: ((this: GlobalEventHandlers, ev: AnimationEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onanimationstart: ((this: GlobalEventHandlers, ev: AnimationEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onauxclick: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onbeforeinput: ((this: GlobalEventHandlers, ev: InputEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onbeforetoggle: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onblur: ((this: GlobalEventHandlers, ev: FocusEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oncancel: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oncanplay: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oncanplaythrough: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onchange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onclick: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onclose: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oncontextlost: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oncontextmenu: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oncontextrestored: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oncopy: ((this: GlobalEventHandlers, ev: ClipboardEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oncuechange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oncut: ((this: GlobalEventHandlers, ev: ClipboardEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ondblclick: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ondrag: ((this: GlobalEventHandlers, ev: DragEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ondragend: ((this: GlobalEventHandlers, ev: DragEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ondragenter: ((this: GlobalEventHandlers, ev: DragEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ondragleave: ((this: GlobalEventHandlers, ev: DragEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ondragover: ((this: GlobalEventHandlers, ev: DragEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ondragstart: ((this: GlobalEventHandlers, ev: DragEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ondrop: ((this: GlobalEventHandlers, ev: DragEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ondurationchange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onemptied: ((this: GlobalEventHandlers, ev: Event) => any) | null;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	onencrypted: ((this: HTMLMediaElement, ev: MediaEncryptedEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onended: ((this: GlobalEventHandlers, ev: Event) => any) | null;
 	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-	onenterpictureinpicture: ((this: HTMLVideoElement, ev: Event) => any) | null;
-	/** Valid for {@link Element|`Element`}. */
-	onfullscreenchange: ((this: Element, ev: Event) => any) | null;
-	/** Valid for {@link Element|`Element`}. */
-	onfullscreenerror: ((this: Element, ev: Event) => any) | null;
+	onenterpictureinpicture: ((this: HTMLVideoElement, ev: PictureInPictureEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onerror: OnErrorEventHandler;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onfocus: ((this: GlobalEventHandlers, ev: FocusEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onformdata: ((this: GlobalEventHandlers, ev: FormDataEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ongotpointercapture: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oninput: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	oninvalid: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onkeydown: ((this: GlobalEventHandlers, ev: KeyboardEvent) => any) | null;
+	/** @deprecated Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onkeypress: ((this: GlobalEventHandlers, ev: KeyboardEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onkeyup: ((this: GlobalEventHandlers, ev: KeyboardEvent) => any) | null;
 	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
-	onleavepictureinpicture: ((this: HTMLVideoElement, ev: Event) => any) | null;
+	onleavepictureinpicture: ((this: HTMLVideoElement, ev: PictureInPictureEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onload: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onloadeddata: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onloadedmetadata: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onloadstart: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onlostpointercapture: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onmousedown: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onmouseenter: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onmouseleave: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onmousemove: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onmouseout: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onmouseover: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onmouseup: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpaste: ((this: GlobalEventHandlers, ev: ClipboardEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpause: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onplay: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onplaying: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpointercancel: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpointerdown: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpointerenter: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpointerleave: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpointermove: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpointerout: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpointerover: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onpointerup: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onprogress: ((this: GlobalEventHandlers, ev: ProgressEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onratechange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onreset: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onresize: ((this: GlobalEventHandlers, ev: UIEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onscroll: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onscrollend: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onsecuritypolicyviolation: ((this: GlobalEventHandlers, ev: SecurityPolicyViolationEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onseeked: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onseeking: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onselect: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onselectionchange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onselectstart: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onslotchange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onstalled: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onsubmit: ((this: GlobalEventHandlers, ev: SubmitEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onsuspend: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontimeupdate: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontoggle: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontouchcancel: ((this: GlobalEventHandlers, ev: TouchEvent) => any) | null | undefined;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontouchend: ((this: GlobalEventHandlers, ev: TouchEvent) => any) | null | undefined;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontouchmove: ((this: GlobalEventHandlers, ev: TouchEvent) => any) | null | undefined;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontouchstart: ((this: GlobalEventHandlers, ev: TouchEvent) => any) | null | undefined;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontransitioncancel: ((this: GlobalEventHandlers, ev: TransitionEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontransitionend: ((this: GlobalEventHandlers, ev: TransitionEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontransitionrun: ((this: GlobalEventHandlers, ev: TransitionEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	ontransitionstart: ((this: GlobalEventHandlers, ev: TransitionEvent) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onvolumechange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onwaiting: ((this: GlobalEventHandlers, ev: Event) => any) | null;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	onwaitingforkey: ((this: HTMLMediaElement, ev: Event) => any) | null;
+	/** @deprecated Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onwebkitanimationend: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** @deprecated Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onwebkitanimationiteration: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** @deprecated Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onwebkitanimationstart: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** @deprecated Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onwebkittransitionend: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+	/** Valid for {@link GlobalEventHandlers|`GlobalEventHandlers`}. */
+	onwheel: ((this: GlobalEventHandlers, ev: WheelEvent) => any) | null;
 	/** Valid for {@link HTMLDetailsElement|`HTMLDetailsElement`} and {@link HTMLDialogElement|`HTMLDialogElement`}. */
 	open: boolean;
 	/** Valid for {@link SVGFECompositeElement|`SVGFECompositeElement`} and {@link SVGFEMorphologyElement|`SVGFEMorphologyElement`}. */
@@ -1819,20 +1893,10 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly orientType: SVGAnimatedEnumeration;
 	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
 	readonly origin: string;
-	/** Valid for {@link Element|`Element`}. */
-	outerHTML: string;
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	outerText: string;
-	/** Valid for {@link Element|`Element`} and {@link Node|`Node`}. */
-	readonly ownerDocument: Document | null;
 	/** Valid for {@link SVGElement|`SVGElement`}. */
 	readonly ownerSVGElement: SVGSVGElement | null;
-	/** Valid for {@link Node|`Node`}. */
-	readonly parentElement: HTMLElement | null;
-	/** Valid for {@link Node|`Node`}. */
-	readonly parentNode: ParentNode | null;
-	/** Valid for {@link Element|`Element`}. */
-	readonly part: DOMTokenList;
 	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
 	password: string;
 	/** Valid for {@link SVGGeometryElement|`SVGGeometryElement`}. */
@@ -1879,8 +1943,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly position: number;
 	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
 	poster: string;
-	/** Valid for {@link Element|`Element`}. */
-	readonly prefix: null | (string & {});
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	preload: "none" | "metadata" | "auto" | "";
 	/** Valid for {@link SVGFEConvolveMatrixElement|`SVGFEConvolveMatrixElement`}. */
@@ -1889,10 +1951,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly preserveAspectRatio: SVGAnimatedPreserveAspectRatio;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	preservesPitch: boolean;
-	/** Valid for {@link NonDocumentTypeChildNode|`NonDocumentTypeChildNode`}. */
-	readonly previousElementSibling: Element | null;
-	/** Valid for {@link Node|`Node`}. */
-	readonly previousSibling: ChildNode | null;
 	/** Valid for {@link SVGFilterElement|`SVGFilterElement`}. */
 	readonly primitiveUnits: SVGAnimatedEnumeration;
 	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
@@ -1931,8 +1989,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	rev: string;
 	/** Valid for {@link HTMLOListElement|`HTMLOListElement`}. */
 	reversed: boolean;
-	/** Valid for {@link ARIAMixin|`ARIAMixin`}. */
-	role: null | (string & {});
 	/** Valid for {@link SVGTextPositioningElement|`SVGTextPositioningElement`}. */
 	readonly rotate: SVGAnimatedNumberList;
 	/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
@@ -1955,14 +2011,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	scheme: string;
 	/** Valid for {@link HTMLTableCellElement|`HTMLTableCellElement`}. */
 	scope: string;
-	/** Valid for {@link Element|`Element`}. */
-	readonly scrollHeight: number;
-	/** Valid for {@link Element|`Element`}. */
-	scrollLeft: number;
-	/** Valid for {@link Element|`Element`}. */
-	scrollTop: number;
-	/** Valid for {@link Element|`Element`}. */
-	readonly scrollWidth: number;
 	/** @deprecated Valid for {@link HTMLIFrameElement|`HTMLIFrameElement`}. */
 	scrolling: string;
 	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
@@ -1987,8 +2035,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	selectionEnd: number | null;
 	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	selectionStart: number | null;
-	/** Valid for {@link Element|`Element`}. */
-	readonly shadowRoot: ShadowRoot | null;
 	/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
 	shadowRootClonable: boolean;
 	/** Valid for {@link HTMLTemplateElement|`HTMLTemplateElement`}. */
@@ -2009,8 +2055,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	sizes: DOMTokenList | (string & {});
 	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
 	readonly slope: SVGAnimatedNumber;
-	/** Valid for {@link Element|`Element`}. */
-	slot: string;
 	/** Valid for {@link SVGTextPathElement|`SVGTextPathElement`}. */
 	readonly spacing: SVGAnimatedEnumeration;
 	/** Valid for {@link HTMLTableColElement|`HTMLTableColElement`}. */
@@ -2065,8 +2109,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	tabIndex: number;
 	/** Valid for {@link SVGComponentTransferFunctionElement|`SVGComponentTransferFunctionElement`}. */
 	readonly tableValues: SVGAnimatedNumberList;
-	/** Valid for {@link Element|`Element`}. */
-	readonly tagName: string;
 	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLAreaElement|`HTMLAreaElement`}, {@link HTMLBaseElement|`HTMLBaseElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLLinkElement|`HTMLLinkElement`} and {@link SVGAElement|`SVGAElement`}. */
 	target: SVGAnimatedString | (string & {});
 	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
@@ -2077,8 +2119,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly targetY: SVGAnimatedInteger;
 	/** Valid for {@link HTMLAnchorElement|`HTMLAnchorElement`}, {@link HTMLBodyElement|`HTMLBodyElement`}, {@link HTMLOptionElement|`HTMLOptionElement`}, {@link HTMLScriptElement|`HTMLScriptElement`} and {@link HTMLTitleElement|`HTMLTitleElement`}. */
 	text: string;
-	/** Valid for {@link Node|`Node`}. */
-	textContent: null | (string & {});
 	/** Valid for {@link HTMLTextAreaElement|`HTMLTextAreaElement`} and {@link SVGTextContentElement|`SVGTextContentElement`}. */
 	readonly textLength: number | SVGAnimatedLength;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
@@ -2137,6 +2177,8 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	readonly willValidate: boolean;
 	/** Valid for {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	wrap: string;
+	/** Valid for {@link HTMLElement|`HTMLElement`}. */
+	writingSuggestions: string;
 	/** Valid for {@link HTMLImageElement|`HTMLImageElement`}, {@link SVGFEPointLightElement|`SVGFEPointLightElement`}, {@link SVGFESpotLightElement|`SVGFESpotLightElement`}, {@link SVGFilterElement|`SVGFilterElement`}, {@link SVGFilterPrimitiveStandardAttributes|`SVGFilterPrimitiveStandardAttributes`}, {@link SVGForeignObjectElement|`SVGForeignObjectElement`}, {@link SVGImageElement|`SVGImageElement`}, {@link SVGMaskElement|`SVGMaskElement`}, {@link SVGPatternElement|`SVGPatternElement`}, {@link SVGRectElement|`SVGRectElement`}, {@link SVGSVGElement|`SVGSVGElement`}, {@link SVGTextPositioningElement|`SVGTextPositioningElement`} and {@link SVGUseElement|`SVGUseElement`}. */
 	readonly x: number | SVGAnimatedNumber | SVGAnimatedLength | SVGAnimatedLengthList;
 	/** Valid for {@link SVGLineElement|`SVGLineElement`} and {@link SVGLinearGradientElement|`SVGLinearGradientElement`}. */
@@ -2159,16 +2201,8 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	add(element: HTMLOptionElement | HTMLOptGroupElement, before?: HTMLElement | number | null): void;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	addTextTrack(kind: TextTrackKind, label?: string, language?: string): TextTrack;
-	/** Valid for {@link ChildNode|`ChildNode`}. */
-	after(...nodes: (Node | string)[]): void;
-	/** Valid for {@link Animatable|`Animatable`}. */
-	animate(keyframes: Keyframe[] | PropertyIndexedKeyframes | null, options?: number | KeyframeAnimationOptions): Animation;
 	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
 	animationsPaused(): boolean;
-	/** Valid for {@link ParentNode|`ParentNode`}. */
-	append(...nodes: (Node | string)[]): void;
-	/** Valid for {@link Node|`Node`}. */
-	appendChild<T extends Node>(node: T): T;
 	/** Valid for {@link HTMLSlotElement|`HTMLSlotElement`}. */
 	assign(...nodes: (Element | Text)[]): void;
 	/** Valid for {@link HTMLSlotElement|`HTMLSlotElement`}. */
@@ -2177,10 +2211,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	assignedNodes(options?: AssignedNodesOptions): Node[];
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	attachInternals(): ElementInternals;
-	/** Valid for {@link Element|`Element`}. */
-	attachShadow(init: ShadowRootInit): ShadowRoot;
-	/** Valid for {@link ChildNode|`ChildNode`}. */
-	before(...nodes: (Node | string)[]): void;
 	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
 	beginElement(): void;
 	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
@@ -2199,25 +2229,10 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	checkIntersection(element: SVGElement, rect: DOMRectReadOnly): boolean;
 	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	checkValidity(): boolean;
-	/** Valid for {@link Element|`Element`}. */
-	checkVisibility(options?: CheckVisibilityOptions): boolean;
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	click(): void;
-	/** Valid for {@link Node|`Node`}. */
-	cloneNode(deep?: boolean): Node;
 	/** Valid for {@link HTMLDialogElement|`HTMLDialogElement`}. */
 	close(returnValue?: string): void;
-	/** Valid for {@link Element|`Element`}. */
-	closest<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K] | null;
-	closest<K extends keyof SVGElementTagNameMap>(selector: K): SVGElementTagNameMap[K] | null;
-	closest<K extends keyof MathMLElementTagNameMap>(selector: K): MathMLElementTagNameMap[K] | null;
-	closest<E extends Element = Element>(selectors: string): E | null;
-	/** Valid for {@link Node|`Node`}. */
-	compareDocumentPosition(other: Node): number;
-	/** Valid for {@link Element|`Element`}. */
-	computedStyleMap(): StylePropertyMapReadOnly;
-	/** Valid for {@link Node|`Node`}. */
-	contains(other: Node | null): boolean;
 	/** Valid for {@link HTMLTableElement|`HTMLTableElement`}. */
 	createCaption(): HTMLTableCaptionElement;
 	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
@@ -2256,8 +2271,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	deleteTHead(): void;
 	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
 	deselectAll(): void;
-	/** Valid for {@link EventTarget|`EventTarget`}. */
-	dispatchEvent(event: Event): boolean;
 	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
 	endElement(): void;
 	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`}. */
@@ -2268,69 +2281,40 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	focus(options?: FocusOptions): void;
 	/** @deprecated Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
 	forceRedraw(): void;
-	/** Valid for {@link Animatable|`Animatable`}. */
-	getAnimations(options?: GetAnimationsOptions): Animation[];
-	/** Valid for {@link Element|`Element`}. */
-	getAttribute(qualifiedName: string): string | null;
-	/** Valid for {@link Element|`Element`}. */
-	getAttributeNS(namespace: string | null, localName: string): string | null;
-	/** Valid for {@link Element|`Element`}. */
-	getAttributeNames(): string[];
-	/** Valid for {@link Element|`Element`}. */
-	getAttributeNode(qualifiedName: string): Attr | null;
-	/** Valid for {@link Element|`Element`}. */
-	getAttributeNodeNS(namespace: string | null, localName: string): Attr | null;
 	/** Valid for {@link SVGGraphicsElement|`SVGGraphicsElement`}. */
 	getBBox(options?: SVGBoundingBoxOptions): DOMRect;
-	/** Valid for {@link Element|`Element`}. */
-	getBoundingClientRect(): DOMRect;
 	/** Valid for {@link SVGGraphicsElement|`SVGGraphicsElement`}. */
 	getCTM(): DOMMatrix | null;
 	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
 	getCharNumAtPosition(point?: DOMPointInit): number;
-	/** Valid for {@link Element|`Element`}. */
-	getClientRects(): DOMRectList;
 	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
 	getComputedTextLength(): number;
 	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
 	getContext(contextId: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D | null;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
 	getContext(contextId: "bitmaprenderer", options?: ImageBitmapRenderingContextSettings): ImageBitmapRenderingContext | null;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
 	getContext(contextId: "webgl", options?: WebGLContextAttributes): WebGLRenderingContext | null;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
 	getContext(contextId: "webgl2", options?: WebGLContextAttributes): WebGL2RenderingContext | null;
+	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
 	getContext(contextId: string, options?: any): RenderingContext | null;
 	/** Valid for {@link SVGAnimationElement|`SVGAnimationElement`} and {@link SVGSVGElement|`SVGSVGElement`}. */
 	getCurrentTime(): number;
 	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
 	getElementById(elementId: string): Element;
-	/** Valid for {@link Element|`Element`}. */
-	getElementsByClassName(classNames: string): HTMLCollectionOf<Element>;
-	/** Valid for {@link Element|`Element`}. */
-	getElementsByTagName<K extends keyof HTMLElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<HTMLElementTagNameMap[K]>;
-	getElementsByTagName<K extends keyof SVGElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<SVGElementTagNameMap[K]>;
-	getElementsByTagName<K extends keyof MathMLElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<MathMLElementTagNameMap[K]>;
-	getElementsByTagName<K extends keyof HTMLElementDeprecatedTagNameMap>(qualifiedName: K): HTMLCollectionOf<HTMLElementDeprecatedTagNameMap[K]>;
-	getElementsByTagName(qualifiedName: string): HTMLCollectionOf<Element>;
-	/** Valid for {@link Element|`Element`}. */
-	getElementsByTagNameNS(namespaceURI: "http://www.w3.org/1999/xhtml", localName: string): HTMLCollectionOf<HTMLElement>;
-	getElementsByTagNameNS(namespaceURI: "http://www.w3.org/2000/svg", localName: string): HTMLCollectionOf<SVGElement>;
-	getElementsByTagNameNS(namespaceURI: "http://www.w3.org/1998/Math/MathML", localName: string): HTMLCollectionOf<MathMLElement>;
-	getElementsByTagNameNS(namespace: string | null, localName: string): HTMLCollectionOf<Element>;
 	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
 	getEnclosureList(rect: DOMRectReadOnly, referenceElement: SVGElement | null): NodeListOf<SVGCircleElement | SVGEllipseElement | SVGImageElement | SVGLineElement | SVGPathElement | SVGPolygonElement | SVGPolylineElement | SVGRectElement | SVGTextElement | SVGUseElement>;
 	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
 	getEndPositionOfChar(charnum: number): DOMPoint;
 	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
 	getExtentOfChar(charnum: number): DOMRect;
-	/** Valid for {@link Element|`Element`}. */
-	getHTML(options?: GetHTMLOptions): string;
 	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
 	getIntersectionList(rect: DOMRectReadOnly, referenceElement: SVGElement | null): NodeListOf<SVGCircleElement | SVGEllipseElement | SVGImageElement | SVGLineElement | SVGPathElement | SVGPolygonElement | SVGPolylineElement | SVGRectElement | SVGTextElement | SVGUseElement>;
 	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
 	getNumberOfChars(): number;
 	/** Valid for {@link SVGGeometryElement|`SVGGeometryElement`}. */
 	getPointAtLength(distance: number): DOMPoint;
-	/** Valid for {@link Node|`Node`}. */
-	getRootNode(options?: GetRootNodeOptions): Node;
 	/** Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
 	getRotationOfChar(charnum: number): number;
 	/** Valid for {@link HTMLEmbedElement|`HTMLEmbedElement`}, {@link HTMLIFrameElement|`HTMLIFrameElement`} and {@link HTMLObjectElement|`HTMLObjectElement`}. */
@@ -2349,146 +2333,59 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	getTotalLength(): number;
 	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
 	getVideoPlaybackQuality(): VideoPlaybackQuality;
-	/** Valid for {@link Element|`Element`}. */
-	hasAttribute(qualifiedName: string): boolean;
-	/** Valid for {@link Element|`Element`}. */
-	hasAttributeNS(namespace: string | null, localName: string): boolean;
-	/** Valid for {@link Element|`Element`}. */
-	hasAttributes(): boolean;
-	/** Valid for {@link Node|`Node`}. */
-	hasChildNodes(): boolean;
-	/** Valid for {@link Element|`Element`}. */
-	hasPointerCapture(pointerId: number): boolean;
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	hidePopover(): void;
-	/** Valid for {@link Element|`Element`}. */
-	insertAdjacentElement(where: InsertPosition, element: Element): Element | null;
-	/** Valid for {@link Element|`Element`}. */
-	insertAdjacentHTML(position: InsertPosition, string: string): void;
-	/** Valid for {@link Element|`Element`}. */
-	insertAdjacentText(where: InsertPosition, data: string): void;
-	/** Valid for {@link Node|`Node`}. */
-	insertBefore<T extends Node>(node: T, child: Node | null): T;
 	/** Valid for {@link HTMLTableRowElement|`HTMLTableRowElement`}. */
 	insertCell(index?: number): HTMLTableCellElement;
 	/** Valid for {@link HTMLTableElement|`HTMLTableElement`} and {@link HTMLTableSectionElement|`HTMLTableSectionElement`}. */
 	insertRow(index?: number): HTMLTableRowElement;
-	/** Valid for {@link Node|`Node`}. */
-	isDefaultNamespace(namespace: string | null): boolean;
-	/** Valid for {@link Node|`Node`}. */
-	isEqualNode(otherNode: Node | null): boolean;
 	/** Valid for {@link SVGGeometryElement|`SVGGeometryElement`}. */
 	isPointInFill(point?: DOMPointInit): boolean;
 	/** Valid for {@link SVGGeometryElement|`SVGGeometryElement`}. */
 	isPointInStroke(point?: DOMPointInit): boolean;
-	/** Valid for {@link Node|`Node`}. */
-	isSameNode(otherNode: Node | null): boolean;
 	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
 	item(index: number): HTMLOptionElement | null;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	load(): void;
-	/** Valid for {@link Node|`Node`}. */
-	lookupNamespaceURI(prefix: string | null): string | null;
-	/** Valid for {@link Node|`Node`}. */
-	lookupPrefix(namespace: string | null): string | null;
-	/** Valid for {@link Element|`Element`}. */
-	matches(selectors: string): boolean;
 	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
 	namedItem(name: string): HTMLOptionElement | null;
-	/** Valid for {@link Node|`Node`}. */
-	normalize(): void;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	pause(): void;
 	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
 	pauseAnimations(): void;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	play(): Promise<void>;
-	/** Valid for {@link ParentNode|`ParentNode`}. */
-	prepend(...nodes: (Node | string)[]): void;
-	/** Valid for {@link ParentNode|`ParentNode`}. */
-	querySelector<K extends keyof HTMLElementTagNameMap>(selectors: K): HTMLElementTagNameMap[K] | null;
-	querySelector<K extends keyof SVGElementTagNameMap>(selectors: K): SVGElementTagNameMap[K] | null;
-	querySelector<K extends keyof MathMLElementTagNameMap>(selectors: K): MathMLElementTagNameMap[K] | null;
-	querySelector<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): HTMLElementDeprecatedTagNameMap[K] | null;
-	querySelector<E extends Element = Element>(selectors: string): E | null;
-	/** Valid for {@link ParentNode|`ParentNode`}. */
-	querySelectorAll<K extends keyof HTMLElementTagNameMap>(selectors: K): NodeListOf<HTMLElementTagNameMap[K]>;
-	querySelectorAll<K extends keyof SVGElementTagNameMap>(selectors: K): NodeListOf<SVGElementTagNameMap[K]>;
-	querySelectorAll<K extends keyof MathMLElementTagNameMap>(selectors: K): NodeListOf<MathMLElementTagNameMap[K]>;
-	querySelectorAll<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): NodeListOf<HTMLElementDeprecatedTagNameMap[K]>;
-	querySelectorAll<E extends Element = Element>(selectors: string): NodeListOf<E>;
-	/** Valid for {@link Element|`Element`}. */
-	releasePointerCapture(pointerId: number): void;
-	/** Valid for {@link ChildNode|`ChildNode`} and {@link HTMLSelectElement|`HTMLSelectElement`}. */
+	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
 	remove(): void;
+	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
 	remove(index: number): void;
-	/** Valid for {@link Element|`Element`}. */
-	removeAttribute(qualifiedName: string): void;
-	/** Valid for {@link Element|`Element`}. */
-	removeAttributeNS(namespace: string | null, localName: string): void;
-	/** Valid for {@link Element|`Element`}. */
-	removeAttributeNode(attr: Attr): Attr;
-	/** Valid for {@link Node|`Node`}. */
-	removeChild<T extends Node>(child: T): T;
-	/** Valid for {@link Node|`Node`}. */
-	replaceChild<T extends Node>(node: Node, child: T): T;
-	/** Valid for {@link ParentNode|`ParentNode`}. */
-	replaceChildren(...nodes: (Node | string)[]): void;
-	/** Valid for {@link ChildNode|`ChildNode`}. */
-	replaceWith(...nodes: (Node | string)[]): void;
 	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLFormElement|`HTMLFormElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	reportValidity(): boolean;
-	/** Valid for {@link Element|`Element`}. */
-	requestFullscreen(options?: FullscreenOptions): Promise<void>;
 	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
 	requestPictureInPicture(): Promise<PictureInPictureWindow>;
-	/** Valid for {@link Element|`Element`}. */
-	requestPointerLock(options?: PointerLockOptions): Promise<void>;
 	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
 	requestSubmit(submitter?: HTMLElement | null): void;
 	/** Valid for {@link HTMLVideoElement|`HTMLVideoElement`}. */
 	requestVideoFrameCallback(callback: VideoFrameRequestCallback): number;
 	/** Valid for {@link HTMLFormElement|`HTMLFormElement`}. */
 	reset(): void;
-	/** Valid for {@link Element|`Element`}. */
-	scroll(options?: ScrollToOptions): void;
-	scroll(x: number, y: number): void;
-	/** Valid for {@link Element|`Element`}. */
-	scrollBy(options?: ScrollToOptions): void;
-	scrollBy(x: number, y: number): void;
-	/** Valid for {@link Element|`Element`}. */
-	scrollIntoView(arg?: boolean | ScrollIntoViewOptions): void;
-	/** Valid for {@link Element|`Element`}. */
-	scrollTo(options?: ScrollToOptions): void;
-	scrollTo(x: number, y: number): void;
 	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	select(): void;
 	/** @deprecated Valid for {@link SVGTextContentElement|`SVGTextContentElement`}. */
 	selectSubString(charnum: number, nchars: number): void;
-	/** Valid for {@link Element|`Element`}. */
-	setAttribute(qualifiedName: string, value: string): void;
-	/** Valid for {@link Element|`Element`}. */
-	setAttributeNS(namespace: string | null, qualifiedName: string, value: string): void;
-	/** Valid for {@link Element|`Element`}. */
-	setAttributeNode(attr: Attr): Attr | null;
-	/** Valid for {@link Element|`Element`}. */
-	setAttributeNodeNS(attr: Attr): Attr | null;
 	/** Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
 	setCurrentTime(seconds: number): void;
 	/** Valid for {@link HTMLButtonElement|`HTMLButtonElement`}, {@link HTMLFieldSetElement|`HTMLFieldSetElement`}, {@link HTMLInputElement|`HTMLInputElement`}, {@link HTMLObjectElement|`HTMLObjectElement`}, {@link HTMLOutputElement|`HTMLOutputElement`}, {@link HTMLSelectElement|`HTMLSelectElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	setCustomValidity(error: string): void;
-	/** Valid for {@link Element|`Element`}. */
-	setHTMLUnsafe(html: string): void;
 	/** Valid for {@link HTMLMediaElement|`HTMLMediaElement`}. */
 	setMediaKeys(mediaKeys: MediaKeys | null): Promise<void>;
 	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
 	setOrientToAngle(angle: SVGAngle): void;
 	/** Valid for {@link SVGMarkerElement|`SVGMarkerElement`}. */
 	setOrientToAuto(): void;
-	/** Valid for {@link Element|`Element`}. */
-	setPointerCapture(pointerId: number): void;
 	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	setRangeText(replacement: string): void;
+	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	setRangeText(replacement: string, start: number, end: number, selectionMode?: SelectionMode): void;
 	/** Valid for {@link HTMLInputElement|`HTMLInputElement`} and {@link HTMLTextAreaElement|`HTMLTextAreaElement`}. */
 	setSelectionRange(start: number | null, end: number | null, direction?: "forward" | "backward" | "none"): void;
@@ -2518,8 +2415,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	toDataURL(type?: string, quality?: any): string;
 	/** Valid for {@link HTMLHyperlinkElementUtils|`HTMLHyperlinkElementUtils`}. */
 	toString(): string;
-	/** Valid for {@link Element|`Element`}. */
-	toggleAttribute(qualifiedName: string, force?: boolean): boolean;
 	/** Valid for {@link HTMLElement|`HTMLElement`}. */
 	togglePopover(force?: boolean): boolean;
 	/** Valid for {@link HTMLCanvasElement|`HTMLCanvasElement`}. */
@@ -2530,8 +2425,6 @@ export interface WinzigGenericElement extends GlobalEventHandlers {
 	unsuspendRedraw(suspendHandleID: number): void;
 	/** @deprecated Valid for {@link SVGSVGElement|`SVGSVGElement`}. */
 	unsuspendRedrawAll(): void;
-	/** @deprecated Valid for {@link Element|`Element`}. */
-	webkitMatchesSelector(selectors: string): boolean;
 	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
 	[name: number]: HTMLOptionElement | HTMLOptGroupElement;
 	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */

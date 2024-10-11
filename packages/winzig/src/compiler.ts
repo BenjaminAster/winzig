@@ -21,7 +21,7 @@ const createUniqueIdGenerator = () => {
 };
 
 const getUniqueCSSId = createUniqueIdGenerator();
-const getUniqueFunctionId = createUniqueIdGenerator();
+const getUniqueElementScopeId = createUniqueIdGenerator();
 
 const reactiveIdentifierRegExp = /^\w+\$\d?$/;
 const cssRegExp = /^css\d?$/;
@@ -39,7 +39,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 	let dependencyStack: (Set<string> | null)[] = [];
 	let elementScopesIdStack: { id: number; elementCount: number; }[] = [
 		{
-			id: getUniqueFunctionId(),
+			id: getUniqueElementScopeId(),
 			elementCount: 0,
 		},
 	];
@@ -169,6 +169,25 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 		} satisfies ESTree.CallExpression;
 	};
 
+	const trackDependenciesAndPotentiallyWrapIntoAddListenersExpression = (expression: ESTree.Expression) => {
+		dependencyStack.push(new Set());
+		if (tempExpression = visitExpression(expression)) expression = tempExpression;
+		if (isReactivePrimitive(expression) || dependencyStack.at(-1).size) {
+			expression = createAddListenersExpression(
+				{
+					type: "ArrowFunctionExpression",
+					expression: true,
+					params: [] as any[],
+					body: expression,
+				} satisfies ESTree.ArrowFunctionExpression,
+				true,
+				dependencyStack.at(-1),
+			);
+		}
+		dependencyStack.pop();
+		return expression;
+	};
+
 	const createDatasetAssignmentExpression = (elementName: string, property: string, value: string) => {
 		return {
 			type: "AssignmentExpression",
@@ -233,7 +252,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 	const visitFunction = (node: ESTree.ArrowFunctionExpression | ESTree.FunctionExpression | ESTree.FunctionDeclaration) => {
 		dependencyStack.push(null);
 		elementScopesIdStack.push({
-			id: getUniqueFunctionId(),
+			id: 0,
 			elementCount: 0,
 		});
 		let modifiedNode: ESTree.BlockStatement | undefined;
@@ -375,7 +394,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 			// #endregion
 			// #region LogicalExpression
 			case "BinaryExpression": case "LogicalExpression": {
-				if (tempExpression = visitExpression(node.left)) node.left = tempExpression;
+				if (tempExpression = visitExpression(node.left as ESTree.Expression)) node.left = tempExpression;
 				if (tempExpression = visitExpression(node.right)) node.right = tempExpression;
 				break;
 			}
@@ -407,12 +426,14 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 
 					if (isHead) {
 						elementScopesIdStack.push({
-							id: getUniqueFunctionId(),
+							id: getUniqueElementScopeId(),
 							elementCount: 0,
 						});
 					}
 
-					const tempElementVarName = `__winzig__tempElement_${elementScopesIdStack.at(-1).id}_${++elementScopesIdStack.at(-1).elementCount}`;
+					const scopeId = (elementScopesIdStack.at(-1).id ||= getUniqueElementScopeId());
+					const elementId = ++elementScopesIdStack.at(-1).elementCount;
+					const tempElementVarName = `__winzig__tempElement_${scopeId}_${elementId}`;
 
 					let tempElementVarInit: ESTree.Expression;
 
@@ -420,155 +441,248 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 						if (paramsArg.type === "ObjectExpression") {
 							for (const property of paramsArg.properties) {
 								if (property.type === "Property") {
-									if (property.key.type === "Literal" && (property.key.value as string).startsWith("on:")) {
-										if (tempExpression = visitExpression(property.value)) property.value = tempExpression;
-										const [eventName, ...modifiers] = (property.key.value as string).slice(3).split("_");
-										elementModificationExpressions.push(
-											{
-												type: "CallExpression",
-												optional: false,
-												callee: {
-													type: "MemberExpression",
-													computed: false,
+									if (property.key.type === "Literal") {
+										if ((property.key.value as string).startsWith("on:")) {
+											if (tempExpression = visitExpression(property.value)) property.value = tempExpression;
+											const [eventName, ...modifiers] = (property.key.value as string).slice(3).split("_");
+											elementModificationExpressions.push(
+												{
+													type: "CallExpression",
 													optional: false,
-													object: {
-														type: "Identifier",
-														name: tempElementVarName,
-													} satisfies ESTree.Identifier,
-													property: {
-														type: "Identifier",
-														name: "addEventListener",
-													} satisfies ESTree.Identifier,
-												} satisfies ESTree.MemberExpression,
-												arguments: [
-													{
-														type: "Literal",
-														value: eventName,
-													} satisfies ESTree.SimpleLiteral,
-													modifiers.includes("preventDefault")
-														? {
-															type: "FunctionExpression",
-															loc: property.value.loc,
-															params: [
-																{
-																	type: "Identifier",
-																	name: "__winzig__event",
-																} satisfies ESTree.Identifier
-															],
-															body: {
-																type: "BlockStatement",
-																body: [
+													callee: {
+														type: "MemberExpression",
+														computed: false,
+														optional: false,
+														object: {
+															type: "Identifier",
+															name: tempElementVarName,
+														} satisfies ESTree.Identifier,
+														property: {
+															type: "Identifier",
+															name: "addEventListener",
+														} satisfies ESTree.Identifier,
+													} satisfies ESTree.MemberExpression,
+													arguments: [
+														{
+															type: "Literal",
+															value: eventName,
+														} satisfies ESTree.SimpleLiteral,
+														modifiers.includes("preventDefault")
+															? {
+																type: "FunctionExpression",
+																loc: property.value.loc,
+																params: [
 																	{
-																		type: "ExpressionStatement",
-																		expression: {
-																			type: "CallExpression",
-																			arguments: [],
-																			optional: false,
-																			callee: {
-																				type: "MemberExpression",
-																				computed: false,
-																				object: {
-																					// What, code *shouldn't* be indented 21 levels deep, you say??
-																					type: "Identifier",
-																					name: "__winzig__event",
-																				} satisfies ESTree.Identifier,
-																				property: {
-																					type: "Identifier",
-																					name: "preventDefault",
-																				} satisfies ESTree.Identifier,
-																				optional: false,
-																			} satisfies ESTree.MemberExpression,
-																		} satisfies ESTree.CallExpression,
-																	} satisfies ESTree.ExpressionStatement,
-																	{
-																		type: "ExpressionStatement",
-																		expression: {
-																			type: "CallExpression",
-																			callee: {
-																				type: "MemberExpression",
-																				computed: false,
-																				optional: false,
-																				object: property.value as ESTree.Expression,
-																				property: {
-																					type: "Identifier",
-																					name: "call",
-																				} satisfies ESTree.Identifier,
-																			} satisfies ESTree.MemberExpression,
-																			arguments: [
-																				{
-																					type: "ThisExpression",
-																				} satisfies ESTree.ThisExpression,
-																				{
-																					type: "Identifier",
-																					name: "__winzig__event",
-																				} satisfies ESTree.Identifier,
-																			],
-																			optional: false,
-																		} satisfies ESTree.CallExpression,
-																	} satisfies ESTree.ExpressionStatement,
+																		type: "Identifier",
+																		name: "__winzig__event",
+																	} satisfies ESTree.Identifier
 																],
-															} satisfies ESTree.BlockStatement,
-														} satisfies ESTree.FunctionExpression
-														: property.value as ESTree.Expression,
-												],
-											} satisfies ESTree.CallExpression,
-										);
-									} else if (property.key.type === "Identifier") {
-										const couldBeReactive = isBuiltinElement || isReactivePrimitive(property.key as ESTree.Expression);
-										let value = property.value as ESTree.Expression;
-										let isReactive = false;
-										if (couldBeReactive) {
-											dependencyStack.push(new Set());
-											if (tempExpression = visitExpression(value, !isBuiltinElement)) value = tempExpression;
-											if (isBuiltinElement) {
-												if (isReactivePrimitive(value) || dependencyStack.at(-1).size) {
-													isReactive = true;
-												}
-											} else if (dependencyStack.at(-1).size) {
-												value = transformToLiveExpression(value, [...dependencyStack.at(-1)]);
+																body: {
+																	type: "BlockStatement",
+																	body: [
+																		{
+																			type: "ExpressionStatement",
+																			expression: {
+																				type: "CallExpression",
+																				arguments: [],
+																				optional: false,
+																				callee: {
+																					type: "MemberExpression",
+																					computed: false,
+																					object: {
+																						// What, code *shouldn't* be indented 21 levels deep, you say??
+																						type: "Identifier",
+																						name: "__winzig__event",
+																					} satisfies ESTree.Identifier,
+																					property: {
+																						type: "Identifier",
+																						name: "preventDefault",
+																					} satisfies ESTree.Identifier,
+																					optional: false,
+																				} satisfies ESTree.MemberExpression,
+																			} satisfies ESTree.CallExpression,
+																		} satisfies ESTree.ExpressionStatement,
+																		{
+																			type: "ExpressionStatement",
+																			expression: {
+																				type: "CallExpression",
+																				callee: {
+																					type: "MemberExpression",
+																					computed: false,
+																					optional: false,
+																					object: property.value as ESTree.Expression,
+																					property: {
+																						type: "Identifier",
+																						name: "call",
+																					} satisfies ESTree.Identifier,
+																				} satisfies ESTree.MemberExpression,
+																				arguments: [
+																					{
+																						type: "ThisExpression",
+																					} satisfies ESTree.ThisExpression,
+																					{
+																						type: "Identifier",
+																						name: "__winzig__event",
+																					} satisfies ESTree.Identifier,
+																				],
+																				optional: false,
+																			} satisfies ESTree.CallExpression,
+																		} satisfies ESTree.ExpressionStatement,
+																	],
+																} satisfies ESTree.BlockStatement,
+															} satisfies ESTree.FunctionExpression
+															: property.value as ESTree.Expression,
+													],
+												} satisfies ESTree.CallExpression,
+											);
+										} else if ((property.key.value as string).startsWith("data:")) {
+											elementModificationExpressions.push(
+												trackDependenciesAndPotentiallyWrapIntoAddListenersExpression(
+													{
+														type: "AssignmentExpression",
+														operator: "=",
+														left: {
+															type: "MemberExpression",
+															computed: false,
+															optional: false,
+															object: {
+																type: "MemberExpression",
+																computed: false,
+																optional: false,
+																object: {
+																	type: "Identifier",
+																	name: tempElementVarName,
+																} satisfies ESTree.Identifier,
+																property: {
+																	type: "Identifier",
+																	name: "dataset",
+																} satisfies ESTree.Identifier,
+															} satisfies ESTree.MemberExpression,
+															property: {
+																type: "Identifier",
+																name: (property.key.value as string).slice(5),
+															} satisfies ESTree.Identifier,
+														} satisfies ESTree.MemberExpression,
+														right: property.value as ESTree.Expression,
+													} satisfies ESTree.AssignmentExpression
+												)
+											);
+										} else if ((property.key.value as string).startsWith("attr:")) {
+											elementModificationExpressions.push(
+												trackDependenciesAndPotentiallyWrapIntoAddListenersExpression(
+													{
+														type: "CallExpression",
+														optional: false,
+														callee: {
+															type: "Identifier",
+															name: "__winzig__setOrRemoveAttribute",
+														} satisfies ESTree.Identifier,
+														arguments: [
+															{
+																type: "Identifier",
+																name: tempElementVarName,
+															} satisfies ESTree.Identifier,
+															{
+																type: "Literal",
+																value: (property.key.value as string).slice(5),
+															} satisfies ESTree.SimpleLiteral,
+															property.value as ESTree.Expression,
+														],
+													} satisfies ESTree.CallExpression,
+												)
+											);
+										} else if ((property.key.value as string).startsWith("class:")) {
+											elementModificationExpressions.push(
+												trackDependenciesAndPotentiallyWrapIntoAddListenersExpression(
+													{
+														type: "CallExpression",
+														optional: false,
+														callee: {
+															type: "MemberExpression",
+															computed: false,
+															optional: false,
+															object: {
+																type: "MemberExpression",
+																computed: false,
+																optional: false,
+																object: {
+																	type: "Identifier",
+																	name: tempElementVarName,
+																} satisfies ESTree.Identifier,
+																property: {
+																	type: "Identifier",
+																	name: "classList",
+																} satisfies ESTree.Identifier,
+															} satisfies ESTree.MemberExpression,
+															property: {
+																type: "Identifier",
+																name: "toggle",
+															} satisfies ESTree.Identifier,
+														} satisfies ESTree.MemberExpression,
+														arguments: [
+															{
+																type: "Literal",
+																value: (property.key.value as string).slice(6),
+															} satisfies ESTree.SimpleLiteral,
+															property.value as ESTree.Expression,
+														],
+													} satisfies ESTree.CallExpression,
+												)
+											);
+										} else if ((property.key.value as string).startsWith("bind:")) {
+											if (property.key.value === "bind:this") {
+												elementModificationExpressions.push(
+													{
+														type: "AssignmentExpression",
+														operator: "=",
+														left: property.value as ESTree.Pattern | ESTree.MemberExpression,
+														right: {
+															type: "Identifier",
+															name: tempElementVarName,
+														} satisfies ESTree.Identifier,
+													} satisfies ESTree.AssignmentExpression
+												);
 											}
 										} else {
-											if (tempExpression = visitExpression(value)) value = tempExpression;
+											throw new Error(`"${(property.key as ESTree.Literal).value}" is not a valid JSX attribute.`);
 										}
+									} else if (property.key.type === "Identifier") {
+
 										if (isBuiltinElement) {
-											const assignment = {
-												type: "AssignmentExpression",
-												operator: "=",
-												left: {
-													type: "MemberExpression",
-													computed: false,
-													optional: false,
-													object: {
-														type: "Identifier",
-														name: tempElementVarName,
-													} satisfies ESTree.Identifier,
-													property: property.key
-												} satisfies ESTree.MemberExpression,
-												right: value,
-											} satisfies ESTree.AssignmentExpression;
 											elementModificationExpressions.push(
-												isReactive
-													? createAddListenersExpression(
-														{
-															type: "ArrowFunctionExpression",
-															expression: true,
-															params: [] as any[],
-															body: assignment,
-														} satisfies ESTree.ArrowFunctionExpression,
-														true,
-														dependencyStack.at(-1),
-													)
-													: assignment
+												trackDependenciesAndPotentiallyWrapIntoAddListenersExpression({
+													type: "AssignmentExpression",
+													operator: "=",
+													left: {
+														type: "MemberExpression",
+														computed: false,
+														optional: false,
+														object: {
+															type: "Identifier",
+															name: tempElementVarName,
+														} satisfies ESTree.Identifier,
+														property: property.key
+													} satisfies ESTree.MemberExpression,
+													right: property.value as ESTree.Expression,
+												} satisfies ESTree.AssignmentExpression)
 											);
 										} else {
+											const isReactive = isReactivePrimitive(property.key as ESTree.Expression);
+											let value = property.value as ESTree.Expression;
+											if (isReactive) {
+												dependencyStack.push(new Set());
+												if (tempExpression = visitExpression(value, true)) value = tempExpression;
+												if (dependencyStack.at(-1).size) {
+													value = transformToLiveExpression(value, [...dependencyStack.at(-1)]);
+												}
+											} else if (tempExpression = visitExpression(value)) value = tempExpression;
 											property.value = value;
 											componentProps.push(property);
+
+											if (isReactive) {
+												dependencyStack.pop();
+											}
 										}
-										if (couldBeReactive) {
-											dependencyStack.pop();
-										}
-									} else {
-										throw new Error(`JSX property is neither an identifier nor an "on:..." literal.`);
 									}
 								}
 							}
@@ -1138,7 +1252,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 				if (node.source.value === "$appfiles/winzig-runtime.js") {
 					for (let i = node.specifiers.length - 1; i >= 0; --i) {
 						let specifier = node.specifiers[i];
-						if (specifier.type === "ImportSpecifier" && specifier.imported.name === "css") {
+						if (specifier.type === "ImportSpecifier" && (specifier.imported as ESTree.Identifier).name === "css") {
 							node.specifiers.splice(i, 1);
 						}
 					}
@@ -1388,7 +1502,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 
 export const init = async (options: { noCSSScopeRules: boolean, minify: boolean, debug: boolean; }) => {
 	getUniqueCSSId.reset();
-	getUniqueFunctionId.reset();
+	getUniqueElementScopeId.reset();
 	noCSSScopeRules = options.noCSSScopeRules;
 	minify = options.minify;
 	debug = options.debug;

@@ -561,6 +561,7 @@ The possible options are:
 	if (needsSomePolyfillOrWhatever()) 
 		await import(import.meta.resolve("$appfiles/some-polyfill-or-whatever.js"));
 	```
+- `noJavaScript`: Disable emitting any JavaScript, effectively making winzig a static HTML+CSS preprocessor.
 
 ## CLI Options
 - `-w`, `--watch`: Watch for file changes in the `src` folder and rebuild the project.

@@ -14,6 +14,7 @@ import * as HappyDOM from "@benjaminaster/bundled-happy-dom";
 
 import "fake-indexeddb/auto";
 import addWinzigHTML from "./add-winzig-html.ts";
+type FakeDocument = import("./minimal-fake-dom.ts").Document;
 
 const fakeWindow = new HappyDOM.Window({
 	settings: {
@@ -66,6 +67,13 @@ Object.defineProperty(globalThis, "navigator", {
 	writable: true,
 });
 
+// TODO: Implement HTMLLinkElement.prototype.sizes in Happy-DOM
+Object.defineProperty(HTMLLinkElement.prototype, "sizes", {
+	set(value: string) {
+		this.setAttribute("sizes", value);
+	},
+});
+
 parentPort.on("message", async (data) => {
 	if (data.type === "run") {
 		const originalFetch = globalThis.fetch;
@@ -109,7 +117,7 @@ parentPort.on("message", async (data) => {
 		await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./index.js")).href);
 
 		queueMicrotask(() => {
-			addWinzigHTML({ document, Text }, {
+			addWinzigHTML({ document: document as any as FakeDocument, Text }, {
 				...data,
 				pretty: workerData.pretty,
 			});

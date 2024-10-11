@@ -24,8 +24,6 @@ const terserMinify = Terser.minify as (
 		& { parse?: (Terser.ParseOptions & { spidermonkey?: boolean; }), ecma?: number; }),
 ) => Promise<Terser.MinifyOutput>;
 
-// import * as ESRap from "esrap";
-
 import type { EncodedSourceMap } from "@jridgewell/gen-mapping";
 
 import { compileAST, init as initCompiler } from "./compiler.ts";
@@ -37,7 +35,7 @@ type Writeable<T> = { -readonly [P in keyof T]: Writeable<T[P]> };
 let refreshPage: () => void;
 let webSocketPort: number;
 
-let FakeDOM: typeof import("./minimal-fake-dom.ts");
+let FakeDOM: typeof import("../runtime/minimal-fake-dom.ts");
 let addWinzigHTML: typeof import("../runtime/add-winzig-html.ts").default;
 
 export const init = async ({
@@ -57,7 +55,7 @@ export const init = async ({
 	const startupTime = performance.now();
 
 	if (!prerender) {
-		FakeDOM ??= await import("./minimal-fake-dom.ts");
+		FakeDOM ??= await import("../runtime/minimal-fake-dom.ts");
 		addWinzigHTML ??= (await import("../runtime/add-winzig-html.ts")).default;
 	}
 
@@ -159,6 +157,7 @@ export const init = async ({
 				`\ts as __winzig__createSVGElement,`,
 				`\tm as __winzig__createMathMLElement,`,
 				`\tt as __winzig__createLiveTextNode,`,
+				`\ta as __winzig__setOrRemoveAttribute,`,
 				`} from "$appfiles/winzig-runtime.js";`,
 			].join("\n"),
 		},

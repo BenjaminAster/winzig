@@ -74,6 +74,9 @@ Object.defineProperty(HTMLLinkElement.prototype, "sizes", {
 	},
 });
 
+// @ts-ignore
+process.isServer = true;
+
 parentPort.on("message", async (data) => {
 	if (data.type === "run") {
 		const originalFetch = globalThis.fetch;
@@ -81,37 +84,12 @@ parentPort.on("message", async (data) => {
 		globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
 			if (typeof input === "string" && input.startsWith("file://")) {
 				const path = Path.resolve(data.absoluteAppfilesFolderPath, Path.relative(data.prerenderFolder, NodeURL.fileURLToPath(input)));
-				const content = await FS.readFile(path, { encoding: "utf-8" });
-				return {
-					async text() {
-						return content;
-					}
-				};
+				const content = await FS.readFile(path);
+				return new Response(content);
 			} else {
 				return await originalFetch(input, init);
 			}
 		}) as any;
-
-		// const { setBuildData } = await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./winzig-runtime.js")).href);
-
-		// setBuildData(data);
-		// await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./index.js")).href);
-
-		// // @ts-ignore
-		// globalThis.__winzig__ = {
-		// 	finish() {
-		// 		setTimeout(() => {
-		// 			addWinzigHTML({ document, Text }, {
-		// 				...data,
-		// 				pretty: workerData.pretty,
-		// 			});
-		// 			parentPort.postMessage({
-		// 				type: "send-html",
-		// 				html: `<!DOCTYPE html>\n${document.documentElement.outerHTML}`,
-		// 			});
-		// 		});
-		// 	},
-		// };
 
 		await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./winzig-runtime.js")).href);
 		await import(NodeURL.pathToFileURL(Path.resolve(data.prerenderFolder, "./index.js")).href);

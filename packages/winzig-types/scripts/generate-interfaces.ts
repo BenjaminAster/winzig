@@ -95,6 +95,25 @@ const mathMLTagNameToAttributesOverridesMap = Object.assign(Object.create(null),
 	mtd: "MathMLMTableCellElement",
 });
 
+const svgAnimatedTypes = new Map(Object.entries({
+	SVGAnimatedAngle: "string | number",
+	SVGAnimatedBoolean: "string | boolean",
+	SVGAnimatedEnumeration: "string",
+	SVGAnimatedInteger: "string | number",
+	SVGAnimatedLength: "string | number",
+	SVGAnimatedLengthList: "string | number",
+	SVGAnimatedNumber: "string | number",
+	SVGAnimatedNumberList: "string | number",
+	SVGAnimatedPreserveAspectRatio: "string | number",
+	SVGAnimatedRect: "string | number",
+	SVGAnimatedString: "string",
+	SVGAnimatedTransformList: "string | number",
+}));
+
+const toSafePropertyName = (name: string) => name.includes("-") ? JSON.stringify(name) : name;
+
+let allSVGAnimatedProperties = new Set<string>();
+
 const htmlTagNames: [string, string][] = [];
 const svgTagNames: [string, string][] = [];
 const mathMLTagNames: [string, string][] = [];
@@ -150,9 +169,17 @@ for (const match of domLib.matchAll(
 			if (match = declarationLine.match(/^(?<isReadonly>readonly )?(?<propertyName>\w+)\??\: (?<definition>.+)$/)) {
 				let { propertyName, definition, isReadonly } = match.groups;
 				const isDeprecated = member.includes("@deprecated");
-				if (!isReadonly && !isDeprecated && interfaceName !== "GlobalEventHandlers") {
-					// hasConfigurableProperties = true;
-					interfaceInfo.properties.set(propertyName, definition);
+				if (
+					!isDeprecated
+					&& interfaceName !== "GlobalEventHandlers"
+				) {
+					const svgAnimatedType = svgAnimatedTypes.get(definition);
+					if (svgAnimatedType) allSVGAnimatedProperties.add(propertyName);
+					if (!isReadonly || svgAnimatedType) {
+						// if (svgAnimatedTypes.has(definition)) a.has(propertyName) ? a.get(propertyName).add(definition) : a.set(propertyName, new Set([definition]));
+						// hasConfigurableProperties = true;
+						interfaceInfo.properties.set(propertyName, svgAnimatedType || definition);
+					}
 				}
 				if (shouldAddToGenericElementInterface) {
 					let propertyInfo = allPropertiesMap.get(propertyName);
@@ -194,6 +221,10 @@ for (const match of domLib.matchAll(
 		// }
 	}
 }
+
+// const kebabToCamelCase = (input: string) => input.replaceAll(/-./g, (str) => str[1].toUpperCase());
+
+// console.log([...a].sort());
 
 {
 	// More specific string stypes:
@@ -342,6 +373,8 @@ for (const match of domLib.matchAll(
 		info.extends = info.extends.filter(base => base !== "ElementAttributes.WindowEventHandlersAttributes");
 	}
 
+	// https://github.com/w3c/aria/pull/2326
+	interfaces.get("ARIAMixin").properties.set("ariaRelevant", "string" + orNull);
 	interfaces.get("ARIAMixin").properties.set("role", joinStringTypes([
 		// https://w3c.github.io/aria/#role_definitions
 		"alert", "alertdialog", "application", "article", "banner", "blockquote", "button", "caption",
@@ -376,7 +409,7 @@ for (const match of domLib.matchAll(
 	}
 
 	{
-		// Attributs that do not have a corresponding IDL attribute
+		// Attributes that do not have a corresponding IDL attribute
 
 		// Unofficial OpenGraph `.property` attribute:
 		interfaces.get("HTMLMetaElement").properties.set(`"attr:property"`, joinStringTypes([
@@ -386,6 +419,12 @@ for (const match of domLib.matchAll(
 			"og:image:secure_url", "og:image:type", "og:image:width", "og:image:height", "og:image:alt", "og:image:alt",
 			"og:video", "og:image", "og:audio", "og:type", "og:type", "og:type", "og:type", "og:type", "og:type"
 		]) + orStringWithAutocomplete + orNull);
+
+		interfaces.get("HTMLElement").properties.set(`"attr:itemid"`, "string" + orNull);
+		interfaces.get("HTMLElement").properties.set(`"attr:itemprop"`, "string" + orNull);
+		interfaces.get("HTMLElement").properties.set(`"attr:itemref"`, "string" + orNull);
+		interfaces.get("HTMLElement").properties.set(`"attr:itemscope"`, "string" + orNull);
+		interfaces.get("HTMLElement").properties.set(`"attr:itemtype"`, "string" + orNull);
 
 		// https://w3c.github.io/mathml-core/#dfn-displaystyle
 		interfaces.get("MathMLElement").properties.set(`"attr:displaystyle"`, booleanish + orNull);
@@ -484,6 +523,44 @@ for (const match of domLib.matchAll(
 			// https://w3c.github.io/mathml-core/#dfn-linethickness
 			mathMLMFracElementAttributes.properties.set(`"attr:linethickness"`, "string" + orNull);
 		}
+
+		{
+			// https://svgwg.org/svg2-draft/styling.html#PresentationAttributes
+			const svgGlobalPresentationAttributeProperties = [
+				"alignment-baseline", "baseline-shift", "clip-path", "clip-rule", "color",
+				"color-interpolation", "color-interpolation-filters", "cursor", "direction",
+				"display", "dominant-baseline", "fill-opacity", "fill-rule", "filter",
+				"flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust",
+				"font-stretch", "font-style", "font-variant", "font-weight", "glyph-orientation-horizontal",
+				"glyph-orientation-vertical", "image-rendering", "letter-spacing", "lighting-color",
+				"marker-end", "marker-mid", "marker-start", "mask", "mask-type", "opacity", "overflow",
+				"paint-order", "pointer-events", "shape-rendering", "stop-color", "stop-opacity",
+				"stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin",
+				"stroke-miterlimit", "stroke-opacity", "stroke-width", "text-anchor", "text-decoration",
+				"text-overflow", "text-rendering", "transform-origin", "unicode-bidi", "vector-effect",
+				"visibility", "white-space", "word-spacing", "writing-mode",
+				"fill",
+			];
+			const svgElementAttributes = interfaces.get("SVGElement");
+			for (const property of svgGlobalPresentationAttributeProperties) {
+				svgElementAttributes.properties.set(property, "string");
+			}
+
+			interfaces.get("SVGPathElement").properties.set("d", "string");
+			interfaces.get("SVGAnimatedPoints").properties.set("points", "string");
+
+			await FS.writeFile(
+				Path.resolve(import.meta.dirname, "../../winzig/src/generated-data.json"),
+				JSON.stringify({
+					svgAttributes: [...svgGlobalPresentationAttributeProperties, ...allSVGAnimatedProperties, "d", "points"].sort()
+				}, null, "\t"),
+			);
+		}
+	}
+
+	{
+		// special winzig attributes:
+		interfaces.get("Element").properties.set("class", "string");
 	}
 }
 
@@ -537,7 +614,7 @@ const createTagNameMappings = (tagNames: [string, string][]) => (tagNames
 	.map(([name, interfaceName]) => `\t${(
 		(tagNames === svgTagNames && svgElementsCollidingWithHTML.has(name))
 			? `"svg:${name}"`
-			: name.includes("-") ? JSON.stringify(name) : name
+			: toSafePropertyName(name)
 	)}: ElementAttributes.${interfaceName}Attributes;`)
 );
 
@@ -582,7 +659,7 @@ const result = [
 			} {`,
 			...[...info.properties]
 				.sort(([name1], [name2]) => name1 > name2 ? 1 : -1)
-				.map(([property, definition]) => `\t\t${property}?: ${definition};`),
+				.map(([property, definition]) => `\t\t${toSafePropertyName(property)}?: ${definition};`),
 			`\t}`,
 		].join("\n"))
 		.join("\n\n"),
@@ -604,7 +681,7 @@ const result = [
 	createJSDocLine({ validFor: ["HTMLSelectElement"] }),
 	`\t[name: number]: HTMLOptionElement | HTMLOptGroupElement;`,
 	createJSDocLine({ validFor: ["HTMLSelectElement"] }),
-	`\t[Symbol.iterator](): IterableIterator<HTMLOptionElement>;`,
+	`\t[Symbol.iterator](): ArrayIterator<HTMLOptionElement>;`,
 	`}`,
 	``,
 ].join("\n");

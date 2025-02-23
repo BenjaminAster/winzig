@@ -10,7 +10,7 @@ winzigConfig: ({
 	// noCSSScopeRules: true,
 }) satisfies WinzigConfig;
 
-const storagePrefix = location.pathname + ":";
+const storagePrefix = new URL(document.baseURI).pathname + ":";
 
 const Counter = () => {
 	let count$ = 0;
@@ -31,10 +31,11 @@ const Counter = () => {
 	</>;
 };
 
-const ThemeToggle = () => {
+const ThemeToggle = (() => {
+	const themeInStorage = localStorage.getItem(storagePrefix + "theme") ?? "auto";
 	const mediaMatch = window.matchMedia("(prefers-color-scheme: light)");
-	const themeInStorage = localStorage.getItem(storagePrefix + "theme");
 	let lightTheme$ = (themeInStorage === "auto" && mediaMatch.matches) || themeInStorage === "light";
+	mediaMatch.addEventListener("change", ({ matches }) => lightTheme$ = matches);
 	$: {
 		const themeString = lightTheme$ ? "light" : "dark";
 		localStorage.setItem(
@@ -43,9 +44,8 @@ const ThemeToggle = () => {
 		);
 		document.documentElement.dataset.theme = themeString;
 	}
-	mediaMatch.addEventListener("change", ({ matches }) => lightTheme$ = matches);
 
-	return <button on:click={() => lightTheme$ = !lightTheme$}>
+	return () => <button on:click={() => lightTheme$ = !lightTheme$}>
 		Switch to {lightTheme$ ? "dark" : "light"} theme
 		{css`
 			& {
@@ -53,7 +53,7 @@ const ThemeToggle = () => {
 			}
 		`}
 	</button>;
-};
+})();
 
 const title = "Winzig Template";
 
@@ -61,7 +61,7 @@ const title = "Winzig Template";
 <html lang="en">
 	<head>
 		<title>{title}</title>
-		<meta name="description" content={`${title} - An app built with winzig.`} />
+		<meta name="description" content="An app built with winzig." />
 	</head>
 	<body>
 		<main>
@@ -90,7 +90,6 @@ const title = "Winzig Template";
 		<footer>
 			<a href="https://github.com/BenjaminAster/winzig/tree/main/packages/winzig/templates/default">View source code</a>
 			<div className="space" />
-			
 			<ThemeToggle />
 
 			{css`

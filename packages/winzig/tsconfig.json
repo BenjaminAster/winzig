@@ -19,6 +19,7 @@
 		"verbatimModuleSyntax": true,
 		"lib": ["ESNext"],
 		"types": ["@types/babel__core", "@types/node"],
+		"rewriteRelativeImportExtensions": true,
 	},
-	"exclude": ["./runtime/", "./dist/"],
+	"exclude": ["./runtime/", "./dist/", "./templates/"],
 }

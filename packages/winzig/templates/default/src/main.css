@@ -8,6 +8,7 @@
 	background-color: light-dark(white, #111);
 	scrollbar-color: light-dark(#ccc, #333) transparent;
 	scrollbar-width: thin;
+	interpolate-size: allow-keywords;
 	-webkit-text-size-adjust: none;
 	text-size-adjust: none;
 	-webkit-tap-highlight-color: transparent;
@@ -15,11 +16,11 @@
 
 :root {
 	color-scheme: light only;
+}
 
-	@media not print {
-		&[data-theme="dark"] {
-			color-scheme: dark only;
-		}
+@media not print {
+	:root[data-theme="dark"] {
+		color-scheme: dark only;
 	}
 }
 
@@ -39,6 +40,7 @@ a, button, input, textarea {
 	all: unset;
 	cursor: revert;
 	outline: revert;
+	appearance: revert;
 }
 
 a {
@@ -46,5 +48,11 @@ a {
 }
 
 button {
+	display: inline flow-root;
 	cursor: pointer;
+}
+
+textarea {
+	display: block;
+	white-space-collapse: preserve;
 }

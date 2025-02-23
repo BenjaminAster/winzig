@@ -11,6 +11,10 @@ import {
 	tagNameToDocumentPropertyMappings,
 } from "./constants.ts";
 
+// generated-data.json is generated in packages/winzig-types/scripts/generate-interfaces.ts
+import generatedData from "./generated-data.json" with { type: "json" };
+const svgAttributes = new Set(generatedData.svgAttributes);
+
 const createUniqueIdGenerator = () => {
 	let currentId: number = 0;
 	const func = function () {
@@ -294,7 +298,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 	// #region VISIT EXPRESSION
 
 
-	const visitExpression = (node: ESTree.Expression | ESTree.Pattern | ESTree.SpreadElement, leaveLiveVars: boolean = false): ESTree.Expression => {
+	const visitExpression = (node: ESTree.Expression | ESTree.Pattern | ESTree.SpreadElement, keepLiveVars: boolean = false): ESTree.Expression => {
 		if (!node) return;
 		switch (node.type) {
 			// #region ArrayExpression
@@ -436,15 +440,81 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 					const tempElementVarName = `__winzig__tempElement_${scopeId}_${elementId}`;
 
 					let tempElementVarInit: ESTree.Expression;
+					const isSVGElement = isBuiltinElement && svgElements.has((firstArg as ESTree.SimpleLiteral).value as string);
 
 					{
 						if (paramsArg.type === "ObjectExpression") {
 							for (const property of paramsArg.properties) {
 								if (property.type === "Property") {
-									if (property.key.type === "Literal") {
-										if ((property.key.value as string).startsWith("on:")) {
+									const keyIsLiteral = property.key.type === "Literal";
+									if (!keyIsLiteral && property.key.type !== "Identifier") {
+										throw new Error(`Attribute is neither a string literal nor an identifier. ${property}`);
+									}
+									let propertyName = keyIsLiteral
+										? (property.key as ESTree.SimpleLiteral).value as string
+										: (property.key as ESTree.Identifier).name;
+
+									if (
+										(isSVGElement && svgAttributes.has(propertyName))
+										|| (keyIsLiteral && propertyName.startsWith("attr:"))
+									) {
+										if (propertyName.startsWith("attr:")) propertyName = propertyName.slice(5);
+										if (property.value.type === "Literal") {
+											elementModificationExpressions.push(
+												{
+													type: "CallExpression",
+													optional: false,
+													callee: {
+														type: "MemberExpression",
+														computed: false,
+														optional: false,
+														object: {
+															type: "Identifier",
+															name: tempElementVarName,
+														} satisfies ESTree.Identifier,
+														property: {
+															type: "Identifier",
+															name: "setAttribute",
+														} satisfies ESTree.Identifier,
+													} satisfies ESTree.MemberExpression,
+													arguments: [
+														{
+															type: "Literal",
+															value: propertyName,
+														} satisfies ESTree.SimpleLiteral,
+														property.value as ESTree.Expression,
+													],
+												} satisfies ESTree.CallExpression,
+											);
+										} else {
+											elementModificationExpressions.push(
+												trackDependenciesAndPotentiallyWrapIntoAddListenersExpression(
+													{
+														type: "CallExpression",
+														optional: false,
+														callee: {
+															type: "Identifier",
+															name: "__winzig__setOrRemoveAttribute",
+														} satisfies ESTree.Identifier,
+														arguments: [
+															{
+																type: "Identifier",
+																name: tempElementVarName,
+															} satisfies ESTree.Identifier,
+															{
+																type: "Literal",
+																value: propertyName,
+															} satisfies ESTree.SimpleLiteral,
+															property.value as ESTree.Expression,
+														],
+													} satisfies ESTree.CallExpression,
+												)
+											);
+										}
+									} else if (keyIsLiteral) {
+										if (propertyName.startsWith("on:")) {
 											if (tempExpression = visitExpression(property.value)) property.value = tempExpression;
-											const [eventName, ...modifiers] = (property.key.value as string).slice(3).split("_");
+											const [eventName, ...modifiers] = propertyName.slice(3).split("_");
 											elementModificationExpressions.push(
 												{
 													type: "CallExpression",
@@ -535,7 +605,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 													],
 												} satisfies ESTree.CallExpression,
 											);
-										} else if ((property.key.value as string).startsWith("data:")) {
+										} else if (propertyName.startsWith("data:")) {
 											elementModificationExpressions.push(
 												trackDependenciesAndPotentiallyWrapIntoAddListenersExpression(
 													{
@@ -560,38 +630,14 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 															} satisfies ESTree.MemberExpression,
 															property: {
 																type: "Identifier",
-																name: (property.key.value as string).slice(5),
+																name: propertyName.slice(5),
 															} satisfies ESTree.Identifier,
 														} satisfies ESTree.MemberExpression,
 														right: property.value as ESTree.Expression,
 													} satisfies ESTree.AssignmentExpression
 												)
 											);
-										} else if ((property.key.value as string).startsWith("attr:")) {
-											elementModificationExpressions.push(
-												trackDependenciesAndPotentiallyWrapIntoAddListenersExpression(
-													{
-														type: "CallExpression",
-														optional: false,
-														callee: {
-															type: "Identifier",
-															name: "__winzig__setOrRemoveAttribute",
-														} satisfies ESTree.Identifier,
-														arguments: [
-															{
-																type: "Identifier",
-																name: tempElementVarName,
-															} satisfies ESTree.Identifier,
-															{
-																type: "Literal",
-																value: (property.key.value as string).slice(5),
-															} satisfies ESTree.SimpleLiteral,
-															property.value as ESTree.Expression,
-														],
-													} satisfies ESTree.CallExpression,
-												)
-											);
-										} else if ((property.key.value as string).startsWith("class:")) {
+										} else if (propertyName.startsWith("class:")) {
 											elementModificationExpressions.push(
 												trackDependenciesAndPotentiallyWrapIntoAddListenersExpression(
 													{
@@ -622,15 +668,15 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 														arguments: [
 															{
 																type: "Literal",
-																value: (property.key.value as string).slice(6),
+																value: propertyName.slice(6),
 															} satisfies ESTree.SimpleLiteral,
 															property.value as ESTree.Expression,
 														],
 													} satisfies ESTree.CallExpression,
 												)
 											);
-										} else if ((property.key.value as string).startsWith("bind:")) {
-											if (property.key.value === "bind:this") {
+										} else if (propertyName.startsWith("bind:")) {
+											if (propertyName === "bind:this") {
 												elementModificationExpressions.push(
 													{
 														type: "AssignmentExpression",
@@ -644,28 +690,68 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 												);
 											}
 										} else {
-											throw new Error(`"${(property.key as ESTree.Literal).value}" is not a valid JSX attribute.`);
+											throw new Error(`"${propertyName}" is not a valid JSX attribute.`);
 										}
-									} else if (property.key.type === "Identifier") {
-
+									} else {
 										if (isBuiltinElement) {
-											elementModificationExpressions.push(
-												trackDependenciesAndPotentiallyWrapIntoAddListenersExpression({
-													type: "AssignmentExpression",
-													operator: "=",
-													left: {
-														type: "MemberExpression",
-														computed: false,
-														optional: false,
-														object: {
-															type: "Identifier",
-															name: tempElementVarName,
-														} satisfies ESTree.Identifier,
-														property: property.key
-													} satisfies ESTree.MemberExpression,
-													right: property.value as ESTree.Expression,
-												} satisfies ESTree.AssignmentExpression)
-											);
+											if (propertyName === "class") {
+												if (property.value.type === "Literal" && typeof property.value.value === "string") {
+													elementModificationExpressions.push(
+														{
+															type: "CallExpression",
+															optional: false,
+															callee: {
+																type: "MemberExpression",
+																computed: false,
+																optional: false,
+																object: {
+																	type: "MemberExpression",
+																	computed: false,
+																	optional: false,
+																	object: {
+																		type: "Identifier",
+																		name: tempElementVarName,
+																	} satisfies ESTree.Identifier,
+																	property: {
+																		type: "Identifier",
+																		name: "classList",
+																	} satisfies ESTree.Identifier,
+																} satisfies ESTree.MemberExpression,
+																property: {
+																	type: "Identifier",
+																	name: "add",
+																} satisfies ESTree.Identifier,
+															} satisfies ESTree.MemberExpression,
+															arguments: property.value.value.split(" ").map(name => (
+																{
+																	type: "Literal",
+																	value: name,
+																} satisfies ESTree.SimpleLiteral
+															)),
+														} satisfies ESTree.CallExpression,
+													);
+												} else {
+													throw new Error(`class attributes other than string literals are not supported.`);
+												}
+											} else {
+												elementModificationExpressions.push(
+													trackDependenciesAndPotentiallyWrapIntoAddListenersExpression({
+														type: "AssignmentExpression",
+														operator: "=",
+														left: {
+															type: "MemberExpression",
+															computed: false,
+															optional: false,
+															object: {
+																type: "Identifier",
+																name: tempElementVarName,
+															} satisfies ESTree.Identifier,
+															property: property.key
+														} satisfies ESTree.MemberExpression,
+														right: property.value as ESTree.Expression,
+													} satisfies ESTree.AssignmentExpression)
+												);
+											}
 										} else {
 											const isReactive = isReactivePrimitive(property.key as ESTree.Expression);
 											let value = property.value as ESTree.Expression;
@@ -697,6 +783,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 							&& lastArg.tag.type === "Identifier"
 							&& cssRegExp.test(lastArg.tag.name)
 						) {
+							// console.log(lastArg);
 							if (lastArg.quasi.expressions.length > 0) throw new Error("CSS dynamic template string insertions not supported.");
 							const cssId = getUniqueCSSId();
 
@@ -770,7 +857,6 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 					{
 						if (isBuiltinElement) {
 							let elementName = (firstArg as ESTree.SimpleLiteral).value as string;
-							const isSVGElement = svgElements.has(elementName);
 							if (isSVGElement && elementName.startsWith("svg:")) elementName = elementName.slice(4);
 							if (isDocumentElement || isBody || isHead) {
 								tempElementVarInit = {
@@ -937,7 +1023,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 			// #endregion
 			// #region Identifier
 			case "Identifier": {
-				if (!leaveLiveVars && reactiveIdentifierRegExp.test(node.name)) {
+				if (!keepLiveVars && reactiveIdentifierRegExp.test(node.name)) {
 					if (dependencyStack.length) dependencyStack.at(-1)?.add(node.name);
 					return {
 						type: "MemberExpression",
@@ -973,7 +1059,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 				if (node.computed) {
 					if (tempExpression = visitExpression(node.property as ESTree.Expression)) node.property = tempExpression;
 				} else if (
-					!leaveLiveVars
+					!keepLiveVars
 					&& node.property.type === "Identifier"
 					&& reactiveIdentifierRegExp.test(node.property.name)
 				) {
@@ -1225,7 +1311,7 @@ export const compileAST = (ast: ESTree.Program, info: { name: string; }) => {
 			// #endregion
 			// #region ForStatement
 			case "ForStatement": {
-				if (node.init.type === "VariableDeclaration") visitStatementOrProgram(node.init);
+				if (node.init?.type === "VariableDeclaration") visitStatementOrProgram(node.init);
 				else if (tempExpression = visitExpression(node.init)) node.init = tempExpression;
 				if (tempExpression = visitExpression(node.test)) node.test = tempExpression;
 				if (tempExpression = visitExpression(node.update)) node.update = tempExpression;

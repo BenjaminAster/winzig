@@ -25,6 +25,23 @@ const Math = function () {
 	return <math></math>;
 };
 
+// declare var $: <T>(v: T) => T;
+
+// // https://www.youtube.com/watch?v=4TdOEe6liSE&t=1h00m51s
+// {
+// 	const createSignal = (init: number) => {
+// 		let a$ = init;
+// 		const setToDoubled = (v: number) => a$ = v*2;
+// 		using b$ = a$ * 2;
+// 		return [$(b$), setToDoubled] as const;
+// 	};
+
+// 	let [c$, setHalf] = createSignal(3);
+// 	console.log(c$) // 3
+// 	setHalf(5);
+// 	console.log(c$) // 10
+// }
+
 function Fraction({ numerator$, denominator$ }: { numerator$: number, denominator$: number; }) {
 	return <math>
 		<mfrac>

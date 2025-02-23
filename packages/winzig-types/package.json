@@ -1,6 +1,6 @@
 {
 	"name": "winzig-types",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"description": "TypeScript types for the winzig JavaScript framework",
 	"type": "module",
 	"types": "./index.d.ts",

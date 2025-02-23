@@ -34,6 +34,7 @@ declare module "winzig" {
 		interface Object extends WinzigInternals.WinzigUsingDeclarationsPatch { }
 		interface Boolean extends WinzigInternals.WinzigUsingDeclarationsPatch { }
 		interface Symbol extends WinzigInternals.WinzigUsingDeclarationsPatch { }
+		var process: { isServer: boolean } | undefined;
 	}
 }
 

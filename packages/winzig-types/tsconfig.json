@@ -24,5 +24,6 @@
 		"noPropertyAccessFromIndexSignature": true,
 		"allowImportingTsExtensions": true,
 		"allowArbitraryExtensions": true,
+		"rewriteRelativeImportExtensions": true,
 	},
 }

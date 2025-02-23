@@ -20,5 +20,6 @@
 		"lib": ["ESNext"],
 		"types": ["@types/node"],
 		// "types": [],
+		"rewriteRelativeImportExtensions": true,
 	},
 }

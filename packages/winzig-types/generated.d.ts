@@ -258,6 +258,7 @@ export declare namespace ElementAttributes {
 		ariaPosInSet?: string | null;
 		ariaPressed?: string | null;
 		ariaReadOnly?: string | null;
+		ariaRelevant?: string | null;
 		ariaRequired?: string | null;
 		ariaRoleDescription?: string | null;
 		ariaRowCount?: string | null;
@@ -281,6 +282,7 @@ export declare namespace ElementAttributes {
 	}
 
 	interface ElementAttributes extends ElementAttributes.NodeAttributes, ElementAttributes.ARIAMixinAttributes, ElementAttributes.AnimatableAttributes, ElementAttributes.ChildNodeAttributes, ElementAttributes.NonDocumentTypeChildNodeAttributes, ElementAttributes.ParentNodeAttributes, ElementAttributes.SlottableAttributes, WinzigTypes.GlobalSpecialAttributes, WinzigTypes.GlobalEventHandlers, WinzigTypes.ElementEventHandlers {
+		class?: string;
 		className?: string;
 		id?: string;
 		innerHTML?: string;
@@ -385,6 +387,11 @@ export declare namespace ElementAttributes {
 	}
 
 	interface HTMLElementAttributes extends ElementAttributes.ElementAttributes, ElementAttributes.ElementCSSInlineStyleAttributes, ElementAttributes.ElementContentEditableAttributes, ElementAttributes.HTMLOrSVGElementAttributes {
+		"attr:itemid"?: string | null;
+		"attr:itemprop"?: string | null;
+		"attr:itemref"?: string | null;
+		"attr:itemscope"?: string | null;
+		"attr:itemtype"?: string | null;
 		accessKey?: string;
 		autocapitalize?: "off" | "none" | "on" | "sentences" | "words" | "characters";
 		autocorrect?: boolean;
@@ -869,6 +876,7 @@ export declare namespace ElementAttributes {
 
 	interface SVGAElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
 		rel?: string;
+		target?: string;
 	}
 
 	interface SVGAnimateElementAttributes extends ElementAttributes.SVGAnimationElementAttributes {
@@ -881,18 +889,31 @@ export declare namespace ElementAttributes {
 	}
 
 	interface SVGAnimatedPointsAttributes {
+		points?: string;
 	}
 
 	interface SVGAnimationElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGTestsAttributes {
 	}
 
 	interface SVGCircleElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+		cx?: string | number;
+		cy?: string | number;
+		r?: string | number;
 	}
 
 	interface SVGClipPathElementAttributes extends ElementAttributes.SVGElementAttributes {
+		clipPathUnits?: string;
+		transform?: string | number;
 	}
 
 	interface SVGComponentTransferFunctionElementAttributes extends ElementAttributes.SVGElementAttributes {
+		amplitude?: string | number;
+		exponent?: string | number;
+		intercept?: string | number;
+		offset?: string | number;
+		slope?: string | number;
+		tableValues?: string | number;
+		type?: string;
 	}
 
 	interface SVGDefsElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
@@ -902,36 +923,143 @@ export declare namespace ElementAttributes {
 	}
 
 	interface SVGElementAttributes extends ElementAttributes.ElementAttributes, ElementAttributes.ElementCSSInlineStyleAttributes, ElementAttributes.HTMLOrSVGElementAttributes {
+		"alignment-baseline"?: string;
+		"baseline-shift"?: string;
+		"clip-path"?: string;
+		"clip-rule"?: string;
+		color?: string;
+		"color-interpolation"?: string;
+		"color-interpolation-filters"?: string;
+		cursor?: string;
+		direction?: string;
+		display?: string;
+		"dominant-baseline"?: string;
+		fill?: string;
+		"fill-opacity"?: string;
+		"fill-rule"?: string;
+		filter?: string;
+		"flood-color"?: string;
+		"flood-opacity"?: string;
+		"font-family"?: string;
+		"font-size"?: string;
+		"font-size-adjust"?: string;
+		"font-stretch"?: string;
+		"font-style"?: string;
+		"font-variant"?: string;
+		"font-weight"?: string;
+		"glyph-orientation-horizontal"?: string;
+		"glyph-orientation-vertical"?: string;
+		"image-rendering"?: string;
+		"letter-spacing"?: string;
+		"lighting-color"?: string;
+		"marker-end"?: string;
+		"marker-mid"?: string;
+		"marker-start"?: string;
+		mask?: string;
+		"mask-type"?: string;
+		opacity?: string;
+		overflow?: string;
+		"paint-order"?: string;
+		"pointer-events"?: string;
+		"shape-rendering"?: string;
+		"stop-color"?: string;
+		"stop-opacity"?: string;
+		stroke?: string;
+		"stroke-dasharray"?: string;
+		"stroke-dashoffset"?: string;
+		"stroke-linecap"?: string;
+		"stroke-linejoin"?: string;
+		"stroke-miterlimit"?: string;
+		"stroke-opacity"?: string;
+		"stroke-width"?: string;
+		"text-anchor"?: string;
+		"text-decoration"?: string;
+		"text-overflow"?: string;
+		"text-rendering"?: string;
+		"transform-origin"?: string;
+		"unicode-bidi"?: string;
+		"vector-effect"?: string;
+		visibility?: string;
+		"white-space"?: string;
+		"word-spacing"?: string;
+		"writing-mode"?: string;
 	}
 
 	interface SVGEllipseElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+		cx?: string | number;
+		cy?: string | number;
+		rx?: string | number;
+		ry?: string | number;
 	}
 
 	interface SVGFEBlendElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		in1?: string;
+		in2?: string;
+		mode?: string;
 	}
 
 	interface SVGFEColorMatrixElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		in1?: string;
+		type?: string;
+		values?: string | number;
 	}
 
 	interface SVGFEComponentTransferElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		in1?: string;
 	}
 
 	interface SVGFECompositeElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		in1?: string;
+		in2?: string;
+		k1?: string | number;
+		k2?: string | number;
+		k3?: string | number;
+		k4?: string | number;
+		operator?: string;
 	}
 
 	interface SVGFEConvolveMatrixElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		bias?: string | number;
+		divisor?: string | number;
+		edgeMode?: string;
+		in1?: string;
+		kernelMatrix?: string | number;
+		kernelUnitLengthX?: string | number;
+		kernelUnitLengthY?: string | number;
+		orderX?: string | number;
+		orderY?: string | number;
+		preserveAlpha?: string | boolean;
+		targetX?: string | number;
+		targetY?: string | number;
 	}
 
 	interface SVGFEDiffuseLightingElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		diffuseConstant?: string | number;
+		in1?: string;
+		kernelUnitLengthX?: string | number;
+		kernelUnitLengthY?: string | number;
+		surfaceScale?: string | number;
 	}
 
 	interface SVGFEDisplacementMapElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		in1?: string;
+		in2?: string;
+		scale?: string | number;
+		xChannelSelector?: string;
+		yChannelSelector?: string;
 	}
 
 	interface SVGFEDistantLightElementAttributes extends ElementAttributes.SVGElementAttributes {
+		azimuth?: string | number;
+		elevation?: string | number;
 	}
 
 	interface SVGFEDropShadowElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		dx?: string | number;
+		dy?: string | number;
+		in1?: string;
+		stdDeviationX?: string | number;
+		stdDeviationY?: string | number;
 	}
 
 	interface SVGFEFloodElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
@@ -950,88 +1078,180 @@ export declare namespace ElementAttributes {
 	}
 
 	interface SVGFEGaussianBlurElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		in1?: string;
+		stdDeviationX?: string | number;
+		stdDeviationY?: string | number;
 	}
 
 	interface SVGFEImageElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes, ElementAttributes.SVGURIReferenceAttributes {
+		preserveAspectRatio?: string | number;
 	}
 
 	interface SVGFEMergeElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
 	}
 
 	interface SVGFEMergeNodeElementAttributes extends ElementAttributes.SVGElementAttributes {
+		in1?: string;
 	}
 
 	interface SVGFEMorphologyElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		in1?: string;
+		operator?: string;
+		radiusX?: string | number;
+		radiusY?: string | number;
 	}
 
 	interface SVGFEOffsetElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		dx?: string | number;
+		dy?: string | number;
+		in1?: string;
 	}
 
 	interface SVGFEPointLightElementAttributes extends ElementAttributes.SVGElementAttributes {
+		x?: string | number;
+		y?: string | number;
+		z?: string | number;
 	}
 
 	interface SVGFESpecularLightingElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		in1?: string;
+		kernelUnitLengthX?: string | number;
+		kernelUnitLengthY?: string | number;
+		specularConstant?: string | number;
+		specularExponent?: string | number;
+		surfaceScale?: string | number;
 	}
 
 	interface SVGFESpotLightElementAttributes extends ElementAttributes.SVGElementAttributes {
+		limitingConeAngle?: string | number;
+		pointsAtX?: string | number;
+		pointsAtY?: string | number;
+		pointsAtZ?: string | number;
+		specularExponent?: string | number;
+		x?: string | number;
+		y?: string | number;
+		z?: string | number;
 	}
 
 	interface SVGFETileElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		in1?: string;
 	}
 
 	interface SVGFETurbulenceElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFilterPrimitiveStandardAttributesAttributes {
+		baseFrequencyX?: string | number;
+		baseFrequencyY?: string | number;
+		numOctaves?: string | number;
+		seed?: string | number;
+		stitchTiles?: string;
+		type?: string;
 	}
 
 	interface SVGFilterElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+		filterUnits?: string;
+		height?: string | number;
+		primitiveUnits?: string;
+		width?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGFilterPrimitiveStandardAttributesAttributes {
+		height?: string | number;
+		result?: string;
+		width?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGFitToViewBoxAttributes {
+		preserveAspectRatio?: string | number;
+		viewBox?: string | number;
 	}
 
 	interface SVGForeignObjectElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
+		height?: string | number;
+		width?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGGElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
 	}
 
 	interface SVGGeometryElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
+		pathLength?: string | number;
 	}
 
 	interface SVGGradientElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+		gradientTransform?: string | number;
+		gradientUnits?: string;
+		spreadMethod?: string;
 	}
 
 	interface SVGGraphicsElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGTestsAttributes {
+		transform?: string | number;
 	}
 
 	interface SVGImageElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
 		crossOrigin?: string | null;
+		height?: string | number;
+		preserveAspectRatio?: string | number;
+		width?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGLineElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+		x1?: string | number;
+		x2?: string | number;
+		y1?: string | number;
+		y2?: string | number;
 	}
 
 	interface SVGLinearGradientElementAttributes extends ElementAttributes.SVGGradientElementAttributes {
+		x1?: string | number;
+		x2?: string | number;
+		y1?: string | number;
+		y2?: string | number;
 	}
 
 	interface SVGMPathElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
 	}
 
 	interface SVGMarkerElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFitToViewBoxAttributes {
+		markerHeight?: string | number;
+		markerUnits?: string;
+		markerWidth?: string | number;
+		orientAngle?: string | number;
+		orientType?: string;
+		refX?: string | number;
+		refY?: string | number;
 	}
 
 	interface SVGMaskElementAttributes extends ElementAttributes.SVGElementAttributes {
+		height?: string | number;
+		maskContentUnits?: string;
+		maskUnits?: string;
+		width?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGMetadataElementAttributes extends ElementAttributes.SVGElementAttributes {
 	}
 
 	interface SVGPathElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+		d?: string;
 	}
 
 	interface SVGPatternElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFitToViewBoxAttributes, ElementAttributes.SVGURIReferenceAttributes {
+		height?: string | number;
+		patternContentUnits?: string;
+		patternTransform?: string | number;
+		patternUnits?: string;
+		width?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGPolygonElementAttributes extends ElementAttributes.SVGGeometryElementAttributes, ElementAttributes.SVGAnimatedPointsAttributes {
@@ -1041,13 +1261,29 @@ export declare namespace ElementAttributes {
 	}
 
 	interface SVGRadialGradientElementAttributes extends ElementAttributes.SVGGradientElementAttributes {
+		cx?: string | number;
+		cy?: string | number;
+		fr?: string | number;
+		fx?: string | number;
+		fy?: string | number;
+		r?: string | number;
 	}
 
 	interface SVGRectElementAttributes extends ElementAttributes.SVGGeometryElementAttributes {
+		height?: string | number;
+		rx?: string | number;
+		ry?: string | number;
+		width?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGSVGElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes, ElementAttributes.SVGFitToViewBoxAttributes {
 		currentScale?: number;
+		height?: string | number;
+		width?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGScriptElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
@@ -1058,6 +1294,7 @@ export declare namespace ElementAttributes {
 	}
 
 	interface SVGStopElementAttributes extends ElementAttributes.SVGElementAttributes {
+		offset?: string | number;
 	}
 
 	interface SVGStyleElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.LinkStyleAttributes {
@@ -1079,24 +1316,39 @@ export declare namespace ElementAttributes {
 	}
 
 	interface SVGTextContentElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes {
+		lengthAdjust?: string;
+		textLength?: string | number;
 	}
 
 	interface SVGTextElementAttributes extends ElementAttributes.SVGTextPositioningElementAttributes {
 	}
 
 	interface SVGTextPathElementAttributes extends ElementAttributes.SVGTextContentElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+		method?: string;
+		spacing?: string;
+		startOffset?: string | number;
 	}
 
 	interface SVGTextPositioningElementAttributes extends ElementAttributes.SVGTextContentElementAttributes {
+		dx?: string | number;
+		dy?: string | number;
+		rotate?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGTitleElementAttributes extends ElementAttributes.SVGElementAttributes {
 	}
 
 	interface SVGURIReferenceAttributes {
+		href?: string;
 	}
 
 	interface SVGUseElementAttributes extends ElementAttributes.SVGGraphicsElementAttributes, ElementAttributes.SVGURIReferenceAttributes {
+		height?: string | number;
+		width?: string | number;
+		x?: string | number;
+		y?: string | number;
 	}
 
 	interface SVGViewElementAttributes extends ElementAttributes.SVGElementAttributes, ElementAttributes.SVGFitToViewBoxAttributes {
@@ -2428,5 +2680,5 @@ export interface WinzigGenericElement extends Element {
 	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
 	[name: number]: HTMLOptionElement | HTMLOptGroupElement;
 	/** Valid for {@link HTMLSelectElement|`HTMLSelectElement`}. */
-	[Symbol.iterator](): IterableIterator<HTMLOptionElement>;
+	[Symbol.iterator](): ArrayIterator<HTMLOptionElement>;
 }

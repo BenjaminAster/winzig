@@ -84,7 +84,7 @@ export const init = async ({
 				responseBuffer[1] = 126;
 				responseBuffer.writeUInt16BE(messageLength, 2);
 			}
-			messageBuffer.copy(responseBuffer, offset);
+			messageBuffer.copy(responseBuffer as Uint8Array, offset);
 
 			return responseBuffer;
 		};
@@ -136,6 +136,9 @@ export const init = async ({
 		},
 		pure: [],
 		dropLabels: debug ? [] : ["DEBUG"],
+		loader: {
+			".keep": "empty",
+		},
 	};
 
 	const esBuildChunksOptions: ESBuild.BuildOptions = {
@@ -472,9 +475,9 @@ export const init = async ({
 				sourcesContent: true,
 				entryNames: "[name]-[hash]",
 				outdir: absoluteAppfilesFolderPath,
-				loader: {
-					// otf: "copy",
-				},
+				// loader: {
+				// 	// otf: "copy",
+				// },
 				external: ["*.otf", "*.svg"],
 			})).outputFiles;
 			for (let file of cssFiles) {
